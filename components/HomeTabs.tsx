@@ -32,14 +32,7 @@ const HomeTabs = () => {
         <InvestmentCard />
         <InvestmentCard />
       </TabsContent>
-      <TabsContent value="Investments" className="w-full flex flex-col gap-2">
-        <InvestmentChart />
-        <InvestmentCard />
-        <InvestmentCard />
-        <InvestmentCard />
-      </TabsContent>
       <TabsContent value="Assets" className="w-full flex flex-col gap-2">
-        <InvestmentChart />
         <InvestmentCard />
         <InvestmentCard />
         <InvestmentCard />

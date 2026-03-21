@@ -20,6 +20,11 @@ const actions = [
     value: "income",
   },
   {
+    icon: Wallet,
+    label: "Add Assets",
+    value: "assets",
+  },
+  {
     icon: PiggyBank,
     label: "Add Investments",
     value: "savings",
@@ -96,6 +101,7 @@ export default function FloatingMenu() {
               {selectedAction === "expense" && "Add Transaction"}
               {selectedAction === "income" && "Add Income"}
               {selectedAction === "savings" && "Add Investments"}
+              {selectedAction === "assets" && "Add Assets"}
             </DrawerTitle>
           </DrawerHeader>
 
@@ -107,6 +113,11 @@ export default function FloatingMenu() {
             )}
             {selectedAction === "income" && <div>Income Form</div>}
             {selectedAction === "savings" && (
+              <div className="h-screen">
+                <AddInvestment />
+              </div>
+            )}
+            {selectedAction === "assets" && (
               <div className="h-screen">
                 <AddInvestment />
               </div>
