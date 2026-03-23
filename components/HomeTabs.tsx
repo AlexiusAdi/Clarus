@@ -6,8 +6,12 @@ import RecentActivities from "./RecentActivities";
 import InvestmentChart from "./InvestmentChart";
 import InvestmentCard from "./InvestmentCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { TabsData } from "@/app/Types";
 
-const HomeTabs = () => {
+const HomeTabs = ({ tabData }: { tabData: TabsData }) => {
+  const { transactions, expensePerMonth, topSpending, spendingByCategory } =
+    tabData;
+
   return (
     <Tabs defaultValue="overview" className="w-full items-center">
       <TabsList>
@@ -16,22 +20,30 @@ const HomeTabs = () => {
         <TabsTrigger value="Investments">Investments</TabsTrigger>
         <TabsTrigger value="Assets">Assets</TabsTrigger>
       </TabsList>
+
+      {/* ✅ Overview */}
       <TabsContent value="overview" className="w-full">
         <div className="flex flex-col gap-3">
-          <SpendingChart />
-          <SpendingCategories />
-          <RecentActivities isShown={true} />
+          <SpendingChart data={spendingByCategory} />
+          <SpendingCategories data={spendingByCategory} />
+          <RecentActivities data={topSpending} isShown={true} />
         </div>
       </TabsContent>
+
+      {/* ✅ Transactions */}
       <TabsContent value="Transactions" className="w-full">
-        <RecentActivities isShown={false} />
+        <RecentActivities data={transactions} isShown={false} />
       </TabsContent>
+
+      {/* Investments */}
       <TabsContent value="Investments" className="w-full flex flex-col gap-2">
         <InvestmentChart />
         <InvestmentCard />
         <InvestmentCard />
         <InvestmentCard />
       </TabsContent>
+
+      {/* Assets */}
       <TabsContent value="Assets" className="w-full flex flex-col gap-2">
         <InvestmentCard />
         <InvestmentCard />

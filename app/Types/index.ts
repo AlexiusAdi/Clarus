@@ -5,3 +5,49 @@ export type IncomeCardProps = {
   icon?: React.ReactNode;
   isVisible: boolean;
 };
+
+export interface UserNetWorth {
+  totalIncome: number;
+  totalExpense: number;
+  netWorth: number;
+  cashBalance: number;
+  totalInvestments: number;
+}
+
+export type TabsData = {
+  transactions: {
+    id: string;
+    amount: number;
+    type: string;
+    createdAt: Date;
+    category: {
+      name: string;
+    } | null;
+    description: string | null;
+  }[];
+  expensePerMonth: {
+    month: string;
+    total: number;
+  }[];
+  topSpending: {
+    id: string;
+    amount: number;
+    type: string;
+    createdAt: Date;
+    category: {
+      name: string;
+    } | null;
+    description: string | null;
+  }[];
+  spendingByCategory: {
+    category: string;
+    amount: number;
+  }[];
+};
+
+export interface SpendingChartProps {
+  data: {
+    category: string;
+    amount: number;
+  }[];
+}

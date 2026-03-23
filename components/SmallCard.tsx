@@ -1,5 +1,8 @@
+"use client";
+
 import { IncomeCardProps } from "@/app/Types";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Skeleton } from "./ui/skeleton";
 
 export const SmallCard = ({
   header,
@@ -18,9 +21,13 @@ export const SmallCard = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="px-3 font-semibold">
-        <span className={`transition-all duration-300`}>
-          {isVisible ? `Rp ${amount.toLocaleString("id-ID")}` : "*******"}
-        </span>
+        {amount === undefined ? (
+          <Skeleton className="w-20 h-6" />
+        ) : isVisible ? (
+          `${amount.toLocaleString("id-ID")}`
+        ) : (
+          "*******"
+        )}
       </CardContent>
     </Card>
   );

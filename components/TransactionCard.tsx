@@ -1,20 +1,21 @@
-import React from "react";
+import { TopSpendingItem } from "@/constants";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Trash2 } from "lucide-react";
 
-const TransactionCard = () => {
+const TransactionCard = ({ transaction }: { transaction: TopSpendingItem }) => {
   return (
     <div className="flex flex-col gap-2">
-      <span>Mar 10, 2026</span>
       <Card className="p-1 w-full">
         <CardHeader className="p-3">
           <div className="grid grid-cols-2 items-center">
             <div>
-              <CardTitle>Salary</CardTitle>
-              <CardDescription>Received monthly salary</CardDescription>
+              <CardTitle>{transaction.category?.name}</CardTitle>
+              <CardDescription>{transaction.description}</CardDescription>
             </div>
             <div className="flex items-center justify-end gap-1">
-              <span className="text-md font-bold">Rp 5,000,000</span>
+              <span className="text-md font-bold">
+                Rp {transaction.amount.toLocaleString()}
+              </span>
               <Trash2
                 width={16}
                 height={16}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Wallet, PiggyBank, ArrowUpRight } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -10,33 +10,16 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import AddTransaction from "./AddTransaction";
 import AddInvestment from "./AddInvestment";
+import { DEFAULT_ACTIONS } from "@/constants";
+import { Category } from "@/lib/generated/prisma/client";
+import { AddTransaction } from "./AddTransaction";
 
-const actions = [
-  {
-    icon: ArrowUpRight,
-    label: "Add Income",
-    value: "income",
-  },
-  {
-    icon: Wallet,
-    label: "Add Assets",
-    value: "assets",
-  },
-  {
-    icon: PiggyBank,
-    label: "Add Investments",
-    value: "savings",
-  },
-  {
-    icon: Wallet,
-    label: "Add Transaction",
-    value: "expense",
-  },
-];
-
-export default function FloatingMenu() {
+export default function FloatingMenu({
+  categories,
+}: {
+  categories: Category[];
+}) {
   const [fabOpen, setFabOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -47,7 +30,7 @@ export default function FloatingMenu() {
         {/* Menu Items */}
         <AnimatePresence>
           {fabOpen &&
-            actions.map((action, index) => {
+            DEFAULT_ACTIONS.map((action, index) => {
               const Icon = action.icon;
               return (
                 <motion.div
@@ -68,7 +51,7 @@ export default function FloatingMenu() {
                     onClick={() => {
                       setSelectedAction(action.value);
                       setDrawerOpen(true);
-                      setFabOpen(false); // close menu
+                      setFabOpen(false);
                     }}
                   >
                     <Icon className="w-4 h-4" />
@@ -108,7 +91,7 @@ export default function FloatingMenu() {
           <div className="p-4">
             {selectedAction === "expense" && (
               <div className="h-screen">
-                <AddTransaction />
+                <AddTransaction categories={categories} />
               </div>
             )}
             {selectedAction === "income" && <div>Income Form</div>}
