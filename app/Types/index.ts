@@ -19,7 +19,7 @@ export type TabsData = {
     id: string;
     amount: number;
     type: string;
-    createdAt: Date;
+    date: Date;
     category: {
       name: string;
     } | null;
@@ -33,7 +33,7 @@ export type TabsData = {
     id: string;
     amount: number;
     type: string;
-    createdAt: Date;
+    date: Date;
     category: {
       name: string;
     } | null;

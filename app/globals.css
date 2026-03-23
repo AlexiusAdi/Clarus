@@ -133,3 +133,7 @@
     @apply w-full max-w-480;
   }
 }
+
+[vaul-drawer-wrapper] {
+  background-color: var(--background);
+}

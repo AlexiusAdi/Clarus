@@ -4,12 +4,12 @@ import { TransactionType } from "./generated/prisma/browser";
 export async function getTabsData(userId: string) {
   const transactions = await prisma.transaction.findMany({
     where: { userId },
-    orderBy: { createdAt: "desc" },
+    orderBy: { date: "desc" },
     select: {
       id: true,
       amount: true,
       type: true,
-      createdAt: true,
+      date: true,
       category: {
         select: { name: true },
       },
@@ -23,7 +23,7 @@ export async function getTabsData(userId: string) {
   transactions.forEach((txn) => {
     if (txn.type !== TransactionType.EXPENSE) return;
 
-    const date = new Date(txn.createdAt);
+    const date = new Date(txn.date);
 
     // safer key (sortable)
     const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;

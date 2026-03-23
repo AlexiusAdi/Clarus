@@ -8,11 +8,12 @@ type RecentActivitiesProps = {
 };
 
 const RecentActivities = ({ isShown, data }: RecentActivitiesProps) => {
+  console.log(data);
   const groupedByDate = useMemo(() => {
     const groups: { date: string; transactions: typeof data }[] = [];
 
     data.forEach((transaction) => {
-      const dateKey = new Date(transaction.createdAt).toDateString();
+      const dateKey = new Date(transaction.date).toDateString();
       const existing = groups.find((g) => g.date === dateKey);
 
       if (existing) {

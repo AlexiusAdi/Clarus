@@ -34,7 +34,13 @@ const transactionSchema = z.object({
 
 type TransactionForm = z.infer<typeof transactionSchema>;
 
-export const AddTransaction = ({ categories }: { categories: Category[] }) => {
+export const AddTransaction = ({
+  categories,
+  onSuccess,
+}: {
+  categories: Category[];
+  onSuccess: () => void;
+}) => {
   const router = useRouter();
 
   const {
@@ -55,7 +61,7 @@ export const AddTransaction = ({ categories }: { categories: Category[] }) => {
   const selectedCategory = watch("categoryId");
   const date = watch("date");
 
-  const handleTypeChange = (newType: "INCOME" | "EXPENSE") => {
+  const handleTypeChange = (newType: TransactionType) => {
     reset({
       type: newType,
       categoryId: "",
@@ -96,6 +102,7 @@ export const AddTransaction = ({ categories }: { categories: Category[] }) => {
         description: "",
       });
 
+      onSuccess();
       router.refresh();
     } catch (error) {
       toast.error((error as Error).message || "Failed to add transaction");
@@ -112,7 +119,7 @@ export const AddTransaction = ({ categories }: { categories: Category[] }) => {
           onClick={() => handleTypeChange(TransactionType.EXPENSE)}
           className={cn(
             "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
-            type === TransactionType.EXPENSE && "border-red-500 bg-red-100",
+            type === TransactionType.EXPENSE && "border-red-500",
           )}
         >
           <CardHeader className="justify-center font-semibold">
@@ -124,7 +131,7 @@ export const AddTransaction = ({ categories }: { categories: Category[] }) => {
           onClick={() => handleTypeChange(TransactionType.INCOME)}
           className={cn(
             "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
-            type === TransactionType.INCOME && "border-green-500 bg-green-100",
+            type === TransactionType.INCOME && "border-green-500",
           )}
         >
           <CardHeader className="justify-center font-semibold">

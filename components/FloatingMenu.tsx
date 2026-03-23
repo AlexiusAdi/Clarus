@@ -82,26 +82,29 @@ export default function FloatingMenu({
           <DrawerHeader>
             <DrawerTitle>
               {selectedAction === "expense" && "Add Transaction"}
-              {selectedAction === "income" && "Add Income"}
+              {selectedAction === "option" && "Option"}
               {selectedAction === "savings" && "Add Investments"}
               {selectedAction === "assets" && "Add Assets"}
             </DrawerTitle>
           </DrawerHeader>
 
-          <div className="p-4">
+          <div className="overflow-auto p-4">
             {selectedAction === "expense" && (
-              <div className="h-screen">
-                <AddTransaction categories={categories} />
+              <div>
+                <AddTransaction
+                  categories={categories}
+                  onSuccess={() => setDrawerOpen(false)}
+                />
               </div>
             )}
-            {selectedAction === "income" && <div>Income Form</div>}
+            {selectedAction === "option" && <div>Income Form</div>}
             {selectedAction === "savings" && (
-              <div className="h-screen">
+              <div>
                 <AddInvestment />
               </div>
             )}
             {selectedAction === "assets" && (
-              <div className="h-screen">
+              <div>
                 <AddInvestment />
               </div>
             )}

@@ -19,8 +19,8 @@ export const DEFAULT_CATEGORIES = [
 export const DEFAULT_ACTIONS = [
   {
     icon: ArrowUpRight,
-    label: "Add Income",
-    value: "income",
+    label: "Option",
+    value: "option",
   },
   {
     icon: Wallet,
