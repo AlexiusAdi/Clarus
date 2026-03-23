@@ -23,7 +23,6 @@ const TransactionCard = ({ transaction }: { transaction: TopSpendingItem }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
-  console.log(open);
 
   const handleDelete = async () => {
     try {

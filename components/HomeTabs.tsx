@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { TabsData } from "@/app/Types";
 
 const HomeTabs = ({ tabData }: { tabData: TabsData }) => {
-  const { transactions, expensePerMonth, topSpending, spendingByCategory } =
+  const { transactions, currentMonthTotal, topSpending, spendingByCategory } =
     tabData;
 
   return (
@@ -25,7 +25,10 @@ const HomeTabs = ({ tabData }: { tabData: TabsData }) => {
       <TabsContent value="overview" className="w-full">
         <div className="flex flex-col gap-3">
           <SpendingChart data={spendingByCategory} />
-          <SpendingCategories data={spendingByCategory} />
+          <SpendingCategories
+            data={spendingByCategory}
+            totalExpense={currentMonthTotal}
+          />
           <RecentActivities data={topSpending} isShown={true} />
         </div>
       </TabsContent>

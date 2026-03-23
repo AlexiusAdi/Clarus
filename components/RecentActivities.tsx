@@ -8,7 +8,6 @@ type RecentActivitiesProps = {
 };
 
 const RecentActivities = ({ isShown, data }: RecentActivitiesProps) => {
-  console.log(data);
   const groupedByDate = useMemo(() => {
     const groups: { date: string; transactions: typeof data }[] = [];
 

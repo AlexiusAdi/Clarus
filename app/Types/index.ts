@@ -20,23 +20,16 @@ export type TabsData = {
     amount: number;
     type: string;
     date: Date;
-    category: {
-      name: string;
-    } | null;
+    category: { name: string } | null;
     description: string | null;
   }[];
-  expensePerMonth: {
-    month: string;
-    total: number;
-  }[];
+  currentMonthTotal: number; // ← only this added
   topSpending: {
     id: string;
     amount: number;
     type: string;
     date: Date;
-    category: {
-      name: string;
-    } | null;
+    category: { name: string } | null;
     description: string | null;
   }[];
   spendingByCategory: {

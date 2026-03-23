@@ -2,13 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { SpendingChartProps } from "@/app/Types";
 
-const SpendingCategories = ({ data }: SpendingChartProps) => {
-  const maxAmount = Math.max(...data.map((cat) => cat.amount));
-
+const SpendingCategories = ({
+  data,
+  totalExpense,
+}: SpendingChartProps & { totalExpense: number }) => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Top Spending Categories</CardTitle>
+        <CardTitle>Top Spending</CardTitle>
       </CardHeader>
 
       {data.map((category) => (
@@ -24,7 +25,9 @@ const SpendingCategories = ({ data }: SpendingChartProps) => {
             </span>
           </div>
           <Progress
-            value={(category.amount / maxAmount) * 100}
+            value={
+              totalExpense > 0 ? (category.amount / totalExpense) * 100 : 0
+            }
             className="w-full"
           />
         </CardContent>

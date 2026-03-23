@@ -10,6 +10,7 @@ export async function getTabsData(userId: string) {
       amount: true,
       type: true,
       date: true,
+      createdAt: true,
       category: {
         select: { name: true },
       },
@@ -17,29 +18,25 @@ export async function getTabsData(userId: string) {
     },
   });
 
-  // 1️⃣ Expense per month (sorted & stable)
+  const currentMonth = new Date().toISOString().slice(0, 7); // "2026-03"
+
+  // 1️⃣ Expense per month
   const expensePerMonthMap: Record<string, number> = {};
 
   transactions.forEach((txn) => {
     if (txn.type !== TransactionType.EXPENSE) return;
 
     const date = new Date(txn.date);
-
-    // safer key (sortable)
-    const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
     expensePerMonthMap[monthKey] =
       (expensePerMonthMap[monthKey] || 0) + txn.amount;
   });
 
-  const expensePerMonth = Object.entries(expensePerMonthMap)
-    .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
-    .map(([month, total]) => ({
-      month,
-      total,
-    }));
+  // 2️⃣ Current month total expense
+  const currentMonthTotal = expensePerMonthMap[currentMonth] ?? 0;
 
-  // 2️⃣ Top 3 newest spending
+  // 3️⃣ Top spending — latest transactions (both income and expense)
   const topSpending = transactions
     .filter(
       (txn) =>
@@ -48,27 +45,28 @@ export async function getTabsData(userId: string) {
     )
     .slice(0, 3);
 
-  // 3️⃣ Spending by category (for pie chart)
+  // 4️⃣ Spending by category — current month only
   const categoryMap: Record<string, number> = {};
 
   transactions.forEach((txn) => {
     if (txn.type !== TransactionType.EXPENSE) return;
 
-    const categoryName = txn.category?.name ?? "Other";
+    const date = new Date(txn.date);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
+    if (monthKey !== currentMonth) return;
+
+    const categoryName = txn.category?.name ?? "Other";
     categoryMap[categoryName] = (categoryMap[categoryName] || 0) + txn.amount;
   });
 
   const spendingByCategory = Object.entries(categoryMap).map(
-    ([category, amount]) => ({
-      category,
-      amount,
-    }),
+    ([category, amount]) => ({ category, amount }),
   );
 
   return {
     transactions,
-    expensePerMonth,
+    currentMonthTotal,
     topSpending,
     spendingByCategory,
   };
