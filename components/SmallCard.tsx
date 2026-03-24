@@ -2,7 +2,6 @@
 
 import { IncomeCardProps } from "@/app/Types";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Skeleton } from "./ui/skeleton";
 
 export const SmallCard = ({
   header,
@@ -21,8 +20,8 @@ export const SmallCard = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="px-3 font-semibold">
-        {amount === undefined ? (
-          <Skeleton className="w-20 h-6" />
+        {amount === 0 ? (
+          <span className="text-base opacity-50">No transactions</span>
         ) : isVisible ? (
           `${amount.toLocaleString("id-ID")}`
         ) : (

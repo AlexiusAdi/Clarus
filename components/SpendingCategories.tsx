@@ -11,27 +11,32 @@ const SpendingCategories = ({
       <CardHeader>
         <CardTitle>Top Spending</CardTitle>
       </CardHeader>
-
-      {data.map((category) => (
-        <CardContent key={category.category}>
-          <div className="w-full flex justify-between mb-1">
-            <span>{category.category}</span>
-            <span>
-              {new Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                maximumFractionDigits: 0,
-              }).format(category.amount)}
-            </span>
-          </div>
-          <Progress
-            value={
-              totalExpense > 0 ? (category.amount / totalExpense) * 100 : 0
-            }
-            className="w-full"
-          />
+      {data.length === 0 ? (
+        <CardContent className="text-sm text-muted-foreground">
+          <p className="text-center py-10">No spending data available.</p>
         </CardContent>
-      ))}
+      ) : (
+        data.map((category) => (
+          <CardContent key={category.category}>
+            <div className="w-full flex justify-between mb-1">
+              <span>{category.category}</span>
+              <span>
+                {new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  maximumFractionDigits: 0,
+                }).format(category.amount)}
+              </span>
+            </div>
+            <Progress
+              value={
+                totalExpense > 0 ? (category.amount / totalExpense) * 100 : 0
+              }
+              className="w-full"
+            />
+          </CardContent>
+        ))
+      )}
     </Card>
   );
 };

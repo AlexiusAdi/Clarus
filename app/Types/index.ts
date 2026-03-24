@@ -1,3 +1,5 @@
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
+
 export type IncomeCardProps = {
   header: string;
   amount: number;
@@ -43,4 +45,11 @@ export interface SpendingChartProps {
     category: string;
     amount: number;
   }[];
+}
+
+export interface SettingsUser {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | Blob | undefined;
 }

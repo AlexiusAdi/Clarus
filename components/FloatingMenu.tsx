@@ -12,13 +12,21 @@ import {
 } from "@/components/ui/drawer";
 import AddInvestment from "./AddInvestment";
 import { DEFAULT_ACTIONS } from "@/constants";
-import { Category } from "@/lib/generated/prisma/client";
+import { Asset, Category, Goal } from "@/lib/generated/prisma/client";
 import { AddTransaction } from "./AddTransaction";
+import { AddAssets } from "./AddAssets";
+import OptionCard from "./OptionCard";
+import { SettingsUser } from "@/app/Types";
 
 export default function FloatingMenu({
   categories,
+  goals,
+  user,
 }: {
   categories: Category[];
+  goals: Goal[];
+  assets: Asset[];
+  user: SettingsUser;
 }) {
   const [fabOpen, setFabOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -93,11 +101,16 @@ export default function FloatingMenu({
               <div>
                 <AddTransaction
                   categories={categories}
+                  goals={goals}
                   onSuccess={() => setDrawerOpen(false)}
                 />
               </div>
             )}
-            {selectedAction === "option" && <div>Income Form</div>}
+            {selectedAction === "option" && (
+              <div>
+                <OptionCard user={user} />
+              </div>
+            )}
             {selectedAction === "savings" && (
               <div>
                 <AddInvestment />
@@ -105,7 +118,7 @@ export default function FloatingMenu({
             )}
             {selectedAction === "assets" && (
               <div>
-                <AddInvestment />
+                <AddAssets onSuccess={() => setDrawerOpen(false)} />
               </div>
             )}
           </div>

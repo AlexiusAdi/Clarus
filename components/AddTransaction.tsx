@@ -7,7 +7,11 @@ import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { ChevronDownIcon } from "lucide-react";
-import { Category, TransactionType } from "@/lib/generated/prisma/browser";
+import {
+  Category,
+  Goal,
+  TransactionType,
+} from "@/lib/generated/prisma/browser";
 import { format } from "date-fns";
 import { Calendar } from "./ui/calendar";
 import { useForm } from "react-hook-form";
@@ -18,7 +22,11 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "./ui/spinner";
 
 const transactionSchema = z.object({
-  type: z.enum([TransactionType.INCOME, TransactionType.EXPENSE]),
+  type: z.enum([
+    TransactionType.INCOME,
+    TransactionType.EXPENSE,
+    TransactionType.SAVINGS,
+  ]),
   categoryId: z.string().min(1, "Category is required"),
   date: z.date("Date is required"),
   amount: z
@@ -36,9 +44,11 @@ type TransactionForm = z.infer<typeof transactionSchema>;
 
 export const AddTransaction = ({
   categories,
+  goals,
   onSuccess,
 }: {
   categories: Category[];
+  goals: Goal[];
   onSuccess: () => void;
 }) => {
   const router = useRouter();
@@ -138,74 +148,126 @@ export const AddTransaction = ({
             Income
           </CardHeader>
         </Card>
+
+        {goals.length > 0 && (
+          <Card
+            onClick={() => handleTypeChange(TransactionType.SAVINGS)}
+            className={cn(
+              "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
+              type === TransactionType.SAVINGS && "border-blue-500",
+            )}
+          >
+            <CardHeader className="justify-center font-semibold">
+              Savings
+            </CardHeader>
+          </Card>
+        )}
       </div>
 
-      {/* CATEGORY */}
-      <div className="flex flex-col gap-2">
-        <span>Category</span>
+      {type === TransactionType.SAVINGS && goals.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <span>Goals</span>
 
-        <div className="grid grid-cols-3 gap-2">
-          {filteredCategories.map((cat) => (
-            <Card
-              key={cat.id}
-              onClick={() =>
-                setValue("categoryId", cat.id, { shouldValidate: true })
-              }
-              className={cn(
-                "h-10 p-2 justify-center cursor-pointer",
-                selectedCategory === cat.id
-                  ? type === "INCOME"
-                    ? "border-green-500 bg-green-100"
-                    : "border-red-500 bg-red-100"
-                  : "opacity-60",
-              )}
-            >
-              <CardHeader className="justify-center font-semibold">
-                {cat.name}
-              </CardHeader>
-            </Card>
-          ))}
+          <div className="grid grid-cols-3 gap-2">
+            {filteredCategories.map((cat) => (
+              <Card
+                key={cat.id}
+                onClick={() =>
+                  setValue("categoryId", cat.id, { shouldValidate: true })
+                }
+                className={cn(
+                  "h-10 p-2 justify-center cursor-pointer",
+                  selectedCategory === cat.id
+                    ? type === TransactionType.SAVINGS
+                      ? "border-green-500 bg-green-100"
+                      : "border-red-500 bg-red-100"
+                    : "opacity-60",
+                )}
+              >
+                <CardHeader className="justify-center font-semibold">
+                  {cat.name}
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+
+          {errors.categoryId && (
+            <span className="text-red-500 text-sm">
+              {errors.categoryId.message}
+            </span>
+          )}
         </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-2">
+            <span>Category</span>
 
-        {errors.categoryId && (
-          <span className="text-red-500 text-sm">
-            {errors.categoryId.message}
-          </span>
-        )}
-      </div>
+            <div className="grid grid-cols-3 gap-2">
+              {filteredCategories.map((cat) => (
+                <Card
+                  key={cat.id}
+                  onClick={() =>
+                    setValue("categoryId", cat.id, { shouldValidate: true })
+                  }
+                  className={cn(
+                    "h-10 p-2 justify-center cursor-pointer",
+                    selectedCategory === cat.id
+                      ? type === "INCOME"
+                        ? "border-green-500 bg-green-100"
+                        : "border-red-500 bg-red-100"
+                      : "opacity-60",
+                  )}
+                >
+                  <CardHeader className="justify-center font-semibold">
+                    {cat.name}
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
 
-      {/* DATE */}
-      <div className="flex flex-col gap-2">
-        <span>Date</span>
+            {errors.categoryId && (
+              <span className="text-red-500 text-sm">
+                {errors.categoryId.message}
+              </span>
+            )}
+          </div>
 
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              data-empty={!date}
-              className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
-            >
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
-              <ChevronDownIcon />
-            </Button>
-          </PopoverTrigger>
+          {/* DATE */}
+          <div className="flex flex-col gap-2">
+            <span>Date</span>
 
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(d) => {
-                if (d) setValue("date", d, { shouldValidate: true });
-              }}
-            />
-          </PopoverContent>
-        </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  data-empty={!date}
+                  className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
+                >
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  <ChevronDownIcon />
+                </Button>
+              </PopoverTrigger>
 
-        {errors.date && (
-          <span className="text-red-500 text-sm">{errors.date.message}</span>
-        )}
-      </div>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(d) => {
+                    if (d) setValue("date", d, { shouldValidate: true });
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {errors.date && (
+              <span className="text-red-500 text-sm">
+                {errors.date.message}
+              </span>
+            )}
+          </div>
+        </>
+      )}
 
       {/* AMOUNT */}
       <div className="flex flex-col gap-2">
@@ -219,16 +281,19 @@ export const AddTransaction = ({
           <span className="text-red-500 text-sm">{errors.amount.message}</span>
         )}
       </div>
-
-      {/* DESCRIPTION */}
-      <div className="flex flex-col gap-2">
-        <span>Description (Optional)</span>
-        <Input
-          type="text"
-          placeholder="Enter description"
-          {...register("description")}
-        />
-      </div>
+      {type !== TransactionType.SAVINGS && (
+        <>
+          {/* DESCRIPTION */}
+          <div className="flex flex-col gap-2">
+            <span>Description (Optional)</span>
+            <Input
+              type="text"
+              placeholder="Enter description"
+              {...register("description")}
+            />
+          </div>
+        </>
+      )}
 
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? <Spinner /> : "Add Transaction"}

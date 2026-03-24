@@ -13,6 +13,7 @@ model User {
   email         String        @unique
   emailVerified DateTime?
   image         String?
+  is_premium    Boolean       @default(false)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   account       Account[]
@@ -21,6 +22,7 @@ model User {
   investments   Investment[]
   sessions      Session[]
   transactions  Transaction[]
+  goals         Goal[]
 }
 
 model Account {
@@ -80,12 +82,15 @@ model Transaction {
   date        DateTime
   createdAt   DateTime        @default(now())
   categoryId  String
+  goalId      String?
   userId      String
   category    Category        @relation(fields: [categoryId], references: [id])
+  goal        Goal?           @relation(fields: [goalId], references: [id])
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, date])
   @@index([categoryId])
+  @@index([goalId])
 }
 
 model Asset {
@@ -93,6 +98,7 @@ model Asset {
   name      String
   type      AssetType
   value     Float
+  acquisitionSource AcquisitionSource @default(OTHER)
   date      DateTime
   createdAt DateTime  @default(now())
   userId    String
@@ -105,12 +111,29 @@ model Investment {
   id        String         @id @default(uuid())
   name      String
   type      InvestmentType
-  amount    Float
+  amountInvested    Float
+  currentValue      Float
   returnPct Float?
   date      DateTime
   createdAt DateTime       @default(now())
   userId    String
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Goal {
+  id           String        @id @default(uuid())
+  name         String
+  targetAmount Float
+  currentAmount Float        @default(0)
+  deadline     DateTime?
+  isCompleted  Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
 
   @@index([userId])
 }
@@ -125,6 +148,7 @@ enum CategoryType {
 enum TransactionType {
   EXPENSE
   INCOME
+  SAVINGS
 }
 
 enum AssetType {
@@ -133,11 +157,19 @@ enum AssetType {
   PROPERTY
   VEHICLE
   OTHER
+  GOLD
 }
 
 enum InvestmentType {
   STOCK
   CRYPTO
   GOLD
+  OTHER
+}
+
+enum AcquisitionSource {
+  PURCHASED
+  GIFTED
+  INHERITED
   OTHER
 }

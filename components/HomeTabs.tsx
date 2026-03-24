@@ -7,8 +7,16 @@ import InvestmentChart from "./InvestmentChart";
 import InvestmentCard from "./InvestmentCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { TabsData } from "@/app/Types";
+import { Asset } from "@/lib/generated/prisma/client";
+import { AssetCard } from "./AssetCard";
 
-const HomeTabs = ({ tabData }: { tabData: TabsData }) => {
+const HomeTabs = ({
+  tabData,
+  assets,
+}: {
+  tabData: TabsData;
+  assets: Asset[];
+}) => {
   const { transactions, currentMonthTotal, topSpending, spendingByCategory } =
     tabData;
 
@@ -48,9 +56,9 @@ const HomeTabs = ({ tabData }: { tabData: TabsData }) => {
 
       {/* Assets */}
       <TabsContent value="Assets" className="w-full flex flex-col gap-2">
-        <InvestmentCard />
-        <InvestmentCard />
-        <InvestmentCard />
+        {assets.map((asset) => (
+          <AssetCard key={asset.id} asset={asset} />
+        ))}
       </TabsContent>
     </Tabs>
   );

@@ -30,16 +30,22 @@ const RecentActivities = ({ isShown, data }: RecentActivitiesProps) => {
       {isShown && (
         <h2 className="text-lg font-semibold mb-2">Recent Activities</h2>
       )}
-      {groupedByDate.map(({ date, transactions }) => (
-        <div key={date} className="flex flex-col gap-2">
-          <span className="text-sm text-muted-foreground font-medium">
-            {date}
-          </span>
-          {transactions.map((transaction) => (
-            <TransactionCard key={transaction.id} transaction={transaction} />
-          ))}
-        </div>
-      ))}
+      {data.length === 0 ? (
+        <p className="text-center py-10 text-sm text-muted-foreground">
+          No recent transactions available.
+        </p>
+      ) : (
+        groupedByDate.map(({ date, transactions }) => (
+          <div key={date} className="flex flex-col gap-2">
+            <span className="text-sm text-muted-foreground font-medium">
+              {date}
+            </span>
+            {transactions.map((transaction) => (
+              <TransactionCard key={transaction.id} transaction={transaction} />
+            ))}
+          </div>
+        ))
+      )}
     </div>
   );
 };

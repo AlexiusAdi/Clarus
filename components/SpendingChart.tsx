@@ -38,25 +38,29 @@ export default function SpendingChart({ data }: SpendingChartProps) {
         <CardTitle>Spending Breakdown</CardTitle>
       </CardHeader>
       <CardContent className="text-sm text-muted-foreground">
-        <ChartContainer config={chartConfig} className="mx-auto h-60 w-full">
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Pie
-              data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
-              innerRadius={60}
-              strokeWidth={5}
-            />
-            <ChartLegend
-              content={<ChartLegendContent nameKey="browser" />}
-              className="flex flex-wrap gap-2 justify-center pt-4"
-            />
-          </PieChart>
-        </ChartContainer>
+        {chartData.length === 0 ? (
+          <p className="text-center py-10">No spending data available.</p>
+        ) : (
+          <ChartContainer config={chartConfig} className="mx-auto h-60 w-full">
+            <PieChart>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Pie
+                data={chartData}
+                dataKey="visitors"
+                nameKey="browser"
+                innerRadius={60}
+                strokeWidth={5}
+              />
+              <ChartLegend
+                content={<ChartLegendContent nameKey="browser" />}
+                className="flex flex-wrap gap-2 justify-center pt-4"
+              />
+            </PieChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );

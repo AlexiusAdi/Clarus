@@ -1,5 +1,9 @@
 import { TabsData } from "@/app/Types";
-import { CategoryType } from "@/lib/generated/prisma/enums";
+import {
+  AcquisitionSource,
+  AssetType,
+  CategoryType,
+} from "@/lib/generated/prisma/enums";
 import { ArrowUpRight, PiggyBank, Wallet } from "lucide-react";
 
 export const DEFAULT_CATEGORIES = [
@@ -14,6 +18,22 @@ export const DEFAULT_CATEGORIES = [
   { name: "Mutual Funds", type: CategoryType.INVESTMENT },
   { name: "Other", type: CategoryType.INVESTMENT },
   { name: "Savings Account", type: CategoryType.INVESTMENT },
+];
+
+export const DEFAULT_ASSETS = [
+  { name: "Cash", type: AssetType.CASH },
+  { name: "Bank", type: AssetType.BANK },
+  { name: "Property", type: AssetType.PROPERTY },
+  { name: "Vehicle", type: AssetType.VEHICLE },
+  { name: "Other", type: AssetType.OTHER },
+  { name: "Gold", type: AssetType.GOLD },
+] as const;
+
+export const ACQUISITION_SOURCES = [
+  { name: "Gifted", value: AcquisitionSource.GIFTED },
+  { name: "Inherited", value: AcquisitionSource.INHERITED },
+  { name: "Other", value: AcquisitionSource.OTHER },
+  { name: "Purchased", value: AcquisitionSource.PURCHASED },
 ];
 
 export const DEFAULT_ACTIONS = [
