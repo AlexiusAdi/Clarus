@@ -50,15 +50,17 @@ const HomeTabs = ({
       <TabsContent value="Investments" className="w-full flex flex-col gap-2">
         <InvestmentChart />
         <InvestmentCard />
-        <InvestmentCard />
-        <InvestmentCard />
       </TabsContent>
 
       {/* Assets */}
       <TabsContent value="Assets" className="w-full flex flex-col gap-2">
-        {assets.map((asset) => (
-          <AssetCard key={asset.id} asset={asset} />
-        ))}
+        {assets.length === 0 ? (
+          <p className="text-center py-10 text-sm text-muted-foreground">
+            No recent transactions available.
+          </p>
+        ) : (
+          assets.map((asset) => <AssetCard key={asset.id} asset={asset} />)
+        )}
       </TabsContent>
     </Tabs>
   );

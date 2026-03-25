@@ -39,8 +39,8 @@ export const ACQUISITION_SOURCES = [
 export const DEFAULT_ACTIONS = [
   {
     icon: ArrowUpRight,
-    label: "Option",
-    value: "option",
+    label: "Settings",
+    value: "Settings",
   },
   {
     icon: Wallet,

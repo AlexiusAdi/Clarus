@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { SmallCard } from "./SmallCard";
 import { UserNetWorth } from "@/app/Types";
+import { NumericFormat } from "react-number-format";
 
 interface NetWorthCardProps {
   userNetWorth: UserNetWorth;
@@ -77,7 +78,13 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
           {!hasData || netWorth === 0 ? (
             <span className="text-base opacity-50">No transactions Yet</span>
           ) : isVisible ? (
-            netWorth.toLocaleString("id-ID")
+            <NumericFormat
+              value={netWorth}
+              displayType="text"
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="Rp "
+            />
           ) : (
             "******"
           )}
@@ -92,7 +99,13 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
               {!hasData || cashBalance === 0 ? (
                 <span className="text-base opacity-50">No transactions</span>
               ) : isVisible ? (
-                cashBalance.toLocaleString("id-ID")
+                <NumericFormat
+                  value={cashBalance}
+                  displayType="text"
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  prefix="Rp "
+                />
               ) : (
                 "*******"
               )}
@@ -107,7 +120,13 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
               {!hasData || totalInvestments == 0 ? (
                 <span className="text-base opacity-50">No transactions</span>
               ) : isVisible ? (
-                totalInvestments.toLocaleString("id-ID")
+                <NumericFormat
+                  value={totalInvestments}
+                  displayType="text"
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  prefix="Rp "
+                />
               ) : (
                 "*******"
               )}

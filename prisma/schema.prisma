@@ -94,46 +94,75 @@ model Transaction {
 }
 
 model Asset {
-  id        String    @id @default(uuid())
-  name      String
-  type      AssetType
-  value     Float
+  id                String            @id @default(uuid())
+  name              String
+  type              AssetType
+  value             Float
   acquisitionSource AcquisitionSource @default(OTHER)
-  date      DateTime
-  createdAt DateTime  @default(now())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date              DateTime
+  createdAt         DateTime          @default(now())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
+// ── Investment ────────────────────────────────────────────────────────────────
+// currentValue and returnPct are removed — they are now computed at query time
+// by joining with AssetPrice. assetIdentifier links to AssetPrice.identifier.
+//
+// Examples per type:
+//   GOLD   → assetIdentifier: "gold",     quantity: 10,   unit: "gram"
+//   STOCK  → assetIdentifier: "BBCA.JK",  quantity: 100,  unit: "lot"
+//   CRYPTO → assetIdentifier: "bitcoin",  quantity: 0.05, unit: "coin"
+
 model Investment {
-  id        String         @id @default(uuid())
-  name      String
-  type      InvestmentType
-  amountInvested    Float
-  currentValue      Float
-  returnPct Float?
-  date      DateTime
-  createdAt DateTime       @default(now())
-  userId    String
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String         @id @default(uuid())
+  name             String         // display label, e.g. "Gold bar — Pegadaian"
+  type             InvestmentType
+  assetIdentifier  String         // lookup key into AssetPrice, e.g. "gold", "BBCA.JK"
+  quantity         Float          // how much the user owns (grams, lots, coins…)
+  unit             String         // "gram" | "lot" | "coin" | "share"
+  costPerUnit      Float          // purchase price per unit in IDR
+  date             DateTime       // purchase date
+  createdAt        DateTime       @default(now())
+  userId           String
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assetPrice       AssetPrice?    @relation(fields: [assetIdentifier], references: [identifier])
 
   @@index([userId])
+  @@index([assetIdentifier])
+}
+
+// ── AssetPrice ────────────────────────────────────────────────────────────────
+// One row per tracked asset. Upserted by the cron job (/api/cron/fetch-prices).
+// priceIdr is always the price per the smallest unit:
+//   GOLD   → price per 1 gram in IDR
+//   STOCK  → price per 1 share in IDR
+//   CRYPTO → price per 1 coin in IDR
+
+model AssetPrice {
+  identifier  String         @id  // "gold" | "BBCA.JK" | "bitcoin"
+  type        InvestmentType
+  priceIdr    Float          // latest price in IDR
+  updatedAt   DateTime       @updatedAt
+  investments Investment[]
+
+  @@index([type])
 }
 
 model Goal {
-  id           String        @id @default(uuid())
-  name         String
-  targetAmount Float
-  currentAmount Float        @default(0)
-  deadline     DateTime?
-  isCompleted  Boolean       @default(false)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  userId       String
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
+  id            String        @id @default(uuid())
+  name          String
+  targetAmount  Float
+  currentAmount Float         @default(0)
+  deadline      DateTime?
+  isCompleted   Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
 
   @@index([userId])
 }

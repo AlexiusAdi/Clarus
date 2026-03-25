@@ -12,12 +12,15 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, type, currentValue, acquisitionValue, date, description } =
-      body;
+    const { name, type, value, acquisitionSource, date } = body;
 
-    console.log("Received asset data:", body);
+    const parsed = parseFloat(value);
+    console.log("Parsed value:", parsed);
+    if (!value || isNaN(parsed)) {
+      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
+    }
 
-    if (!name || !type || !currentValue || !date) {
+    if (!name || !type || !value || !date) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -28,9 +31,10 @@ export async function POST(req: NextRequest) {
       data: {
         name,
         type,
-        value: currentValue,
+        value: parsed,
         date: new Date(date),
         userId,
+        acquisitionSource: acquisitionSource,
       },
     });
 

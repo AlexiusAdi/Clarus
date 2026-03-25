@@ -16,6 +16,7 @@ import { Calendar } from "./ui/calendar";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { format } from "date-fns";
+import { NumericFormat } from "react-number-format";
 
 const assetSchema = z.object({
   type: z.enum(AssetType, "Asset type is required"),
@@ -24,14 +25,15 @@ const assetSchema = z.object({
     "Please select how you acquired this asset",
   ),
   name: z.string().min(1, "Asset name is required"),
-  currentValue: z
-    .string()
-    .refine((val) => !isNaN(parseFloat(val)), { message: "Value is required" })
+  value: z
+    .string("Amount is required")
+    .refine((val) => !isNaN(parseFloat(val)), {
+      message: "Amount is required",
+    })
     .refine((val) => parseFloat(val) > 0, {
-      message: "Value must be greater than 0",
+      message: "Amount must be greater than 0",
     }),
   date: z.date("Date is required"),
-  description: z.string().optional(),
 });
 
 type AssetForm = z.infer<typeof assetSchema>;
@@ -59,10 +61,7 @@ export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
       const res = await fetch("/api/user/asset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          currentValue: parseFloat(data.currentValue),
-        }),
+        body: JSON.stringify(data),
       });
 
       const result = await res.json();
@@ -72,6 +71,7 @@ export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
       }
 
       toast.success("Asset added successfully!", { position: "top-center" });
+      console.log(result);
       reset();
       onSuccess();
       router.refresh();
@@ -159,15 +159,18 @@ export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
       {/* CURRENT VALUE */}
       <div className="flex flex-col gap-2">
         <span>Current Value</span>
-        <Input
-          type="string"
+        <NumericFormat
+          customInput={Input}
+          thousandSeparator="."
+          decimalSeparator=","
+          prefix="Rp "
           placeholder="Enter value"
-          {...register("currentValue")}
+          onValueChange={(values) => {
+            setValue("value", values.value, { shouldValidate: true });
+          }}
         />
-        {errors.currentValue && (
-          <span className="text-red-500 text-sm">
-            {errors.currentValue.message}
-          </span>
+        {errors.value && (
+          <span className="text-red-500 text-sm">{errors.value.message}</span>
         )}
       </div>
 
@@ -199,19 +202,6 @@ export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
         {errors.date && (
           <span className="text-red-500 text-sm">{errors.date.message}</span>
         )}
-      </div>
-
-      {/* DESCRIPTION */}
-      <div className="flex flex-col gap-2">
-        <span>
-          Description{" "}
-          <span className="text-muted-foreground text-sm">(Optional)</span>
-        </span>
-        <Input
-          type="text"
-          placeholder="Any notes about this asset"
-          {...register("description")}
-        />
       </div>
 
       <Button type="submit" disabled={isSubmitting}>

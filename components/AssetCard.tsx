@@ -83,41 +83,47 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
 
   return (
     <>
-      <Card className="w-full">
-        <CardContent className="pt-4">
-          {ASSET_ICONS[asset.type]}
-          <div className="flex flex-col gap-3 mt-2">
-            <div className="flex justify-between pt-2">
-              <div>
-                <h1 className="font-bold">{asset.name}</h1>
-                <span className="text-muted-foreground text-sm capitalize">
-                  {asset.type.toLowerCase()}
-                </span>
+      {asset.value === 0 ? (
+        <p className="text-center py-10 text-sm text-muted-foreground">
+          No recent transactions available.
+        </p>
+      ) : (
+        <Card className="w-full">
+          <CardContent className="pt-4">
+            {ASSET_ICONS[asset.type]}
+            <div className="flex flex-col gap-3 mt-2">
+              <div className="flex justify-between pt-2">
+                <div>
+                  <h1 className="font-bold">{asset.name}</h1>
+                  <span className="text-muted-foreground text-sm capitalize">
+                    {asset.type.toLowerCase()}
+                  </span>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="font-semibold">
+                    {formatRupiah(asset.value)}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-col items-end">
-                <span className="font-semibold">
-                  {formatRupiah(asset.value)}
-                </span>
-              </div>
-            </div>
 
-            <div className="flex justify-between items-center">
-              <div className="flex-1 bg-accent rounded-xl p-1.5 mr-3 text-sm">
-                <span>
-                  Acquired {format(new Date(asset.date), "MMM d, yyyy")}
-                </span>
+              <div className="flex justify-between items-center">
+                <div className="flex-1 bg-accent rounded-xl p-1.5 mr-3 text-sm">
+                  <span>
+                    Acquired {format(new Date(asset.date), "MMM d, yyyy")}
+                  </span>
+                </div>
+                <button onClick={() => setOpen(true)}>
+                  <Trash2
+                    width={16}
+                    height={16}
+                    className="text-red-500 cursor-pointer"
+                  />
+                </button>
               </div>
-              <button onClick={() => setOpen(true)}>
-                <Trash2
-                  width={16}
-                  height={16}
-                  className="text-red-500 cursor-pointer"
-                />
-              </button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
       <Alert
         open={open}
         onOpenChange={setOpen}

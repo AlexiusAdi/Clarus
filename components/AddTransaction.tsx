@@ -20,6 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Spinner } from "./ui/spinner";
+import { NumericFormat } from "react-number-format";
 
 const transactionSchema = z.object({
   type: z.enum([
@@ -104,14 +105,7 @@ export const AddTransaction = ({
         position: "top-center",
       });
 
-      reset({
-        type: data.type,
-        categoryId: "",
-        date: undefined,
-        amount: "",
-        description: "",
-      });
-
+      reset();
       onSuccess();
       router.refresh();
     } catch (error) {
@@ -272,10 +266,15 @@ export const AddTransaction = ({
       {/* AMOUNT */}
       <div className="flex flex-col gap-2">
         <span>Amount</span>
-        <Input
-          type="string"
-          placeholder="Enter amount"
-          {...register("amount")}
+        <NumericFormat
+          customInput={Input}
+          thousandSeparator="."
+          decimalSeparator=","
+          prefix="Rp "
+          placeholder="Enter value"
+          onValueChange={(amount) => {
+            setValue("amount", amount.value, { shouldValidate: true });
+          }}
         />
         {errors.amount && (
           <span className="text-red-500 text-sm">{errors.amount.message}</span>

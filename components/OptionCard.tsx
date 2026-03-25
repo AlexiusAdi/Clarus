@@ -1,23 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { toast } from "sonner";
 import { Card, CardContent } from "./ui/card";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Spinner } from "./ui/spinner";
-import {
-  Moon,
-  Bell,
-  Target,
-  ChevronRight,
-  LogOut,
-  User,
-  Mail,
-  Coins,
-} from "lucide-react";
+import { LogOut, User, Mail, Coins } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { SettingsUser } from "@/app/Types";
 
@@ -40,17 +28,15 @@ export default function OptionCard({ user }: { user: SettingsUser }) {
   return (
     <div className="w-full max-w-md mx-auto pb-24 px-4">
       {/* Avatar */}
-      <div className="flex flex-col items-center gap-2 py-4 pb-6">
-        <div className="w-18 h-18 rounded-full bg-foreground text-background flex items-center justify-center text-2xl font-bold">
-          <Avatar>
-            <AvatarImage
-              referrerPolicy="no-referrer"
-              src={user.image}
-              alt={user.name ?? "User"}
-            />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-        </div>
+      <div className="flex flex-col items-center gap-2 pb-6">
+        <Avatar className="w-18 h-18">
+          <AvatarImage
+            referrerPolicy="no-referrer"
+            src={user.image}
+            alt={user.name ?? "User"}
+          />
+          <AvatarFallback>{initials}</AvatarFallback>
+        </Avatar>
       </div>
 
       {/* Personal Info */}
@@ -79,7 +65,7 @@ export default function OptionCard({ user }: { user: SettingsUser }) {
               </span>
             </div>
           </div>
-          {/* <div className="flex flex-col px-4 py-3">
+          <div className="flex flex-col px-4 py-3">
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
               Currency
             </span>
@@ -89,7 +75,7 @@ export default function OptionCard({ user }: { user: SettingsUser }) {
                 IDR — Indonesian Rupiah
               </span>
             </div>
-          </div> */}
+          </div>
         </CardContent>
       </Card>
 

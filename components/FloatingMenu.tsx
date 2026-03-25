@@ -90,7 +90,7 @@ export default function FloatingMenu({
           <DrawerHeader>
             <DrawerTitle>
               {selectedAction === "expense" && "Add Transaction"}
-              {selectedAction === "option" && "Option"}
+              {selectedAction === "Settings" && "Settings"}
               {selectedAction === "savings" && "Add Investments"}
               {selectedAction === "assets" && "Add Assets"}
             </DrawerTitle>
@@ -106,7 +106,7 @@ export default function FloatingMenu({
                 />
               </div>
             )}
-            {selectedAction === "option" && (
+            {selectedAction === "Settings" && (
               <div>
                 <OptionCard user={user} />
               </div>

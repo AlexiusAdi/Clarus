@@ -49,7 +49,7 @@ export interface SpendingChartProps {
 
 export interface SettingsUser {
   id?: string;
-  name?: string | null;
-  email?: string | null;
+  name?: string;
+  email?: string;
   image?: string | Blob | undefined;
 }
