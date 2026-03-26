@@ -194,6 +194,8 @@ enum InvestmentType {
   CRYPTO
   GOLD
   OTHER
+  MUTUAL_FUND
+  BOND
 }
 
 enum AcquisitionSource {

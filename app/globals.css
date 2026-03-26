@@ -48,6 +48,8 @@
   --color-azure: oklch(0.989 0.0157 196.9);
   --color-obsidian: oklch(0.252 0 0);
   --color-stellyIce: oklch(0.5326 0 0);
+  --color-sunsetamber: oklch(0.7845 0.1484 57.23);
+  --color-porcelinwhite: oklch(0.9691 0.0068 67.74);
 }
 
 :root {

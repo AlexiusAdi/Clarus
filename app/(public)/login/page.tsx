@@ -12,7 +12,7 @@ export default function Login() {
   useGSAP(() => {
     gsap.from("#title", {
       opacity: 1,
-      y: -400,
+      x: 400,
       duration: 1,
       stagger: 0.3,
       ease: "power1.out",
@@ -20,8 +20,9 @@ export default function Login() {
 
     gsap.from("#login-card", {
       opacity: 0,
-      delay: 0.9,
+      delay: 1,
       duration: 1,
+      stagger: 0.3,
       ease: "power1.out",
     });
   }, []);
@@ -34,7 +35,7 @@ export default function Login() {
         </a>
       </div>
       <div id="login-card" className="w-full flex items-center justify-center">
-        <Card className="bg-goldensand w-full max-w-sm  border-2">
+        <Card className=" w-full max-w-sm bg-porcelinwhite border-2 ">
           <CardHeader>
             <CardTitle className="flex flex-col gap-y-4">
               <div className="flex flex-col gap-2 items-center">
@@ -45,7 +46,7 @@ export default function Login() {
           <CardContent className="flex-col gap-2">
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full bg-porcelinwhite border-2 border-gray-300 hover:bg-gray-100"
               onClick={() => signIn("google", { callbackUrl: "/home" })}
             >
               <FcGoogle width={5} height={5} />

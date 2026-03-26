@@ -10,13 +10,13 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import AddInvestment from "./AddInvestment";
 import { DEFAULT_ACTIONS } from "@/constants";
 import { Asset, Category, Goal } from "@/lib/generated/prisma/client";
 import { AddTransaction } from "./AddTransaction";
 import { AddAssets } from "./AddAssets";
 import OptionCard from "./OptionCard";
 import { SettingsUser } from "@/app/Types";
+import { AddInvestment } from "./AddInvestment";
 
 export default function FloatingMenu({
   categories,
@@ -113,7 +113,7 @@ export default function FloatingMenu({
             )}
             {selectedAction === "savings" && (
               <div>
-                <AddInvestment />
+                <AddInvestment onSuccess={() => setDrawerOpen(false)} />
               </div>
             )}
             {selectedAction === "assets" && (
