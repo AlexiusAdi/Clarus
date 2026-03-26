@@ -48,9 +48,9 @@ export interface SpendingChartProps {
 }
 
 export interface SettingsUser {
-  id?: string;
-  name?: string;
-  email?: string;
+  id?: string | null | undefined;
+  name?: string | null | undefined;
+  email?: string | null | undefined;
   image?: string | Blob | undefined;
 }
 

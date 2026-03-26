@@ -15,9 +15,9 @@ const Page = async () => {
   if (!userId) return null;
 
   const settinguser: SettingsUser = {
-    name: session?.user?.name,
-    email: session?.user?.email,
-    image: session?.user?.image,
+    name: session?.user?.name ?? undefined,
+    email: session?.user?.email ?? undefined,
+    image: session?.user?.image ?? undefined,
   };
 
   const categories = await prisma.category.findMany({
