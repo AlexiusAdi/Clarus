@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Wallet, PiggyBank, ArrowUpRight } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -10,28 +10,24 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import AddTransaction from "./AddTransaction";
-import AddInvestment from "./AddInvestment";
+import { DEFAULT_ACTIONS } from "@/constants";
+import { Asset, Category, Goal } from "@/lib/generated/prisma/client";
+import { AddTransaction } from "./AddTransaction";
+import { AddAssets } from "./AddAssets";
+import OptionCard from "./OptionCard";
+import { SettingsUser } from "@/app/Types";
+import { AddInvestment } from "./AddInvestment";
 
-const actions = [
-  {
-    icon: ArrowUpRight,
-    label: "Add Income",
-    value: "income",
-  },
-  {
-    icon: PiggyBank,
-    label: "Add Investments",
-    value: "savings",
-  },
-  {
-    icon: Wallet,
-    label: "Add Transaction",
-    value: "expense",
-  },
-];
-
-export default function FloatingMenu() {
+export default function FloatingMenu({
+  categories,
+  goals,
+  user,
+}: {
+  categories: Category[];
+  goals: Goal[];
+  assets: Asset[];
+  user: SettingsUser;
+}) {
   const [fabOpen, setFabOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -42,7 +38,7 @@ export default function FloatingMenu() {
         {/* Menu Items */}
         <AnimatePresence>
           {fabOpen &&
-            actions.map((action, index) => {
+            DEFAULT_ACTIONS.map((action, index) => {
               const Icon = action.icon;
               return (
                 <motion.div
@@ -63,7 +59,7 @@ export default function FloatingMenu() {
                     onClick={() => {
                       setSelectedAction(action.value);
                       setDrawerOpen(true);
-                      setFabOpen(false); // close menu
+                      setFabOpen(false);
                     }}
                   >
                     <Icon className="w-4 h-4" />
@@ -94,21 +90,35 @@ export default function FloatingMenu() {
           <DrawerHeader>
             <DrawerTitle>
               {selectedAction === "expense" && "Add Transaction"}
-              {selectedAction === "income" && "Add Income"}
+              {selectedAction === "Settings" && "Settings"}
               {selectedAction === "savings" && "Add Investments"}
+              {selectedAction === "assets" && "Add Assets"}
             </DrawerTitle>
           </DrawerHeader>
 
-          <div className="p-4">
+          <div className="overflow-auto p-4">
             {selectedAction === "expense" && (
-              <div className="h-screen">
-                <AddTransaction />
+              <div>
+                <AddTransaction
+                  categories={categories}
+                  goals={goals}
+                  onSuccess={() => setDrawerOpen(false)}
+                />
               </div>
             )}
-            {selectedAction === "income" && <div>Income Form</div>}
+            {selectedAction === "Settings" && (
+              <div>
+                <OptionCard user={user} />
+              </div>
+            )}
             {selectedAction === "savings" && (
-              <div className="h-screen">
-                <AddInvestment />
+              <div>
+                <AddInvestment onSuccess={() => setDrawerOpen(false)} />
+              </div>
+            )}
+            {selectedAction === "assets" && (
+              <div>
+                <AddAssets onSuccess={() => setDrawerOpen(false)} />
               </div>
             )}
           </div>

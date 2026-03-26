@@ -1,0 +1,161 @@
+// app/api/investments/route.ts
+//
+// Returns the current user's investments with P&L computed server-side.
+// The frontend receives ready-to-render data — no price fetching, no useState
+// for prices, no calculations needed on the client.
+//
+// Response shape per item:
+// {
+//   id, name, type, assetIdentifier,
+//   quantity, unit, costPerUnit, date,
+//   amountInvested,       ← quantity × costPerUnit
+//   currentPriceIdr,      ← from AssetPrice (null if not yet fetched)
+//   currentValue,         ← quantity × currentPriceIdr (null if no price)
+//   pnlAbs,               ← currentValue - amountInvested (null if no price)
+//   pnlPct,               ← pnlAbs / amountInvested × 100 (null if no price)
+//   priceUpdatedAt,       ← when the price was last refreshed
+// }
+
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const investments = await prisma.investment.findMany({
+    where: { userId: session.user.id },
+    include: { assetPrice: true },
+    orderBy: { date: "desc" },
+  });
+
+  const data = investments.map((inv) => {
+    const amountInvested = inv.quantity * inv.costPerUnit;
+    const currentPriceIdr = inv.assetPrice?.priceIdr ?? null;
+    const currentValue =
+      currentPriceIdr !== null ? inv.quantity * currentPriceIdr : null;
+    const pnlAbs = currentValue !== null ? currentValue - amountInvested : null;
+    const pnlPct = pnlAbs !== null ? (pnlAbs / amountInvested) * 100 : null;
+
+    return {
+      id: inv.id,
+      name: inv.name,
+      type: inv.type,
+      assetIdentifier: inv.assetIdentifier,
+      quantity: inv.quantity,
+      unit: inv.unit,
+      costPerUnit: inv.costPerUnit,
+      date: inv.date,
+      amountInvested,
+      currentPriceIdr,
+      currentValue,
+      pnlAbs,
+      pnlPct,
+      priceUpdatedAt: inv.assetPrice?.updatedAt ?? null,
+    };
+  });
+
+  return NextResponse.json(data);
+}
+
+// ── POST — create a new holding ───────────────────────────────────────────────
+// After inserting, immediately triggers a price fetch for the new asset
+// so the card shows P&L without waiting for the next cron run.
+
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const { name, type, assetIdentifier, quantity, unit, costPerUnit, date } =
+    body;
+  console.log("POST /investment body:", body);
+
+  if (
+    !name ||
+    !type ||
+    !assetIdentifier ||
+    !quantity ||
+    !unit ||
+    !costPerUnit ||
+    !date
+  ) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 },
+    );
+  }
+
+  let normalizedIdentifier = assetIdentifier.trim();
+
+  if (type === "STOCK" && !normalizedIdentifier.endsWith(".JK")) {
+    normalizedIdentifier = `${normalizedIdentifier}.JK`;
+  }
+
+  // Optional: normalize crypto to lowercase (CoinGecko uses lowercase IDs)
+  if (type === "CRYPTO") {
+    normalizedIdentifier = normalizedIdentifier.toLowerCase();
+  }
+
+  await prisma.assetPrice.upsert({
+    where: { identifier: normalizedIdentifier },
+    update: {},
+    create: {
+      identifier: normalizedIdentifier,
+      type,
+      priceIdr: 0, // temporary placeholder until cron updates
+    },
+  });
+
+  const investment = await prisma.investment.create({
+    data: {
+      name,
+      type,
+      assetIdentifier,
+      quantity: Number(quantity),
+      unit,
+      costPerUnit: Number(costPerUnit),
+      date: new Date(date),
+      userId: session.user.id,
+    },
+  });
+
+  // Immediately seed price for this asset (fire and forget — don't await)
+  fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/cron/fetch-prices`, {
+    headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
+  }).catch((err) =>
+    console.error("[investments POST] Price seed failed:", err),
+  );
+
+  return NextResponse.json(investment, { status: 201 });
+}
+
+// ── DELETE — remove a holding ─────────────────────────────────────────────────
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
+  // Verify ownership before deleting
+  const investment = await prisma.investment.findFirst({
+    where: { id, userId: session.user.id },
+  });
+  if (!investment) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  await prisma.investment.delete({ where: { id } });
+
+  return NextResponse.json({ success: true });
+}

@@ -1,58 +1,46 @@
 "use client";
 
+import TransitionEffect from "@/components/TransitionEffect";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { signIn } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { FcGoogle } from "react-icons/fc";
 
 export default function Home() {
   useGSAP(() => {
-    gsap.from("#title", {
-      opacity: 1,
-      y: -400,
-      duration: 1,
-      stagger: 0.3,
-      ease: "power1.out",
-    });
+    const timeline = gsap.timeline();
 
-    gsap.from("#login-card", {
-      opacity: 0,
-      delay: 0.9,
-      duration: 1,
-      ease: "power1.out",
-    });
-  }, []);
+    timeline
+      .from("#welcome", {
+        opacity: 0,
+        y: -240,
+        duration: 1.2,
+        delay: 2,
+        ease: "power1.out",
+      })
+      .from("#startButton", {
+        opacity: 0,
+        ease: "power1.inOut",
+      });
+  });
 
   return (
-    <div className="hero-container flex flex-col gap-8 items-center justify-center h-screen p-4">
-      <div id="title">
-        <a className="text-6xl" onClick={() => redirect("/")}>
-          Clarus
-        </a>
-      </div>
-      <div id="login-card" className="w-full flex items-center justify-center">
-        <Card className="bg-goldensand w-full max-w-sm  border-2">
-          <CardHeader>
-            <CardTitle className="flex flex-col gap-y-4">
-              <div className="flex flex-col gap-2 items-center">
-                <p>Please sign in to continue</p>
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex-col gap-2">
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => signIn("google", { callbackUrl: "/start" })}
-            >
-              <FcGoogle width={5} height={5} />
-              Login with Google
-            </Button>
-          </CardContent>
-        </Card>
+    <div>
+      <TransitionEffect />
+      <div className="flex flex-col w-full items-center justify-center h-screen gap-4">
+        <div id="welcome">
+          <h1 className="text-5xl text-shadow-2xs">Welcome</h1>
+        </div>
+        <div id="startButton">
+          <Button
+            variant="outline"
+            size="lg"
+            className="shadow-md"
+            onClick={() => redirect("/login")}
+          >
+            Start
+          </Button>
+        </div>
       </div>
     </div>
   );

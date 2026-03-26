@@ -1,68 +1,158 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Eye, EyeOff } from "lucide-react";
-import { Skeleton } from "./ui/skeleton";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { SmallCard } from "./SmallCard";
+import { UserNetWorth } from "@/app/Types";
+import { NumericFormat } from "react-number-format";
 
-const NetWorthCard = ({
-  isVisible,
-  toggleVisibility,
-}: {
-  isVisible: boolean;
-  toggleVisibility: () => void;
-}) => {
+interface NetWorthCardProps {
+  userNetWorth: UserNetWorth;
+}
+
+const VISIBILITY_KEY = "clarus_networth_visible";
+
+export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
+  const [mounted, setMounted] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+
+  const {
+    totalIncome = 0,
+    totalExpense = 0,
+    netWorth = 0,
+    cashBalance = 0,
+    totalInvestments = 0,
+  } = userNetWorth ?? {};
+
+  const hasData =
+    totalIncome > 0 ||
+    totalExpense > 0 ||
+    cashBalance > 0 ||
+    netWorth > 0 ||
+    totalInvestments > 0;
+
+  useEffect(() => {
+    setMounted(true);
+    const stored = localStorage.getItem(VISIBILITY_KEY);
+    if (stored !== null) {
+      setIsVisible(stored === "true");
+    }
+  }, []);
+
+  if (!mounted) return null;
+
+  const toggleVisibility = () => {
+    setIsVisible((prev) => {
+      const next = !prev;
+      localStorage.setItem(VISIBILITY_KEY, String(next));
+      return next;
+    });
+  };
+
   return (
-    <div className="pb-3">
+    <div>
       <Card className="bg-obsidian text-white @2xs/main:gap-3">
         <CardHeader className="flex justify-between items-center">
           <CardTitle className="text-xl opacity-90">Total Net Worth</CardTitle>
-          <button
-            onClick={toggleVisibility}
-            aria-label={isVisible ? "Hide amount" : "Show amount"}
-            className="hover:opacity-70 transition"
-          >
-            {isVisible ? (
-              <Eye className="w-6 h-6" />
-            ) : (
-              <EyeOff className="w-6 h-6" />
-            )}
-          </button>
+          {mounted ? (
+            hasData && (
+              <button
+                onClick={toggleVisibility}
+                aria-label={isVisible ? "Hide amount" : "Show amount"}
+                className="hover:opacity-70 transition"
+              >
+                {isVisible ? (
+                  <Eye className="w-6 h-6" />
+                ) : (
+                  <EyeOff className="w-6 h-6" />
+                )}
+              </button>
+            )
+          ) : (
+            <span className="text-sm opacity-50">Loading...</span>
+          )}
         </CardHeader>
+
         <CardContent className="text-3xl">
-          {isVisible === null ? (
-            <Skeleton className="w-40 h-8" />
+          {!hasData || netWorth === 0 ? (
+            <span className="text-base opacity-50">No transactions Yet</span>
           ) : isVisible ? (
-            `Rp 150.000.000`
+            <NumericFormat
+              value={netWorth}
+              displayType="text"
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="Rp "
+            />
           ) : (
             "******"
           )}
         </CardContent>
+
         <CardContent className="flex justify-between gap-2">
           <Card className="w-50 @xs/main:gap-0 bg-stellyIce border-stellyIce text-white/70">
             <CardHeader className="text-bold @2xs/main:text-md @2xs/main:px-3 @md/main:px-6">
-              <CardTitle>
-                <span>Cash Balance</span>
-              </CardTitle>
+              <CardTitle>Cash Balance</CardTitle>
             </CardHeader>
             <CardContent className="@2xs/main:px-3 @md/main:px-6 font-semibold @2xs/main:text-md @md/main:text-lg">
-              Rp 150.000.000
+              {!hasData || cashBalance === 0 ? (
+                <span className="text-base opacity-50">No transactions</span>
+              ) : isVisible ? (
+                <NumericFormat
+                  value={cashBalance}
+                  displayType="text"
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  prefix="Rp "
+                />
+              ) : (
+                "*******"
+              )}
             </CardContent>
           </Card>
+
           <Card className="w-50 @xs/main:gap-0 bg-stellyIce border-stellyIce text-white/70">
             <CardHeader className="text-bold @2xs/main:text-md @2xs/main:px-3 @md/main:px-6">
-              <CardTitle>
-                <span>Investments</span>
-              </CardTitle>
+              <CardTitle>Investments</CardTitle>
             </CardHeader>
             <CardContent className="@2xs/main:px-3 @md/main:px-6 font-semibold @2xs/main:text-md @md/main:text-lg">
-              Rp 500.000.000
+              {!hasData || totalInvestments == 0 ? (
+                <span className="text-base opacity-50">No transactions</span>
+              ) : isVisible ? (
+                <NumericFormat
+                  value={totalInvestments}
+                  displayType="text"
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  prefix="Rp "
+                />
+              ) : (
+                "*******"
+              )}
             </CardContent>
           </Card>
         </CardContent>
       </Card>
+
+      <div className="flex gap-2 py-3">
+        <SmallCard
+          header="Income"
+          amount={totalIncome}
+          icon={
+            <ArrowRight className="inline-block mr-2 text-green-500 rotate-320" />
+          }
+          isVisible={isVisible}
+        />
+        <SmallCard
+          header="Expenses"
+          amount={totalExpense}
+          icon={
+            <ArrowRight className="inline-block mr-2 text-red-500 rotate-30" />
+          }
+          isVisible={isVisible}
+        />
+      </div>
     </div>
   );
-};
-
-export default NetWorthCard;
+}

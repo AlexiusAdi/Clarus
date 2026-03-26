@@ -1,68 +1,42 @@
-import React, { useState } from "react";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Progress } from "./ui/progress";
+import { SpendingChartProps } from "@/app/Types";
 
-const SpendingCategories = () => {
-  const [Food, setFood] = useState(60);
-  const [transport, setTransport] = useState(40);
-  const [bill, setBill] = useState(13);
-  const [Shopping, setShopping] = useState(13);
-  const [Entertaintment, setEntertaintment] = useState(13);
+const SpendingCategories = ({
+  data,
+  totalExpense,
+}: SpendingChartProps & { totalExpense: number }) => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Top Spending Categories</CardTitle>
+        <CardTitle>Top Spending</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="w-full flex justify-between">
-          <span>Food</span>
-          <span>Rp 1,300,000</span>
-        </div>
-        <Progress value={Food} className="w-full" />
-      </CardContent>
-      <CardContent>
-        <div className="w-full flex justify-between">
-          <span>Transport</span>
-          <span>Rp 1,300,000</span>
-        </div>
-        <Progress value={transport} className="w-full" />
-      </CardContent>
-      <CardContent>
-        <div className="w-full flex justify-between">
-          <span>Bill</span>
-          <span>Rp 1,300,000</span>
-        </div>
-        <Progress value={bill} className="w-full" />
-      </CardContent>
-      <CardContent>
-        <div className="w-full flex justify-between">
-          <span>Bill</span>
-          <span>Rp 1,300,000</span>
-        </div>
-        <Progress value={bill} className="w-full" />
-      </CardContent>
-      <CardContent>
-        <div className="w-full flex justify-between">
-          <span>Shopping</span>
-          <span>Rp 1,300,000</span>
-        </div>
-        <Progress value={Shopping} className="w-full" />
-      </CardContent>
-      <CardContent>
-        <div className="w-full flex justify-between">
-          <span>Entertainment</span>
-          <span>Rp 1,300,000</span>
-        </div>
-        <Progress value={Entertaintment} className="w-full" />
-      </CardContent>
+      {data.length === 0 ? (
+        <CardContent className="text-sm text-muted-foreground">
+          <p className="text-center py-10">No spending data available.</p>
+        </CardContent>
+      ) : (
+        data.map((category) => (
+          <CardContent key={category.category}>
+            <div className="w-full flex justify-between mb-1">
+              <span>{category.category}</span>
+              <span>
+                {new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  maximumFractionDigits: 0,
+                }).format(category.amount)}
+              </span>
+            </div>
+            <Progress
+              value={
+                totalExpense > 0 ? (category.amount / totalExpense) * 100 : 0
+              }
+              className="w-full"
+            />
+          </CardContent>
+        ))
+      )}
     </Card>
   );
 };

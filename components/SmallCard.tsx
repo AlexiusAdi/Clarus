@@ -1,5 +1,8 @@
+"use client";
+
 import { IncomeCardProps } from "@/app/Types";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { NumericFormat } from "react-number-format";
 
 export const SmallCard = ({
   header,
@@ -18,9 +21,19 @@ export const SmallCard = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="px-3 font-semibold">
-        <span className={`transition-all duration-300`}>
-          {isVisible ? `Rp ${amount.toLocaleString("id-ID")}` : "*******"}
-        </span>
+        {amount === 0 ? (
+          <span className="text-base opacity-50">No transactions</span>
+        ) : isVisible ? (
+          <NumericFormat
+            value={amount}
+            displayType="text"
+            thousandSeparator="."
+            decimalSeparator=","
+            prefix="Rp "
+          />
+        ) : (
+          "*******"
+        )}
       </CardContent>
     </Card>
   );

@@ -1,52 +1,129 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Card, CardHeader } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Calendar, CalendarIcon, ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
+import {
+  Category,
+  Goal,
+  TransactionType,
+} from "@/lib/generated/prisma/browser";
+import { format } from "date-fns";
+import { Calendar } from "./ui/calendar";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Spinner } from "./ui/spinner";
+import { NumericFormat } from "react-number-format";
 
-type TransactionType = "income" | "expense";
+const transactionSchema = z.object({
+  type: z.enum([
+    TransactionType.INCOME,
+    TransactionType.EXPENSE,
+    TransactionType.SAVINGS,
+  ]),
+  categoryId: z.string().min(1, "Category is required"),
+  date: z.date("Date is required"),
+  amount: z
+    .string("Amount is required")
+    .refine((val) => !isNaN(parseFloat(val)), {
+      message: "Amount is required",
+    })
+    .refine((val) => parseFloat(val) > 0, {
+      message: "Amount must be greater than 0",
+    }),
+  description: z.string().optional(),
+});
 
-type Category = {
-  id: string;
-  name: string;
-  type: TransactionType;
-};
+type TransactionForm = z.infer<typeof transactionSchema>;
 
-const categories: Category[] = [
-  { id: "salary", name: "Salary", type: "income" },
-  { id: "freelance", name: "Freelance", type: "income" },
-  { id: "investment", name: "Investment", type: "income" },
+export const AddTransaction = ({
+  categories,
+  goals,
+  onSuccess,
+}: {
+  categories: Category[];
+  goals: Goal[];
+  onSuccess: () => void;
+}) => {
+  const router = useRouter();
 
-  { id: "food", name: "Food", type: "expense" },
-  { id: "transport", name: "Transport", type: "expense" },
-  { id: "rent", name: "Rent", type: "expense" },
-];
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<TransactionForm>({
+    resolver: zodResolver(transactionSchema),
+    defaultValues: {
+      type: TransactionType.EXPENSE,
+    },
+  });
 
-const AddTransaction = () => {
-  const [type, setType] = useState<TransactionType>("expense");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [date, setDate] = React.useState<Date>();
+  const type = watch("type");
+  const selectedCategory = watch("categoryId");
+  const date = watch("date");
 
-  // Reset category when type changes
-  useEffect(() => {
-    setSelectedCategory(null);
-  }, [type]);
+  const handleTypeChange = (newType: TransactionType) => {
+    reset({
+      type: newType,
+      categoryId: "",
+      amount: "",
+      date: undefined,
+      description: "",
+    });
+  };
 
-  const filteredCategories = categories.filter((cat) => cat.type === type);
+  const filteredCategories = useMemo(
+    () => categories.filter((cat) => cat.type === type),
+    [categories, type],
+  );
+
+  const onSubmit = async (data: TransactionForm) => {
+    try {
+      const res = await fetch("/api/user/transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || "Something went wrong");
+      }
+
+      toast.success("Transaction added successfully!", {
+        position: "top-center",
+      });
+
+      reset();
+      onSuccess();
+      router.refresh();
+    } catch (error) {
+      toast.error((error as Error).message || "Failed to add transaction");
+    }
+  };
 
   return (
-    <div className="container flex flex-col gap-4">
-      {/* TYPE SELECTOR */}
-      <div className="flex gap-2">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="container flex flex-col gap-4"
+    >
+      <div className="flex gap-2 justify-center">
         <Card
-          onClick={() => setType("expense")}
+          onClick={() => handleTypeChange(TransactionType.EXPENSE)}
           className={cn(
-            "w-50 h-12 p-2 flex justify-center items-center cursor-pointer",
-            type === "expense" && "border-red-500 bg-red-100",
+            "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
+            type === TransactionType.EXPENSE && "border-red-500",
           )}
         >
           <CardHeader className="justify-center font-semibold">
@@ -55,79 +132,171 @@ const AddTransaction = () => {
         </Card>
 
         <Card
-          onClick={() => setType("income")}
+          onClick={() => handleTypeChange(TransactionType.INCOME)}
           className={cn(
-            "w-50 h-12 p-2 flex justify-center cursor-pointer",
-            type === "income" && "border-green-500 bg-green-100",
+            "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
+            type === TransactionType.INCOME && "border-green-500",
           )}
         >
           <CardHeader className="justify-center font-semibold">
             Income
           </CardHeader>
         </Card>
+
+        {goals.length > 0 && (
+          <Card
+            onClick={() => handleTypeChange(TransactionType.SAVINGS)}
+            className={cn(
+              "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
+              type === TransactionType.SAVINGS && "border-blue-500",
+            )}
+          >
+            <CardHeader className="justify-center font-semibold">
+              Savings
+            </CardHeader>
+          </Card>
+        )}
       </div>
 
-      <div className="flex">
-        <Popover>
-          <PopoverTrigger
-            render={
-              <Button
-                variant={"outline"}
-                data-empty={!date}
-                className="w-[212px] justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
+      {type === TransactionType.SAVINGS && goals.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <span>Goals</span>
+
+          <div className="grid grid-cols-3 gap-2">
+            {filteredCategories.map((cat) => (
+              <Card
+                key={cat.id}
+                onClick={() =>
+                  setValue("categoryId", cat.id, { shouldValidate: true })
+                }
+                className={cn(
+                  "h-10 p-2 justify-center cursor-pointer",
+                  selectedCategory === cat.id
+                    ? type === TransactionType.SAVINGS
+                      ? "border-green-500 bg-green-100"
+                      : "border-red-500 bg-red-100"
+                    : "opacity-60",
+                )}
               >
-                {date ? format(date, "PPP") : <span>Pick a date</span>}
-                <ChevronDownIcon data-icon="inline-end" />
-              </Button>
-            }
-          />
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              defaultMonth={date}
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
+                <CardHeader className="justify-center font-semibold">
+                  {cat.name}
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
 
-      {/* CATEGORY */}
-      <div className="flex flex-col gap-2">
-        <span>Category</span>
-        <div className="grid grid-cols-3 gap-2">
-          {filteredCategories.map((cat) => (
-            <Card
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`h-10 p-2 justify-center cursor-pointer ${
-                selectedCategory === cat.id
-                  ? type === "income"
-                    ? "border-green-500 bg-green-100"
-                    : "border-red-500 bg-red-100"
-                  : "opacity-60"
-              }`}
-            >
-              <CardHeader className="justify-center font-semibold">
-                {cat.name}
-              </CardHeader>
-            </Card>
-          ))}
+          {errors.categoryId && (
+            <span className="text-red-500 text-sm">
+              {errors.categoryId.message}
+            </span>
+          )}
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-2">
+            <span>Category</span>
 
-      <div className="gap-2 flex flex-col">
+            <div className="grid grid-cols-3 gap-2">
+              {filteredCategories.map((cat) => (
+                <Card
+                  key={cat.id}
+                  onClick={() =>
+                    setValue("categoryId", cat.id, { shouldValidate: true })
+                  }
+                  className={cn(
+                    "h-10 p-2 justify-center cursor-pointer",
+                    selectedCategory === cat.id
+                      ? type === "INCOME"
+                        ? "border-green-500 bg-green-100"
+                        : "border-red-500 bg-red-100"
+                      : "opacity-60",
+                  )}
+                >
+                  <CardHeader className="justify-center font-semibold">
+                    {cat.name}
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+
+            {errors.categoryId && (
+              <span className="text-red-500 text-sm">
+                {errors.categoryId.message}
+              </span>
+            )}
+          </div>
+
+          {/* DATE */}
+          <div className="flex flex-col gap-2">
+            <span>Date</span>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  data-empty={!date}
+                  className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
+                >
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  <ChevronDownIcon />
+                </Button>
+              </PopoverTrigger>
+
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(d) => {
+                    if (d) setValue("date", d, { shouldValidate: true });
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {errors.date && (
+              <span className="text-red-500 text-sm">
+                {errors.date.message}
+              </span>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* AMOUNT */}
+      <div className="flex flex-col gap-2">
         <span>Amount</span>
-        <Input type="number" placeholder="Enter amount" className="w-full" />
+        <NumericFormat
+          customInput={Input}
+          thousandSeparator="."
+          decimalSeparator=","
+          prefix="Rp "
+          placeholder="Enter value"
+          onValueChange={(amount) => {
+            setValue("amount", amount.value, { shouldValidate: true });
+          }}
+        />
+        {errors.amount && (
+          <span className="text-red-500 text-sm">{errors.amount.message}</span>
+        )}
       </div>
-      <div className="gap-2 flex flex-col">
-        <span>Description (Optional)</span>
-        <Input type="text" placeholder="Enter description" className="w-full" />
-      </div>
+      {type !== TransactionType.SAVINGS && (
+        <>
+          {/* DESCRIPTION */}
+          <div className="flex flex-col gap-2">
+            <span>Description (Optional)</span>
+            <Input
+              type="text"
+              placeholder="Enter description"
+              {...register("description")}
+            />
+          </div>
+        </>
+      )}
 
-      <Button>Add Transaction</Button>
-    </div>
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? <Spinner /> : "Add Transaction"}
+      </Button>
+    </form>
   );
 };
-
-export default AddTransaction;

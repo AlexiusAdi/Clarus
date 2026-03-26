@@ -1,5 +1,6 @@
 "use client";
 
+import { SpendingChartProps } from "@/app/Types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -12,68 +13,54 @@ import {
 
 import { Pie, PieChart } from "recharts";
 
-export const description = "A pie chart with a legend";
+const COLORS = ["#3b82f6", "#22c55e", "#f97316", "#6366f1", "#a855f7"];
 
-const chartData = [
-  { browser: "Food", visitors: 275, fill: "#3b82f6" },
-  { browser: "Transport", visitors: 200, fill: "#22c55e" },
-  { browser: "Bills", visitors: 287, fill: "#f97316" },
-  { browser: "Shopping", visitors: 173, fill: "#6366f1" },
-  { browser: "Entertainment", visitors: 190, fill: "#a855f7" },
-];
+export default function SpendingChart({ data }: SpendingChartProps) {
+  const chartData = data.map((item, index) => ({
+    browser: item.category,
+    visitors: item.amount,
+    fill: COLORS[index % COLORS.length],
+  }));
 
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  Food: {
-    label: "Food",
-    color: "var(--chart-1)",
-  },
-  Transport: {
-    label: "Transport",
-    color: "var(--chart-2)",
-  },
-  Bills: {
-    label: "Bills",
-    color: "var(--chart-3)",
-  },
-  Shopping: {
-    label: "Shopping",
-    color: "var(--chart-4)",
-  },
-  Entertainment: {
-    label: "Entertainment",
-    color: "var(--chart-5)",
-  },
-} satisfies ChartConfig;
+  const chartConfig = Object.fromEntries(
+    chartData.map((item, index) => [
+      item.browser,
+      {
+        label: item.browser,
+        color: COLORS[index % COLORS.length],
+      },
+    ]),
+  ) satisfies ChartConfig;
 
-export default function SpendingChart() {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Spending Breakdown</CardTitle>
       </CardHeader>
       <CardContent className="text-sm text-muted-foreground">
-        <ChartContainer config={chartConfig} className="mx-auto h-60 w-full">
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Pie
-              data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
-              innerRadius={60}
-              strokeWidth={5}
-            />
-            <ChartLegend
-              content={<ChartLegendContent nameKey="browser" />}
-              className="flex flex-wrap gap-2 justify-center pt-4"
-            />
-          </PieChart>
-        </ChartContainer>
+        {chartData.length === 0 ? (
+          <p className="text-center py-10">No spending data available.</p>
+        ) : (
+          <ChartContainer config={chartConfig} className="mx-auto h-60 w-full">
+            <PieChart>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Pie
+                data={chartData}
+                dataKey="visitors"
+                nameKey="browser"
+                innerRadius={60}
+                strokeWidth={5}
+              />
+              <ChartLegend
+                content={<ChartLegendContent nameKey="browser" />}
+                className="flex flex-wrap gap-2 justify-center pt-4"
+              />
+            </PieChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );

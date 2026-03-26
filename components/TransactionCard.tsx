@@ -1,30 +1,59 @@
-import React from "react";
-import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Trash2 } from "lucide-react";
+"use client";
 
-const TransactionCard = () => {
+import { useState } from "react";
+import { TopSpendingItem } from "@/constants";
+import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { ArrowRight, Trash2 } from "lucide-react";
+import { TransactionType } from "@/lib/generated/prisma/enums";
+import Alert from "./Alert";
+
+const TransactionCard = ({ transaction }: { transaction: TopSpendingItem }) => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className="flex flex-col gap-2">
-      <span>Mar 10, 2026</span>
+    <>
       <Card className="p-1 w-full">
         <CardHeader className="p-3">
-          <div className="grid grid-cols-2 items-center">
+          <div className="flex w-full items-center gap-1">
             <div>
-              <CardTitle>Salary</CardTitle>
-              <CardDescription>Received monthly salary</CardDescription>
+              {transaction.type === TransactionType.INCOME ? (
+                <ArrowRight className="inline-block mr-2 text-green-500 -rotate-45" />
+              ) : (
+                <ArrowRight className="inline-block mr-2 text-red-500 rotate-45" />
+              )}
             </div>
-            <div className="flex items-center justify-end gap-1">
-              <span className="text-md font-bold">Rp 5,000,000</span>
-              <Trash2
-                width={16}
-                height={16}
-                className="text-red-500 cursor-pointer"
-              />
+            <div className="flex-1 min-w-0">
+              <CardTitle className="truncate">
+                {transaction.category?.name}
+              </CardTitle>
+              <CardDescription className="truncate">
+                {transaction.description}
+              </CardDescription>
+            </div>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <span className="text-md font-bold">
+                Rp {transaction.amount.toLocaleString()}
+              </span>
+              <button onClick={() => setOpen(true)}>
+                <Trash2
+                  width={16}
+                  height={16}
+                  className="text-red-500 cursor-pointer"
+                />
+              </button>
             </div>
           </div>
         </CardHeader>
       </Card>
-    </div>
+
+      <Alert
+        open={open}
+        onOpenChange={setOpen}
+        apiUrl={`/api/user/transaction/${transaction.id}`}
+        successMessage="Transaction deleted"
+        description="This action cannot be undone. This will permanently delete this transaction."
+      />
+    </>
   );
 };
 
