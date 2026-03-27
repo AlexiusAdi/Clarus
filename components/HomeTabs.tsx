@@ -7,15 +7,17 @@ import InvestmentChart from "./InvestmentChart";
 import InvestmentCard from "./InvestmentCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { TabsData } from "@/app/Types";
-import { Asset } from "@/lib/generated/prisma/client";
+import { Asset, Investment } from "@/lib/generated/prisma/client";
 import { AssetCard } from "./AssetCard";
 
 const HomeTabs = ({
   tabData,
   assets,
+  investments,
 }: {
   tabData: TabsData;
   assets: Asset[];
+  investments: Investment[]; // Replace 'any' with the actual type for investments
 }) => {
   const { transactions, currentMonthTotal, topSpending, spendingByCategory } =
     tabData;
@@ -48,8 +50,16 @@ const HomeTabs = ({
 
       {/* Investments */}
       <TabsContent value="Investments" className="w-full flex flex-col gap-2">
-        <InvestmentChart />
-        <InvestmentCard />
+        <InvestmentChart investments={investments} />
+        {investments.length === 0 ? (
+          <p className="text-center py-10 text-sm text-muted-foreground">
+            No recent investments available.
+          </p>
+        ) : (
+          investments.map((investment) => (
+            <InvestmentCard key={investment.id} investment={investment} />
+          ))
+        )}
       </TabsContent>
 
       {/* Assets */}

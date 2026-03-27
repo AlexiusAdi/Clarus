@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { ChevronDownIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "./ui/calendar";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -16,23 +16,25 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "./ui/spinner";
 import { NumericFormat } from "react-number-format";
 import { InvestmentType } from "@/lib/generated/prisma/enums";
+import {
+  DEFAULT_INVESTMENT_TYPES,
+  PREDEFINED_CRYPTO_ASSETS,
+  PREDEFINED_STOCKS_ASSETS,
+} from "@/constants";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
-const INVESTMENT_TYPE_LABELS: Record<InvestmentType, string> = {
-  STOCK: "Stock",
-  CRYPTO: "Crypto",
-  GOLD: "Gold",
-  MUTUAL_FUND: "Mutual Fund",
-  BOND: "Bond",
-  OTHER: "Other",
-};
-
-// Border / highlight colour per asset type
 const TYPE_ACCENT: Record<InvestmentType, string> = {
   STOCK: "border-blue-500 bg-blue-50",
   CRYPTO: "border-orange-500 bg-orange-50",
   GOLD: "border-yellow-500 bg-yellow-50",
-  MUTUAL_FUND: "border-purple-500 bg-purple-50",
-  BOND: "border-green-500 bg-green-50",
   OTHER: "border-gray-500 bg-gray-50",
 };
 
@@ -69,6 +71,7 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<InvestmentForm>({
@@ -82,6 +85,7 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
   const purchaseDate = watch("date");
   const quantity = watch("quantity");
   const costPerUnit = watch("costPerUnit");
+  const unit = watch("unit");
 
   // Live total calculation
   const total =
@@ -126,17 +130,17 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
     >
       {/* ── Asset type selector ── */}
       <div className="grid grid-cols-3 gap-2">
-        {Object.values(InvestmentType).map((t) => (
+        {DEFAULT_INVESTMENT_TYPES.map((t) => (
           <Card
-            key={t}
-            onClick={() => handleTypeChange(t)}
+            key={t.value}
+            onClick={() => handleTypeChange(t.value)}
             className={cn(
               "h-12 p-2 flex justify-center items-center cursor-pointer transition-all",
-              type === t ? TYPE_ACCENT[t] : "opacity-60",
+              type === t.value ? TYPE_ACCENT[t.value] : "opacity-60",
             )}
           >
             <CardHeader className="justify-center font-semibold text-sm">
-              {INVESTMENT_TYPE_LABELS[t]}
+              {t.name}
             </CardHeader>
           </Card>
         ))}
@@ -161,7 +165,7 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
               <ChevronDownIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0" align="center">
             <Calendar
               mode="single"
               selected={purchaseDate}
@@ -175,6 +179,58 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
           <span className="text-red-500 text-sm">{errors.date.message}</span>
         )}
       </div>
+
+      {/* ── Ticker / symbol (optional, not shown for Gold) ── */}
+      {type !== InvestmentType.GOLD && (
+        <div className="flex flex-col gap-2">
+          <span>{type === InvestmentType.STOCK ? "Stock" : "Crypto"}</span>
+          <Controller
+            control={control}
+            name="assetIdentifier"
+            render={({ field }) => (
+              <Select
+                value={field.value} // ✅ VERY IMPORTANT
+                onValueChange={field.onChange} // ✅ VERY IMPORTANT
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a stock" />
+                </SelectTrigger>
+                <SelectContent>
+                  <div className="max-h-60 overflow-y-auto">
+                    <SelectGroup>
+                      {type === InvestmentType.CRYPTO ? (
+                        <>
+                          <SelectLabel>Coin</SelectLabel>
+                          {PREDEFINED_CRYPTO_ASSETS.map((asset) => (
+                            <SelectItem
+                              key={asset.identifier}
+                              value={asset.identifier}
+                            >
+                              {asset.identifier} - {asset.label}
+                            </SelectItem>
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          <SelectLabel>Stocks</SelectLabel>
+                          {PREDEFINED_STOCKS_ASSETS.map((asset) => (
+                            <SelectItem
+                              key={asset.identifier}
+                              value={asset.identifier}
+                            >
+                              {asset.identifier} - {asset.label}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                    </SelectGroup>
+                  </div>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+      )}
 
       {/* ── Asset name ── */}
       <div className="flex flex-col gap-2">
@@ -196,27 +252,6 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
           <span className="text-red-500 text-sm">{errors.name.message}</span>
         )}
       </div>
-
-      {/* ── Ticker / symbol (optional, not shown for Gold) ── */}
-      {type !== InvestmentType.GOLD && (
-        <div className="flex flex-col gap-2">
-          <span>
-            Ticker / Symbol{" "}
-            <span className="text-muted-foreground text-xs">(Optional)</span>
-          </span>
-          <Input
-            type="text"
-            placeholder={
-              type === InvestmentType.STOCK
-                ? "e.g. BBCA"
-                : type === InvestmentType.CRYPTO
-                  ? "e.g. BTC"
-                  : "e.g. MIFUND01"
-            }
-            {...register("assetIdentifier")}
-          />
-        </div>
-      )}
 
       {/* ── Quantity ── */}
       <div className="flex flex-col gap-2">
@@ -240,17 +275,26 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
       </div>
 
       {/* ── Asset name ── */}
-      <div className="flex flex-col gap-2">
-        <span>Unit</span>
-        <Input
-          type="text"
-          placeholder={type === InvestmentType.GOLD ? "e.g. gram" : "e.g. Lots"}
-          {...register("unit")}
-        />
-        {errors.unit && (
-          <span className="text-red-500 text-sm">{errors.unit.message}</span>
-        )}
-      </div>
+      {type === InvestmentType.STOCK && (
+        <div className="flex flex-col gap-2">
+          <span>Unit</span>
+          <Controller
+            control={control}
+            name="unit"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select unit" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="shares">Shares</SelectItem>
+                  <SelectItem value="lot">Lot</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+      )}
 
       {/* ── Price per unit ── */}
       <div className="flex flex-col gap-2">

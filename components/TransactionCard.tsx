@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { TopSpendingItem } from "@/constants";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { ArrowRight, Trash2 } from "lucide-react";
 import { TransactionType } from "@/lib/generated/prisma/enums";
 import Alert from "./Alert";
+import { TopSpendingItem } from "@/app/Types";
 
 const TransactionCard = ({ transaction }: { transaction: TopSpendingItem }) => {
   const [open, setOpen] = useState(false);

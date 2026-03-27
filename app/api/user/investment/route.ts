@@ -136,26 +136,3 @@ export async function POST(req: NextRequest) {
 }
 
 // ── DELETE — remove a holding ─────────────────────────────────────────────────
-
-export async function DELETE(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
-  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
-
-  // Verify ownership before deleting
-  const investment = await prisma.investment.findFirst({
-    where: { id, userId: session.user.id },
-  });
-  if (!investment) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  await prisma.investment.delete({ where: { id } });
-
-  return NextResponse.json({ success: true });
-}

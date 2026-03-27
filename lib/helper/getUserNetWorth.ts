@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { TransactionType } from "./generated/prisma/browser";
+import { TransactionType } from "../generated/prisma/browser";
 import { UserNetWorth } from "@/app/Types";
 
 export async function getUserNetWorth(userId: string): Promise<UserNetWorth> {
