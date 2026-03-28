@@ -95,6 +95,7 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const handleTypeChange = (newType: InvestmentType) => {
     reset({ type: newType });
+    setValue("name", "");
   };
 
   const onSubmit = async (data: InvestmentForm) => {
@@ -189,6 +190,7 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
             name="assetIdentifier"
             render={({ field }) => (
               <Select
+                key={type}
                 value={field.value} // ✅ VERY IMPORTANT
                 onValueChange={field.onChange} // ✅ VERY IMPORTANT
               >
@@ -258,14 +260,18 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
         <span>
           {type === InvestmentType.GOLD ? "Weight (grams)" : "Quantity / Units"}
         </span>
-        <NumericFormat
-          customInput={Input}
-          thousandSeparator="."
-          decimalSeparator=","
-          placeholder={type === InvestmentType.GOLD ? "e.g. 10" : "e.g. 100"}
-          onValueChange={(v) =>
-            setValue("quantity", v.value, { shouldValidate: true })
-          }
+        <Controller
+          control={control}
+          name="quantity"
+          render={({ field }) => (
+            <NumericFormat
+              customInput={Input}
+              thousandSeparator="."
+              decimalSeparator=","
+              value={field.value || ""}
+              onValueChange={(v) => field.onChange(v.value)}
+            />
+          )}
         />
         {errors.quantity && (
           <span className="text-red-500 text-sm">
@@ -301,15 +307,19 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
         <span>
           {type === InvestmentType.GOLD ? "Price per Gram" : "Cost per Unit"}
         </span>
-        <NumericFormat
-          customInput={Input}
-          thousandSeparator="."
-          decimalSeparator=","
-          prefix="Rp "
-          placeholder="Enter cost per unit"
-          onValueChange={(v) =>
-            setValue("costPerUnit", v.value, { shouldValidate: true })
-          }
+        <Controller
+          control={control}
+          name="costPerUnit"
+          render={({ field }) => (
+            <NumericFormat
+              customInput={Input}
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="Rp "
+              value={field.value || ""}
+              onValueChange={(v) => field.onChange(v.value)}
+            />
+          )}
         />
         {errors.costPerUnit && (
           <span className="text-red-500 text-sm">
