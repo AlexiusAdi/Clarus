@@ -123,7 +123,7 @@ export const AddTransaction = ({
           onClick={() => handleTypeChange(TransactionType.EXPENSE)}
           className={cn(
             "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
-            type === TransactionType.EXPENSE && "border-red-500",
+            type === TransactionType.EXPENSE && "border-red-500 border-2",
           )}
         >
           <CardHeader className="justify-center font-semibold">
@@ -135,7 +135,7 @@ export const AddTransaction = ({
           onClick={() => handleTypeChange(TransactionType.INCOME)}
           className={cn(
             "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
-            type === TransactionType.INCOME && "border-green-500",
+            type === TransactionType.INCOME && "border-green-500 border-2",
           )}
         >
           <CardHeader className="justify-center font-semibold">
@@ -196,7 +196,7 @@ export const AddTransaction = ({
           <div className="flex flex-col gap-2">
             <span>Category</span>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2 h-24">
               {filteredCategories.map((cat) => (
                 <Card
                   key={cat.id}
@@ -207,8 +207,8 @@ export const AddTransaction = ({
                     "h-10 p-2 justify-center cursor-pointer",
                     selectedCategory === cat.id
                       ? type === "INCOME"
-                        ? "border-green-500 bg-green-100"
-                        : "border-red-500 bg-red-100"
+                        ? "border-green-500 border-2"
+                        : "border-red-500 border-2"
                       : "opacity-60",
                   )}
                 >

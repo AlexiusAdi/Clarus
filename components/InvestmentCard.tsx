@@ -2,10 +2,11 @@
 
 import React, { useState, useMemo } from "react";
 import { Card, CardContent } from "./ui/card";
-import { Coins, Trash2, TrendingUp } from "lucide-react";
+import { Coins, Icon, Trash2, TrendingUp } from "lucide-react";
 import { Investment, AssetPrice } from "@/lib/generated/prisma/browser";
 import Alert from "./Alert";
 import { cn } from "@/lib/utils";
+import { TYPE_ICON } from "@/constants";
 
 type Props = {
   investment: Investment & {
@@ -16,7 +17,9 @@ type Props = {
 const InvestmentCard = ({ investment }: Props) => {
   const [open, setOpen] = useState(false);
 
-  // ✅ Normalize quantity (IMPORTANT)
+  const Icon = TYPE_ICON[investment.type].icon;
+  const iconStyle = TYPE_ICON[investment.type].className;
+
   const normalizedQuantity = useMemo(() => {
     if (investment.unit === "lot") {
       return investment.quantity * 100;
@@ -49,10 +52,10 @@ const InvestmentCard = ({ investment }: Props) => {
     <div className="flex flex-col">
       <Card className="w-full">
         <CardContent className="p-4 flex gap-3">
-          <Coins
+          <Icon
             width={32}
             height={32}
-            className="text-yellow-500 bg-amber-200 rounded-md p-2"
+            className={cn("rounded-md p-2", iconStyle)}
           />
 
           <div className="flex flex-col gap-3 w-full">

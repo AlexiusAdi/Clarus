@@ -10,11 +10,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/signin",
   },
-  callbacks: {
-    authorized: async ({ auth }) => {
-      return !!auth;
-    },
-  },
   events: {
     async createUser({ user }) {
       const userId = user.id;

@@ -5,7 +5,15 @@ import {
   CategoryType,
   InvestmentType,
 } from "@/lib/generated/prisma/enums";
-import { ArrowUpRight, PiggyBank, Wallet } from "lucide-react";
+import {
+  ArrowUpRight,
+  Bitcoin,
+  CircleDollarSign,
+  Coins,
+  PiggyBank,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
 
 export const DEFAULT_CATEGORIES = [
   { name: "Food", type: CategoryType.EXPENSE },
@@ -601,3 +609,22 @@ export const PREDEFINED_CRYPTO_ASSETS: PredefinedAsset[] = [
     unit: "coin",
   },
 ];
+
+export const TYPE_ICON = {
+  STOCK: {
+    icon: TrendingUp,
+    className: "text-blue-500 bg-blue-100",
+  },
+  CRYPTO: {
+    icon: Bitcoin,
+    className: "text-orange-500 bg-orange-100",
+  },
+  GOLD: {
+    icon: Coins,
+    className: "text-yellow-500 bg-amber-200",
+  },
+  OTHER: {
+    icon: CircleDollarSign,
+    className: "text-gray-500 bg-gray-100",
+  },
+} as const;
