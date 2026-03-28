@@ -1,8 +1,25 @@
 import { prisma } from "@/lib/prisma";
 import { TransactionType } from "../generated/prisma/browser";
 
-export async function getTabsData(userId: string) {
-  const transactions = await prisma.transaction.findMany({
+export type TransactionDTO = {
+  id: string;
+  amount: number;
+  type: TransactionType;
+  date: Date;
+  createdAt: Date;
+  description: string | null;
+  category: { name: string } | null;
+};
+
+export type TabsDataDTO = {
+  transactions: TransactionDTO[];
+  currentMonthTotal: number;
+  topSpending: TransactionDTO[];
+  spendingByCategory: { category: string; amount: number }[];
+};
+
+export async function getTabsData(userId: string): Promise<TabsDataDTO> {
+  const raw = await prisma.transaction.findMany({
     where: { userId },
     orderBy: { date: "desc" },
     select: {
@@ -11,63 +28,52 @@ export async function getTabsData(userId: string) {
       type: true,
       date: true,
       createdAt: true,
-      category: {
-        select: { name: true },
-      },
+      category: { select: { name: true } },
       description: true,
     },
   });
 
-  const currentMonth = new Date().toISOString().slice(0, 7); // "2026-03"
+  // Normalize Decimal → number once, right here
+  const transactions: TransactionDTO[] = raw.map((t) => ({
+    id: t.id,
+    amount: t.amount.toNumber(),
+    type: t.type,
+    date: t.date,
+    createdAt: t.createdAt,
+    description: t.description,
+    category: t.category,
+  }));
 
-  // 1️⃣ Expense per month
+  const currentMonth = new Date().toISOString().slice(0, 7);
+
   const expensePerMonthMap: Record<string, number> = {};
-
   transactions.forEach((txn) => {
     if (txn.type !== TransactionType.EXPENSE) return;
-
-    const date = new Date(txn.date);
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-
+    const monthKey = txn.date.toISOString().slice(0, 7);
     expensePerMonthMap[monthKey] =
       (expensePerMonthMap[monthKey] || 0) + txn.amount;
   });
 
-  // 2️⃣ Current month total expense
   const currentMonthTotal = expensePerMonthMap[currentMonth] ?? 0;
 
-  // 3️⃣ Top spending — latest transactions (both income and expense)
   const topSpending = transactions
     .filter(
-      (txn) =>
-        txn.type === TransactionType.EXPENSE ||
-        txn.type === TransactionType.INCOME,
+      (t) =>
+        t.type === TransactionType.EXPENSE || t.type === TransactionType.INCOME,
     )
     .slice(0, 3);
 
-  // 4️⃣ Spending by category — current month only
   const categoryMap: Record<string, number> = {};
-
   transactions.forEach((txn) => {
     if (txn.type !== TransactionType.EXPENSE) return;
-
-    const date = new Date(txn.date);
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-
-    if (monthKey !== currentMonth) return;
-
-    const categoryName = txn.category?.name ?? "Other";
-    categoryMap[categoryName] = (categoryMap[categoryName] || 0) + txn.amount;
+    if (txn.date.toISOString().slice(0, 7) !== currentMonth) return;
+    const name = txn.category?.name ?? "Other";
+    categoryMap[name] = (categoryMap[name] || 0) + txn.amount;
   });
 
   const spendingByCategory = Object.entries(categoryMap).map(
     ([category, amount]) => ({ category, amount }),
   );
 
-  return {
-    transactions,
-    currentMonthTotal,
-    topSpending,
-    spendingByCategory,
-  };
+  return { transactions, currentMonthTotal, topSpending, spendingByCategory };
 }

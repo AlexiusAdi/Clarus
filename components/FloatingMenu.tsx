@@ -11,12 +11,14 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { DEFAULT_ACTIONS } from "@/constants";
-import { Asset, Category, Goal } from "@/lib/generated/prisma/client";
+import { Asset, Category, Goal, Prisma } from "@/lib/generated/prisma/client";
 import { AddTransaction } from "./AddTransaction";
 import { AddAssets } from "./AddAssets";
 import OptionCard from "./OptionCard";
 import { SettingsUser } from "@/app/Types";
 import { AddInvestment } from "./AddInvestment";
+import { GoalDTO } from "@/lib/data/goals";
+import { AssetDTO } from "@/lib/data/assets";
 
 export default function FloatingMenu({
   categories,
@@ -24,8 +26,8 @@ export default function FloatingMenu({
   user,
 }: {
   categories: Category[];
-  goals: Goal[];
-  assets: Asset[];
+  goals: GoalDTO[];
+  assets: AssetDTO[];
   user: SettingsUser;
 }) {
   const [fabOpen, setFabOpen] = useState(false);

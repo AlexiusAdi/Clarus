@@ -7,6 +7,10 @@ import { auth } from "@/auth";
 import { getUserNetWorth } from "@/lib/helper/getUserNetWorth";
 import { getTabsData } from "@/lib/helper/getTabsData";
 import { SettingsUser } from "@/app/Types";
+import { getCategories } from "@/lib/data/categories";
+import { getAssets } from "@/lib/data/assets";
+import { getGoals } from "@/lib/data/goals";
+import { getInvestments } from "@/lib/data/investments";
 
 const Page = async () => {
   const session = await auth();
@@ -20,24 +24,15 @@ const Page = async () => {
     image: session?.user?.image ?? undefined,
   };
 
-  const categories = await prisma.category.findMany({
-    where: { userId },
-  });
-
-  const assets = await prisma.asset.findMany({
-    where: { userId },
-  });
-
-  const goals = await prisma.goal.findMany({
-    where: { userId },
-  });
-
-  const investments = await prisma.investment.findMany({
-    where: { userId },
-  });
-
-  const netWorth = await getUserNetWorth(userId);
-  const tabsData = await getTabsData(userId);
+  const [categories, assets, goals, investments, netWorth, tabsData] =
+    await Promise.all([
+      getCategories(userId),
+      getAssets(userId),
+      getGoals(userId),
+      getInvestments(userId),
+      getUserNetWorth(userId),
+      getTabsData(userId),
+    ]);
 
   return (
     <div className="@container/main w-screen mb-20 p-4">

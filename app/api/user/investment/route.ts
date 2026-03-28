@@ -134,5 +134,3 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json(investment, { status: 201 });
 }
-
-// ── DELETE — remove a holding ─────────────────────────────────────────────────

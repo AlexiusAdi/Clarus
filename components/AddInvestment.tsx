@@ -32,10 +32,10 @@ import {
 } from "./ui/select";
 
 const TYPE_ACCENT: Record<InvestmentType, string> = {
-  STOCK: "border-blue-500 bg-blue-50",
-  CRYPTO: "border-orange-500 bg-orange-50",
-  GOLD: "border-yellow-500 bg-yellow-50",
-  OTHER: "border-gray-500 bg-gray-50",
+  STOCK: "border-blue-500 border-2",
+  CRYPTO: "border-orange-500 border-2",
+  GOLD: "border-yellow-500 border-2",
+  OTHER: "border-gray-500 border-2",
 };
 
 // ── Zod schema ───────────────────────────────────────────────────────────────
@@ -85,7 +85,6 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
   const purchaseDate = watch("date");
   const quantity = watch("quantity");
   const costPerUnit = watch("costPerUnit");
-  const unit = watch("unit");
 
   // Live total calculation
   const total =
@@ -95,6 +94,19 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const handleTypeChange = (newType: InvestmentType) => {
     reset({ type: newType });
+    if (newType === InvestmentType.GOLD) {
+      setValue("unit", "gram");
+    } else if (newType === InvestmentType.CRYPTO) {
+      setValue("unit", "coin");
+    } else if (newType === InvestmentType.STOCK) {
+      setValue("unit", "shares"); // default
+    }
+
+    if (newType === InvestmentType.GOLD) {
+      setValue("unit", "gram");
+      setValue("assetIdentifier", "gold");
+    }
+
     setValue("name", "");
   };
 
@@ -120,7 +132,9 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
       onSuccess();
       router.refresh();
     } catch (error) {
-      toast.error((error as Error).message || "Failed to add investment");
+      toast.error((error as Error).message || "Failed to add investment", {
+        position: "top-center",
+      });
     }
   };
 

@@ -10,6 +10,7 @@ import {
 import { Pie, PieChart } from "recharts";
 import { Investment } from "@/lib/generated/prisma/client";
 import { useMemo } from "react";
+import { InvestmentDTO } from "@/lib/data/investments";
 
 const COLORS = {
   STOCK: "#3b82f6",
@@ -21,7 +22,7 @@ const COLORS = {
 export default function InvestmentChart({
   investments,
 }: {
-  investments: Investment[];
+  investments: InvestmentDTO[];
 }) {
   const chartData = useMemo(() => {
     const grouped: Record<string, number> = {};

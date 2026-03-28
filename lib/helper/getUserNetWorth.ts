@@ -10,29 +10,36 @@ export async function getUserNetWorth(userId: string): Promise<UserNetWorth> {
 
   const totalIncome = transactions
     .filter((txn) => txn.type === TransactionType.INCOME)
-    .reduce((acc, txn) => acc + txn.amount, 0);
+    .reduce((acc, txn) => acc + txn.amount.toNumber(), 0);
 
   const totalExpense = transactions
     .filter((txn) => txn.type === TransactionType.EXPENSE)
-    .reduce((acc, txn) => acc + txn.amount, 0);
+    .reduce((acc, txn) => acc + txn.amount.toNumber(), 0);
 
   const cashBalance = totalIncome - totalExpense;
 
   const investments = await prisma.investment.findMany({
     where: { userId },
-    select: { costPerUnit: true },
+    select: { costPerUnit: true, quantity: true, unit: true },
   });
-  const totalInvestments = investments.reduce(
-    (acc, inv) => acc + inv.costPerUnit,
-    0,
-  );
+
+  const totalInvestments = investments.reduce((acc, inv) => {
+    const quantity =
+      inv.unit === "lot"
+        ? inv.quantity.toNumber() * 100
+        : inv.quantity.toNumber();
+    return acc + quantity * inv.costPerUnit.toNumber();
+  }, 0);
 
   const assets = await prisma.asset.findMany({
     where: { userId },
-    select: { name: true, value: true },
+    select: { value: true },
   });
 
-  const totalAssets = assets.reduce((acc, asset) => acc + asset.value, 0);
+  const totalAssets = assets.reduce(
+    (acc, asset) => acc + asset.value.toNumber(),
+    0,
+  );
 
   const netWorth = cashBalance + totalInvestments + totalAssets;
 

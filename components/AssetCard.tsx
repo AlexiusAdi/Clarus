@@ -1,26 +1,18 @@
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "./ui/card";
 import {
   Coins,
   Trash2,
-  TrendingUp,
   Building2,
   Car,
   Banknote,
   Landmark,
   PackageOpen,
-  TrendingDown,
 } from "lucide-react";
-import {
-  Asset,
-  Investment,
-  AssetType,
-  InvestmentType,
-} from "@/lib/generated/prisma/browser";
+import { AssetType } from "@/lib/generated/prisma/browser";
 import { format } from "date-fns";
-import { Spinner } from "./ui/spinner";
-import { useRouter } from "next/navigation";
 import Alert from "./Alert";
+import { AssetDTO } from "@/lib/data/assets";
 
 const ASSET_ICONS: Record<AssetType, React.ReactNode> = {
   GOLD: (
@@ -75,7 +67,7 @@ const formatRupiah = (value: number) =>
   }).format(value);
 
 interface AssetCardProps {
-  asset: Asset;
+  asset: AssetDTO;
 }
 
 export const AssetCard = ({ asset }: AssetCardProps) => {

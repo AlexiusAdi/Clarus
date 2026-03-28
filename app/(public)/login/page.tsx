@@ -38,12 +38,12 @@ export default function Login() {
         <Card className=" w-full max-w-sm bg-porcelinwhite border-2 ">
           <CardHeader>
             <CardTitle className="flex flex-col gap-y-4">
-              <div className="flex flex-col gap-2 items-center">
+              <div className="flex flex-col gap-2 items-center dark:text-black">
                 <p>Please sign in to continue</p>
               </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex-col gap-2">
+          <CardContent className="flex-col gap-2 dark:text-black dark:border-gray-gray-300">
             <Button
               variant="outline"
               className="w-full bg-porcelinwhite border-2 border-gray-300 hover:bg-gray-100"
