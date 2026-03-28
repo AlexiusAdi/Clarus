@@ -4,8 +4,8 @@ import FloatingMenu from "@/components/FloatingMenu";
 import HomeTabs from "@/components/HomeTabs";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { getUserNetWorth } from "@/lib/getUserNetWorth";
-import { getTabsData } from "@/lib/getTabsData";
+import { getUserNetWorth } from "@/lib/helper/getUserNetWorth";
+import { getTabsData } from "@/lib/helper/getTabsData";
 import { SettingsUser } from "@/app/Types";
 
 const Page = async () => {
@@ -32,6 +32,10 @@ const Page = async () => {
     where: { userId },
   });
 
+  const investments = await prisma.investment.findMany({
+    where: { userId },
+  });
+
   const netWorth = await getUserNetWorth(userId);
   const tabsData = await getTabsData(userId);
 
@@ -50,7 +54,11 @@ const Page = async () => {
       <NetWorthCard userNetWorth={netWorth} />
 
       <div className="flex w-full">
-        <HomeTabs tabData={tabsData} assets={assets} />
+        <HomeTabs
+          tabData={tabsData}
+          assets={assets}
+          investments={investments}
+        />
       </div>
     </div>
   );

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getAssetByIdentifier } from "@/app/Types";
+import { getAssetByIdentifier } from "@/lib/helper/getAssetByIdentifier";
 
 const IDR_PER_USD = 16350; // fallback — swap with a live FX call if needed
 const TROY_OZ_TO_GRAM = 31.1035;
 
 function isAuthorized(req: NextRequest): boolean {
-  return (
-    req.headers.get("authorization") === `Bearer ${process.env.CRON_SECRET}`
-  );
+  const secret = req.nextUrl.searchParams.get("secret");
+  return secret === process.env.CRON_SECRET;
 }
 
 async function fetchGoldPriceIdr(): Promise<number> {

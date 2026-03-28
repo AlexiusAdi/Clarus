@@ -7,7 +7,7 @@
 // GET /api/assets/search?q=apple
 // GET /api/assets/search?type=STOCK
 
-import { searchAssets } from "@/app/Types";
+import { searchAssets } from "@/lib/helper/searchAssets";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {

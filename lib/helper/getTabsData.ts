@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { TransactionType } from "./generated/prisma/browser";
+import { TransactionType } from "../generated/prisma/browser";
 
 export async function getTabsData(userId: string) {
   const transactions = await prisma.transaction.findMany({
