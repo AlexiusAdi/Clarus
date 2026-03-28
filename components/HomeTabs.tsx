@@ -34,12 +34,20 @@ const HomeTabs = ({
       {/* ✅ Overview */}
       <TabsContent value="overview" className="w-full">
         <div className="flex flex-col gap-3">
-          <SpendingChart data={spendingByCategory} />
-          <SpendingCategories
-            data={spendingByCategory}
-            totalExpense={currentMonthTotal}
-          />
-          <RecentActivities data={topSpending} isShown={true} />
+          {tabData.transactions.length === 0 ? (
+            <p className="text-center py-10 text-sm text-muted-foreground">
+              No recent transactions available.
+            </p>
+          ) : (
+            <>
+              <SpendingChart data={spendingByCategory} />
+              <SpendingCategories
+                data={spendingByCategory}
+                totalExpense={currentMonthTotal}
+              />
+              <RecentActivities data={topSpending} isShown={true} />
+            </>
+          )}
         </div>
       </TabsContent>
 
@@ -50,15 +58,17 @@ const HomeTabs = ({
 
       {/* Investments */}
       <TabsContent value="Investments" className="w-full flex flex-col gap-2">
-        <InvestmentChart investments={investments} />
         {investments.length === 0 ? (
           <p className="text-center py-10 text-sm text-muted-foreground">
             No recent investments available.
           </p>
         ) : (
-          investments.map((investment) => (
-            <InvestmentCard key={investment.id} investment={investment} />
-          ))
+          <>
+            <InvestmentChart investments={investments} />
+            {investments.map((investment) => (
+              <InvestmentCard key={investment.id} investment={investment} />
+            ))}
+          </>
         )}
       </TabsContent>
 
@@ -66,7 +76,7 @@ const HomeTabs = ({
       <TabsContent value="Assets" className="w-full flex flex-col gap-2">
         {assets.length === 0 ? (
           <p className="text-center py-10 text-sm text-muted-foreground">
-            No recent transactions available.
+            No recent assets available.
           </p>
         ) : (
           assets.map((asset) => <AssetCard key={asset.id} asset={asset} />)
