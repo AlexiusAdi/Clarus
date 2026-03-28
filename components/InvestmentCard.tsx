@@ -7,6 +7,7 @@ import Alert from "./Alert";
 import { cn } from "@/lib/utils";
 import { TYPE_ICON } from "@/constants";
 import { AssetPriceDTO, InvestmentDTO } from "@/lib/data/investments";
+import { formatCurrency } from "@/lib/helper/formatCurrency";
 
 type Props = {
   investment: InvestmentDTO & {
@@ -40,13 +41,6 @@ const InvestmentCard = ({ investment }: Props) => {
     profit !== null && invested !== 0 ? (profit / invested) * 100 : null;
 
   const isUp = profit !== null ? profit >= 0 : null;
-
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(value);
 
   return (
     <div className="flex flex-col">

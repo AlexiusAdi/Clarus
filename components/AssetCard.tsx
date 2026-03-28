@@ -13,6 +13,7 @@ import { AssetType } from "@/lib/generated/prisma/browser";
 import { format } from "date-fns";
 import Alert from "./Alert";
 import { AssetDTO } from "@/lib/data/assets";
+import { formatCurrency } from "@/lib/helper/formatCurrency";
 
 const ASSET_ICONS: Record<AssetType, React.ReactNode> = {
   GOLD: (
@@ -59,13 +60,6 @@ const ASSET_ICONS: Record<AssetType, React.ReactNode> = {
   ),
 };
 
-const formatRupiah = (value: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
-
 interface AssetCardProps {
   asset: AssetDTO;
 }
@@ -93,7 +87,7 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
                 </div>
                 <div className="flex flex-col items-end">
                   <span className="font-semibold">
-                    {formatRupiah(asset.value)}
+                    {formatCurrency(asset.value)}
                   </span>
                 </div>
               </div>
@@ -101,7 +95,7 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
               <div className="flex justify-between items-center">
                 <div className="flex-1 bg-accent rounded-xl p-1.5 mr-3 text-sm">
                   <span>
-                    Acquired {format(new Date(asset.date), "MMM d, yyyy")}
+                    Acquired {format(new Date(asset.date), "EEE MMM dd, yyyy")}
                   </span>
                 </div>
                 <button onClick={() => setOpen(true)}>

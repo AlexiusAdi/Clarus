@@ -38,6 +38,9 @@ const transactionSchema = z.object({
     })
     .refine((val) => parseFloat(val) > 0, {
       message: "Amount must be greater than 0",
+    })
+    .refine((val) => val.replace(/\D/g, "").length <= 12, {
+      message: "Amount must be at most 12 digits",
     }),
   description: z.string().optional(),
 });
