@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "./ui/card";
-import { Coins, Icon, Trash2, TrendingUp } from "lucide-react";
-import { Investment, AssetPrice } from "@/lib/generated/prisma/browser";
+import { Trash2, TrendingUp } from "lucide-react";
 import Alert from "./Alert";
 import { cn } from "@/lib/utils";
 import { TYPE_ICON } from "@/constants";
+import { AssetPriceDTO, InvestmentDTO } from "@/lib/data/investments";
 
 type Props = {
-  investment: Investment & {
-    assetPrice?: AssetPrice | null;
+  investment: InvestmentDTO & {
+    assetPrice?: AssetPriceDTO | null;
   };
 };
 

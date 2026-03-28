@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Spinner } from "./ui/spinner";
 import { NumericFormat } from "react-number-format";
+import { GoalDTO } from "@/lib/data/goals";
 
 const transactionSchema = z.object({
   type: z.enum([
@@ -49,7 +50,7 @@ export const AddTransaction = ({
   onSuccess,
 }: {
   categories: Category[];
-  goals: Goal[];
+  goals: GoalDTO[];
   onSuccess: () => void;
 }) => {
   const router = useRouter();

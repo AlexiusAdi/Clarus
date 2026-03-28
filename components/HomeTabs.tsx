@@ -6,18 +6,19 @@ import RecentActivities from "./RecentActivities";
 import InvestmentChart from "./InvestmentChart";
 import InvestmentCard from "./InvestmentCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { TabsData } from "@/app/Types";
-import { Asset, Investment } from "@/lib/generated/prisma/client";
 import { AssetCard } from "./AssetCard";
+import { AssetDTO } from "@/lib/data/assets";
+import { InvestmentDTO } from "@/lib/data/investments";
+import { TabsDataDTO } from "@/lib/helper/getTabsData";
 
 const HomeTabs = ({
   tabData,
   assets,
   investments,
 }: {
-  tabData: TabsData;
-  assets: Asset[];
-  investments: Investment[]; // Replace 'any' with the actual type for investments
+  tabData: TabsDataDTO;
+  assets: AssetDTO[];
+  investments: InvestmentDTO[]; // Replace 'any' with the actual type for investments
 }) => {
   const { transactions, currentMonthTotal, topSpending, spendingByCategory } =
     tabData;

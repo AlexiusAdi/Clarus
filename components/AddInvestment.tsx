@@ -32,10 +32,10 @@ import {
 } from "./ui/select";
 
 const TYPE_ACCENT: Record<InvestmentType, string> = {
-  STOCK: "border-blue-500 bg-blue-50",
-  CRYPTO: "border-orange-500 bg-orange-50",
-  GOLD: "border-yellow-500 bg-yellow-50",
-  OTHER: "border-gray-500 bg-gray-50",
+  STOCK: "border-blue-500 border-2",
+  CRYPTO: "border-orange-500 border-2",
+  GOLD: "border-yellow-500 border-2",
+  OTHER: "border-gray-500 border-2",
 };
 
 // ── Zod schema ───────────────────────────────────────────────────────────────
