@@ -33,21 +33,29 @@ export async function GET(req: NextRequest) {
   });
 
   const data = investments.map((inv) => {
-    const amountInvested = inv.quantity * inv.costPerUnit;
-    const currentPriceIdr = inv.assetPrice?.priceIdr ?? null;
+    const quantity = inv.quantity.toNumber();
+    const costPerUnit = inv.costPerUnit.toNumber();
+    const currentPriceIdr = inv.assetPrice?.priceIdr.toNumber() ?? null;
+
+    const normalizedQuantity = inv.unit === "lot" ? quantity * 100 : quantity;
+
+    const amountInvested = normalizedQuantity * costPerUnit;
     const currentValue =
-      currentPriceIdr !== null ? inv.quantity * currentPriceIdr : null;
+      currentPriceIdr !== null ? normalizedQuantity * currentPriceIdr : null;
     const pnlAbs = currentValue !== null ? currentValue - amountInvested : null;
-    const pnlPct = pnlAbs !== null ? (pnlAbs / amountInvested) * 100 : null;
+    const pnlPct =
+      pnlAbs !== null && amountInvested !== 0
+        ? (pnlAbs / amountInvested) * 100
+        : null;
 
     return {
       id: inv.id,
       name: inv.name,
       type: inv.type,
       assetIdentifier: inv.assetIdentifier,
-      quantity: inv.quantity,
+      quantity,
       unit: inv.unit,
-      costPerUnit: inv.costPerUnit,
+      costPerUnit,
       date: inv.date,
       amountInvested,
       currentPriceIdr,
