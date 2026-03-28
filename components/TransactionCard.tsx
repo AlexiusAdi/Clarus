@@ -6,6 +6,7 @@ import { ArrowRight, Trash2 } from "lucide-react";
 import { TransactionType } from "@/lib/generated/prisma/enums";
 import Alert from "./Alert";
 import { TopSpendingItem } from "@/app/Types";
+import { formatCurrency } from "@/lib/helper/formatCurrency";
 
 const TransactionCard = ({ transaction }: { transaction: TopSpendingItem }) => {
   const [open, setOpen] = useState(false);
@@ -32,7 +33,7 @@ const TransactionCard = ({ transaction }: { transaction: TopSpendingItem }) => {
             </div>
             <div className="flex flex-col items-end gap-1 shrink-0">
               <span className="text-md font-bold">
-                Rp {transaction.amount.toLocaleString()}
+                {formatCurrency(transaction.amount)}
               </span>
               <button onClick={() => setOpen(true)}>
                 <Trash2

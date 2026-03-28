@@ -11,7 +11,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { DEFAULT_ACTIONS } from "@/constants";
-import { Asset, Category, Goal, Prisma } from "@/lib/generated/prisma/client";
+import { Category } from "@/lib/generated/prisma/client";
 import { AddTransaction } from "./AddTransaction";
 import { AddAssets } from "./AddAssets";
 import OptionCard from "./OptionCard";

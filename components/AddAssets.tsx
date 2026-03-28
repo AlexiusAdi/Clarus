@@ -32,6 +32,9 @@ const assetSchema = z.object({
     })
     .refine((val) => parseFloat(val) > 0, {
       message: "Amount must be greater than 0",
+    })
+    .refine((val) => val.replace(/\D/g, "").length <= 12, {
+      message: "Amount must be at most 12 digits",
     }),
   date: z.date("Date is required"),
 });
@@ -189,7 +192,7 @@ export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
               <ChevronDownIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0" align="center">
             <Calendar
               mode="single"
               selected={date}
