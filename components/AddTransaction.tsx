@@ -254,6 +254,7 @@ export const AddTransaction = ({
                   onSelect={(d) => {
                     if (d) setValue("date", d, { shouldValidate: true });
                   }}
+                  disabled={{ after: new Date() }}
                 />
               </PopoverContent>
             </Popover>
