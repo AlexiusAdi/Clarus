@@ -7,6 +7,8 @@ const TROY_OZ_TO_GRAM = 31.1035;
 
 function isAuthorized(req: NextRequest): boolean {
   const secret = req.nextUrl.searchParams.get("secret");
+  console.log(`secret from query: "${secret}"`);
+  console.log(`CRON_SECRET from env: "${process.env.CRON_SECRET}"`);
   return secret === process.env.CRON_SECRET;
 }
 
