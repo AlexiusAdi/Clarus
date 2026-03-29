@@ -12,12 +12,14 @@ function isAuthorized(req: NextRequest): boolean {
 }
 
 async function fetchGoldPriceIdr(): Promise<number> {
-  const res = await fetch("https://api.metals.live/v1/spot/gold", {
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`metals.live error: ${res.status}`);
+  // GC=F is gold futures on Yahoo Finance
+  const res = await fetch(
+    "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=1d",
+    { cache: "no-store" },
+  );
+  if (!res.ok) throw new Error(`yahoo error: ${res.status}`);
   const data = await res.json();
-  const usdPerOz: number = Array.isArray(data) ? data[0]?.price : data?.price;
+  const usdPerOz = data.chart.result[0].meta.regularMarketPrice;
   if (!usdPerOz) throw new Error("No gold price returned");
   return (usdPerOz / TROY_OZ_TO_GRAM) * IDR_PER_USD;
 }
