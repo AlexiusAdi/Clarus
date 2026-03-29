@@ -11,6 +11,7 @@ import { Pie, PieChart } from "recharts";
 import { Investment } from "@/lib/generated/prisma/client";
 import { useMemo } from "react";
 import { InvestmentDTO } from "@/lib/data/investments";
+import { formatCurrency } from "@/lib/helper/formatCurrency";
 
 const COLORS = {
   STOCK: "#3b82f6",
@@ -59,7 +60,6 @@ export default function InvestmentChart({
   const total = chartData.reduce((acc, cur) => acc + cur.value, 0);
 
   const chartConfig = {
-    value: { label: "Value" },
     STOCK: { label: "Stock", color: COLORS.STOCK },
     CRYPTO: { label: "Crypto", color: COLORS.CRYPTO },
     GOLD: { label: "Gold", color: COLORS.GOLD },
@@ -82,7 +82,7 @@ export default function InvestmentChart({
             <Pie
               data={chartData}
               dataKey="value"
-              nameKey="type"
+              nameKey="name"
               innerRadius={60}
               strokeWidth={5}
             />
@@ -111,7 +111,7 @@ export default function InvestmentChart({
 
                 <div className="flex items-center gap-4">
                   <span className="font-semibold">
-                    Rp {item.value.toLocaleString("id-ID")}
+                    {formatCurrency(item.value)}
                   </span>
                   <span className="text-muted-foreground text-sm">
                     {percentage}%

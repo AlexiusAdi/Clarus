@@ -6,8 +6,9 @@ const IDR_PER_USD = 16350; // fallback — swap with a live FX call if needed
 const TROY_OZ_TO_GRAM = 31.1035;
 
 function isAuthorized(req: NextRequest): boolean {
-  const secret = req.nextUrl.searchParams.get("secret");
-  return secret === process.env.CRON_SECRET;
+  const authHeader = req.headers.get("authorization");
+  console.log("[fetch-prices] Authorization header:", authHeader);
+  return authHeader === `Bearer ${process.env.CRON_SECRET}`;
 }
 
 async function fetchGoldPriceIdr(): Promise<number> {

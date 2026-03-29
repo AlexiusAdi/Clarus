@@ -199,6 +199,7 @@ export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
               onSelect={(d) => {
                 if (d) setValue("date", d, { shouldValidate: true });
               }}
+              disabled={{ after: new Date() }}
             />
           </PopoverContent>
         </Popover>

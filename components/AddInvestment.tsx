@@ -187,6 +187,7 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
               onSelect={(d) => {
                 if (d) setValue("date", d, { shouldValidate: true });
               }}
+              disabled={{ after: new Date() }}
             />
           </PopoverContent>
         </Popover>
@@ -196,7 +197,7 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
       </div>
 
       {/* ── Ticker / symbol (optional, not shown for Gold) ── */}
-      {type !== InvestmentType.GOLD && (
+      {type !== InvestmentType.GOLD && type !== InvestmentType.OTHER && (
         <div className="flex flex-col gap-2">
           <span>{type === InvestmentType.STOCK ? "Stock" : "Crypto"}</span>
           <Controller
