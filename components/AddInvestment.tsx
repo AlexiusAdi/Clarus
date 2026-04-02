@@ -51,11 +51,11 @@ const investmentSchema = z.object({
       message: "Quantity must be greater than 0",
     }),
   unit: z.string().min(1, "Unit is required"),
-  costPerUnit: z
+  totalInvestment: z
     .string()
-    .min(1, "Cost per unit is required")
+    .min(1, "Total investment is required")
     .refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) > 0, {
-      message: "Cost per unit must be greater than 0",
+      message: "Total investment must be greater than 0",
     }),
   notes: z.string().optional(),
 });
@@ -84,12 +84,12 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
   const type = watch("type");
   const purchaseDate = watch("date");
   const quantity = watch("quantity");
-  const costPerUnit = watch("costPerUnit");
+  const totalInvestment = watch("totalInvestment");
 
   // Live total calculation
   const total =
-    quantity && costPerUnit
-      ? parseFloat(quantity) * parseFloat(costPerUnit)
+    quantity && totalInvestment
+      ? parseFloat(quantity) * parseFloat(totalInvestment)
       : null;
 
   const handleTypeChange = (newType: InvestmentType) => {
@@ -320,11 +320,11 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
       {/* ── Price per unit ── */}
       <div className="flex flex-col gap-2">
         <span>
-          {type === InvestmentType.GOLD ? "Price per Gram" : "Cost per Unit"}
+          {type === InvestmentType.GOLD ? "Price per Gram" : "Total Investment"}
         </span>
         <Controller
           control={control}
-          name="costPerUnit"
+          name="totalInvestment"
           render={({ field }) => (
             <NumericFormat
               customInput={Input}
@@ -336,26 +336,12 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
             />
           )}
         />
-        {errors.costPerUnit && (
+        {errors.totalInvestment && (
           <span className="text-red-500 text-sm">
-            {errors.costPerUnit.message}
+            {errors.totalInvestment.message}
           </span>
         )}
       </div>
-
-      {/* ── Live total ── */}
-      {total !== null && !isNaN(total) && (
-        <div className="rounded-lg border px-4 py-3 bg-muted/40 flex justify-between items-center text-sm">
-          <span className="text-muted-foreground">Total Investment</span>
-          <span className="font-semibold">
-            {new Intl.NumberFormat("id-ID", {
-              style: "currency",
-              currency: "IDR",
-              maximumFractionDigits: 0,
-            }).format(total)}
-          </span>
-        </div>
-      )}
 
       {/* ── Notes ── */}
       <div className="flex flex-col gap-2">

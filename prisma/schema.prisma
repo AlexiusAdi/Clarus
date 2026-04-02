@@ -124,6 +124,7 @@ model Investment {
   quantity         Decimal         @db.Decimal(18, 2)
   unit             String         // "gram" | "lot" | "coin" | "share"
   costPerUnit      Decimal         @db.Decimal(18, 2)
+  totalInvestment  Decimal         @db.Decimal(18, 2)
   date             DateTime       // purchase date
   createdAt        DateTime       @default(now())
   userId           String

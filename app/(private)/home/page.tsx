@@ -11,6 +11,18 @@ import { getCategories } from "@/lib/data/categories";
 import { getAssets } from "@/lib/data/assets";
 import { getGoals } from "@/lib/data/goals";
 import { getInvestments } from "@/lib/data/investments";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import UserMenu from "@/components/UserMenu";
 
 const Page = async () => {
   const session = await auth();
@@ -34,6 +46,13 @@ const Page = async () => {
       getTabsData(userId),
     ]);
 
+  const initials = (settinguser.name ?? "?")
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <div className="@container/main w-screen mb-20 p-4">
       <FloatingMenu
@@ -44,7 +63,11 @@ const Page = async () => {
       />
       <div className="w-full flex flex-col text-right pb-4">
         <ThemeToggle />
-        <span>Hello, {session?.user?.name}</span>
+        <div className="flex justify-end gap-2 items-center">
+          <span>Hello, {session?.user?.name}</span>
+
+          <UserMenu user={settinguser} />
+        </div>
       </div>
       <NetWorthCard userNetWorth={netWorth} />
 
