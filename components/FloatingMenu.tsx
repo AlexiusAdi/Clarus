@@ -14,8 +14,6 @@ import { DEFAULT_ACTIONS } from "@/constants";
 import { Category } from "@/lib/generated/prisma/client";
 import { AddTransaction } from "./AddTransaction";
 import { AddAssets } from "./AddAssets";
-import OptionCard from "./OptionCard";
-import { SettingsUser } from "@/app/Types";
 import { AddInvestment } from "./AddInvestment";
 import { GoalDTO } from "@/lib/data/goals";
 import { AssetDTO } from "@/lib/data/assets";
@@ -23,12 +21,10 @@ import { AssetDTO } from "@/lib/data/assets";
 export default function FloatingMenu({
   categories,
   goals,
-  user,
 }: {
   categories: Category[];
   goals: GoalDTO[];
   assets: AssetDTO[];
-  user: SettingsUser;
 }) {
   const [fabOpen, setFabOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -92,7 +88,6 @@ export default function FloatingMenu({
           <DrawerHeader>
             <DrawerTitle>
               {selectedAction === "expense" && "Add Transaction"}
-              {selectedAction === "Settings" && "Settings"}
               {selectedAction === "savings" && "Add Investments"}
               {selectedAction === "assets" && "Add Assets"}
             </DrawerTitle>
@@ -106,11 +101,6 @@ export default function FloatingMenu({
                   goals={goals}
                   onSuccess={() => setDrawerOpen(false)}
                 />
-              </div>
-            )}
-            {selectedAction === "Settings" && (
-              <div>
-                <OptionCard user={user} />
               </div>
             )}
             {selectedAction === "savings" && (
