@@ -121,7 +121,6 @@ export async function POST(req: NextRequest) {
   });
 
   const costPerUnit = Number(totalInvestment) / Number(quantity);
-  console.log(costPerUnit);
 
   const investment = await prisma.investment.create({
     data: {
