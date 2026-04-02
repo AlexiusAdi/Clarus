@@ -21,19 +21,23 @@ const InvestmentCard = ({ investment }: Props) => {
   const Icon = TYPE_ICON[investment.type].icon;
   const iconStyle = TYPE_ICON[investment.type].className;
 
-  const normalizedQuantity = useMemo(() => {
-    if (investment.unit === "lot") {
-      return investment.quantity * 100;
-    }
-    return investment.quantity;
-  }, [investment.quantity, investment.unit]);
-
   const costPerUnit = investment.costPerUnit;
+  console.log(costPerUnit);
   const currentPrice = investment.assetPrice?.priceIdr ?? null;
+  const marketPlacePerLot = currentPrice !== null ? currentPrice * 100 : null;
 
-  // ✅ If no price yet (cron not run)
-  const invested = normalizedQuantity * costPerUnit;
-  const currentValue = currentPrice ? normalizedQuantity * currentPrice : null;
+  const currentPriceNormalized = useMemo(() => {
+    if (investment.unit === "lot" && currentPrice) {
+      return currentPrice * 100;
+    }
+    return currentPrice;
+  }, [investment.unit, currentPrice]);
+
+  const invested = investment.totalInvestment;
+  const currentValue =
+    currentPriceNormalized !== null
+      ? investment.quantity * currentPriceNormalized
+      : null;
 
   const profit = currentValue !== null ? currentValue - invested : null;
 
@@ -63,7 +67,9 @@ const InvestmentCard = ({ investment }: Props) => {
               </div>
 
               <div className="flex flex-col items-end">
-                <span className="text-sm">{formatCurrency(costPerUnit)}</span>
+                <span className="text-md font-semibold shadow-sm">
+                  {formatCurrency(investment.totalInvestment)}
+                </span>
 
                 {/* 🔥 Trend */}
                 {profit !== null ? (
@@ -90,25 +96,20 @@ const InvestmentCard = ({ investment }: Props) => {
 
             {/* Info */}
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex flex-col">
-                <span className="font-semibold">Invested</span>
-                <span>{formatCurrency(invested)}</span>
-              </div>
-
-              <div className="flex flex-col">
-                <span className="font-semibold">Current Value</span>
-                <span>
-                  {currentValue !== null ? formatCurrency(currentValue) : "-"}
-                </span>
-              </div>
+              <span className="font-semibold">Market Price / LOT</span>
+              <span className="flex justify-end">
+                {marketPlacePerLot !== null
+                  ? formatCurrency(marketPlacePerLot)
+                  : "-"}
+              </span>
             </div>
 
             {/* Bottom */}
             <div className="flex justify-between items-center">
               <div className="flex-1 bg-accent rounded-xl p-1.5 mr-3 text-sm">
                 <span>
-                  {investment.quantity} {investment.unit} @{" "}
-                  {formatCurrency(costPerUnit)}
+                  {investment.quantity} {investment.unit} -{" "}
+                  {formatCurrency(costPerUnit)} / {investment.unit}
                 </span>
               </div>
 

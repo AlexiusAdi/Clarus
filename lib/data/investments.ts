@@ -16,13 +16,17 @@ export type InvestmentDTO = {
   quantity: number;
   unit: string;
   costPerUnit: number;
+  totalInvestment: number;
   date: Date;
   createdAt: Date;
   userId: string;
 };
 
 export async function getInvestments(userId: string): Promise<InvestmentDTO[]> {
-  const investments = await prisma.investment.findMany({ where: { userId } });
+  const investments = await prisma.investment.findMany({
+    where: { userId },
+    include: { assetPrice: true },
+  });
   return investments.map((i) => ({
     id: i.id,
     name: i.name,
@@ -31,8 +35,15 @@ export async function getInvestments(userId: string): Promise<InvestmentDTO[]> {
     quantity: i.quantity.toNumber(),
     unit: i.unit,
     costPerUnit: i.costPerUnit.toNumber(),
+    totalInvestment: i.totalInvestment.toNumber(),
     date: i.date,
     createdAt: i.createdAt,
     userId: i.userId,
+    assetPrice: i.assetPrice
+      ? {
+          identifier: i.assetPrice.identifier,
+          priceIdr: i.assetPrice.priceIdr.toNumber(),
+        }
+      : null,
   }));
 }

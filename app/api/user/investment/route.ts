@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, type, assetIdentifier, quantity, unit, costPerUnit, date } =
+  const { name, type, assetIdentifier, quantity, unit, totalInvestment, date } =
     body;
   console.log("POST /investment body:", body);
 
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     !assetIdentifier ||
     !quantity ||
     !unit ||
-    !costPerUnit ||
+    !totalInvestment ||
     !date
   ) {
     return NextResponse.json(
@@ -120,14 +120,18 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  const costPerUnit = Number(totalInvestment) / Number(quantity);
+  console.log(costPerUnit);
+
   const investment = await prisma.investment.create({
     data: {
       name,
       type,
-      assetIdentifier,
+      assetIdentifier: normalizedIdentifier,
       quantity: Number(quantity),
       unit,
-      costPerUnit: Number(costPerUnit),
+      costPerUnit,
+      totalInvestment: Number(totalInvestment),
       date: new Date(date),
       userId: session.user.id,
     },
