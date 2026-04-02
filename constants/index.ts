@@ -52,11 +52,6 @@ export const DEFAULT_INVESTMENT_TYPES = [
 
 export const DEFAULT_ACTIONS = [
   {
-    icon: ArrowUpRight,
-    label: "Settings",
-    value: "Settings",
-  },
-  {
     icon: Wallet,
     label: "Add Assets",
     value: "assets",
