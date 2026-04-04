@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { CategoryType } from "../generated/prisma/enums";
+import { TransactionType } from "../generated/prisma/enums";
 
 export type CategoryDTO = {
   id: string;
   name: string;
-  type: CategoryType;
+  type: TransactionType;
   isDefault: boolean;
   createdAt: Date;
   userId: string | null;
