@@ -22,7 +22,6 @@ const InvestmentCard = ({ investment }: Props) => {
   const iconStyle = TYPE_ICON[investment.type].className;
 
   const costPerUnit = investment.costPerUnit;
-  console.log(costPerUnit);
   const currentPrice = investment.assetPrice?.priceIdr ?? null;
   const marketPlacePerLot = currentPrice !== null ? currentPrice * 100 : null;
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { TransactionType } from "@/lib/generated/prisma/browser";
 
 export async function DELETE(
   req: NextRequest,
@@ -34,6 +35,23 @@ export async function DELETE(
     await prisma.transaction.delete({
       where: { id },
     });
+
+    if (transaction.type === TransactionType.SAVINGS && transaction.goalId) {
+      const updatedGoal = await prisma.goal.update({
+        where: { id: transaction.goalId },
+        data: { currentAmount: { decrement: transaction.amount.toNumber() } },
+      });
+
+      if (
+        updatedGoal.isCompleted &&
+        updatedGoal.currentAmount < updatedGoal.targetAmount
+      ) {
+        await prisma.goal.update({
+          where: { id: transaction.goalId },
+          data: { isCompleted: false },
+        });
+      }
+    }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

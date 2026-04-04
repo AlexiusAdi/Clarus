@@ -14,6 +14,7 @@ model User {
   emailVerified DateTime?
   image         String?
   is_premium    Boolean       @default(false)
+  premiumExpiresAt  DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   account       Account[]
@@ -64,11 +65,11 @@ model VerificationToken {
 model Category {
   id           String        @id @default(uuid())
   name         String
-  type         CategoryType
+  type         TransactionType
   isDefault    Boolean       @default(false)
   createdAt    DateTime      @default(now())
-  userId       String
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String?
+  user         User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
 
   @@index([userId])
@@ -81,10 +82,10 @@ model Transaction {
   description String?
   date        DateTime
   createdAt   DateTime        @default(now())
-  categoryId  String
+  categoryId  String?
   goalId      String?
   userId      String
-  category    Category        @relation(fields: [categoryId], references: [id])
+  category    Category?       @relation(fields: [categoryId], references: [id])
   goal        Goal?           @relation(fields: [goalId], references: [id])
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -168,16 +169,11 @@ model Goal {
   @@index([userId])
 }
 
-enum CategoryType {
-  EXPENSE
-  INCOME
-  INVESTMENT
-  ASSETS
-}
-
 enum TransactionType {
   EXPENSE
   INCOME
+  INVESTMENTS
+  ASSETS
   SAVINGS
 }
 

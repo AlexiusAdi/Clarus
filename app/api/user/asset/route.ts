@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { TransactionType } from "@/lib/generated/prisma/browser";
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,6 +36,15 @@ export async function POST(req: NextRequest) {
         date: new Date(date),
         userId,
         acquisitionSource: acquisitionSource,
+      },
+    });
+
+    await prisma.transaction.create({
+      data: {
+        type: TransactionType.ASSETS,
+        amount: parsed,
+        date: new Date(date),
+        user: { connect: { id: userId } },
       },
     });
 

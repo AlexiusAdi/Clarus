@@ -21,7 +21,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       await prisma.category.createMany({
         data: DEFAULT_CATEGORIES.map((cat) => ({
           ...cat,
-          userId,
+          userId: null,
           isDefault: true,
         })),
       });

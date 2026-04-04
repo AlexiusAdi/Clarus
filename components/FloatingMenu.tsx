@@ -17,6 +17,7 @@ import { AddAssets } from "./AddAssets";
 import { AddInvestment } from "./AddInvestment";
 import { GoalDTO } from "@/lib/data/goals";
 import { AssetDTO } from "@/lib/data/assets";
+import { useRouter } from "next/navigation";
 
 export default function FloatingMenu({
   categories,
@@ -29,6 +30,7 @@ export default function FloatingMenu({
   const [fabOpen, setFabOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const router = useRouter();
 
   return (
     <>
@@ -55,6 +57,11 @@ export default function FloatingMenu({
                     size="icon"
                     className="rounded-full"
                     onClick={() => {
+                      if (action.value === "goals") {
+                        router.push("/goals");
+                        setFabOpen(false);
+                        return;
+                      }
                       setSelectedAction(action.value);
                       setDrawerOpen(true);
                       setFabOpen(false);

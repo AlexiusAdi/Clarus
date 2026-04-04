@@ -7,11 +7,7 @@ import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { ChevronDownIcon } from "lucide-react";
-import {
-  Category,
-  Goal,
-  TransactionType,
-} from "@/lib/generated/prisma/browser";
+import { Category, TransactionType } from "@/lib/generated/prisma/browser";
 import { format } from "date-fns";
 import { Calendar } from "./ui/calendar";
 import { useForm } from "react-hook-form";
@@ -22,14 +18,23 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "./ui/spinner";
 import { NumericFormat } from "react-number-format";
 import { GoalDTO } from "@/lib/data/goals";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 const transactionSchema = z.object({
   type: z.enum([
-    TransactionType.INCOME,
     TransactionType.EXPENSE,
+    TransactionType.INCOME,
     TransactionType.SAVINGS,
+    TransactionType.INVESTMENTS,
+    TransactionType.ASSETS,
   ]),
-  categoryId: z.string().min(1, "Category is required"),
+  categoryId: z.string().optional(),
   date: z.date("Date is required"),
   amount: z
     .string("Amount is required")
@@ -43,6 +48,7 @@ const transactionSchema = z.object({
       message: "Amount must be at most 12 digits",
     }),
   description: z.string().optional(),
+  goalId: z.string().optional(),
 });
 
 type TransactionForm = z.infer<typeof transactionSchema>;
@@ -105,15 +111,23 @@ export const AddTransaction = ({
         throw new Error(result.error || "Something went wrong");
       }
 
-      toast.success("Transaction added successfully!", {
-        position: "top-center",
-      });
+      if (data.type === TransactionType.SAVINGS) {
+        toast.success("Savings added successfully!", {
+          position: "top-center",
+        });
+      } else {
+        toast.success("Transaction added successfully!", {
+          position: "top-center",
+        });
+      }
 
       reset();
       onSuccess();
       router.refresh();
     } catch (error) {
-      toast.error((error as Error).message || "Failed to add transaction");
+      toast.error((error as Error).message || "Failed to add transaction", {
+        position: "top-center",
+      });
     }
   };
 
@@ -164,35 +178,50 @@ export const AddTransaction = ({
 
       {type === TransactionType.SAVINGS && goals.length > 0 ? (
         <div className="flex flex-col gap-2">
-          <span>Goals</span>
+          <span>Select Goal</span>
+          <Select
+            onValueChange={(val) =>
+              setValue("goalId", val, { shouldValidate: true })
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a goal" />
+            </SelectTrigger>
+            <SelectContent>
+              {goals.map((goal) => (
+                <SelectItem key={goal.id} value={goal.id}>
+                  {goal.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          <div className="grid grid-cols-3 gap-2">
-            {filteredCategories.map((cat) => (
-              <Card
-                key={cat.id}
-                onClick={() =>
-                  setValue("categoryId", cat.id, { shouldValidate: true })
-                }
-                className={cn(
-                  "h-10 p-2 justify-center cursor-pointer",
-                  selectedCategory === cat.id
-                    ? type === TransactionType.SAVINGS
-                      ? "border-green-500 bg-green-100"
-                      : "border-red-500 bg-red-100"
-                    : "opacity-60",
-                )}
+          <span>Date</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                data-empty={!date}
+                className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
               >
-                <CardHeader className="justify-center font-semibold">
-                  {cat.name}
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-
-          {errors.categoryId && (
-            <span className="text-red-500 text-sm">
-              {errors.categoryId.message}
-            </span>
+                {date ? format(date, "PPP") : <span>Pick a date</span>}
+                <ChevronDownIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(d) => {
+                  if (d) setValue("date", d, { shouldValidate: true });
+                }}
+                disabled={{ after: new Date() }}
+              />
+            </PopoverContent>
+          </Popover>
+          {errors.date && (
+            <span className="text-red-500 text-sm">{errors.date.message}</span>
           )}
         </div>
       ) : (

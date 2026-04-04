@@ -20,16 +20,18 @@ export async function getUserNetWorth(userId: string): Promise<UserNetWorth> {
 
   const investments = await prisma.investment.findMany({
     where: { userId },
-    select: { costPerUnit: true, quantity: true, unit: true },
+    select: {
+      costPerUnit: true,
+      quantity: true,
+      unit: true,
+      totalInvestment: true,
+    },
   });
 
-  const totalInvestments = investments.reduce((acc, inv) => {
-    const quantity =
-      inv.unit === "lot"
-        ? inv.quantity.toNumber() * 100
-        : inv.quantity.toNumber();
-    return acc + quantity * inv.costPerUnit.toNumber();
-  }, 0);
+  const totalInvestments = investments.reduce(
+    (acc, inv) => acc + inv.totalInvestment.toNumber(),
+    0,
+  );
 
   const assets = await prisma.asset.findMany({
     where: { userId },

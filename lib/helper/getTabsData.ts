@@ -9,6 +9,7 @@ export type TransactionDTO = {
   createdAt: Date;
   description: string | null;
   category: { name: string } | null;
+  goal: { name: string } | null;
 };
 
 export type TabsDataDTO = {
@@ -29,11 +30,11 @@ export async function getTabsData(userId: string): Promise<TabsDataDTO> {
       date: true,
       createdAt: true,
       category: { select: { name: true } },
+      goal: { select: { name: true } },
       description: true,
     },
   });
 
-  // Normalize Decimal → number once, right here
   const transactions: TransactionDTO[] = raw.map((t) => ({
     id: t.id,
     amount: t.amount.toNumber(),
@@ -42,6 +43,7 @@ export async function getTabsData(userId: string): Promise<TabsDataDTO> {
     createdAt: t.createdAt,
     description: t.description,
     category: t.category,
+    goal: t.goal,
   }));
 
   const currentMonth = new Date().toISOString().slice(0, 7);
