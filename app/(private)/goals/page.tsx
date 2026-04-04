@@ -54,7 +54,8 @@ export default async function Page() {
       </div>
 
       {/* AI Feedback */}
-      <GoalsAIFeedback />
+
+      {/* <GoalsAIFeedback /> */}
 
       {/* Active Goals */}
       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
