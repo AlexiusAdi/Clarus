@@ -24,15 +24,17 @@ export type TabsData = {
     type: string;
     date: Date;
     category: { name: string } | null;
+    goal: { name: string } | null;
     description: string | null;
   }[];
-  currentMonthTotal: number; // ← only this added
+  currentMonthTotal: number;
   topSpending: {
     id: string;
     amount: number;
     type: string;
     date: Date;
     category: { name: string } | null;
+    goal: { name: string } | null;
     description: string | null;
   }[];
   spendingByCategory: {

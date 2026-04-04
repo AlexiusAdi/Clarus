@@ -74,7 +74,6 @@ export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
       }
 
       toast.success("Asset added successfully!", { position: "top-center" });
-      console.log(result);
       reset();
       onSuccess();
       router.refresh();

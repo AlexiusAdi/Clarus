@@ -2,29 +2,32 @@ import { PredefinedAsset } from "@/app/Types";
 import {
   AcquisitionSource,
   AssetType,
-  CategoryType,
   InvestmentType,
+  TransactionType,
 } from "@/lib/generated/prisma/enums";
 import {
-  ArrowUpRight,
   Bitcoin,
   CircleDollarSign,
   Coins,
   PiggyBank,
+  Star,
   TrendingUp,
   Wallet,
 } from "lucide-react";
 
 export const DEFAULT_CATEGORIES = [
-  { name: "Food", type: CategoryType.EXPENSE },
-  { name: "Transport", type: CategoryType.EXPENSE },
-  { name: "Entertainment", type: CategoryType.EXPENSE },
-  { name: "Other", type: CategoryType.EXPENSE },
-  { name: "Salary", type: CategoryType.INCOME },
-  { name: "Stocks", type: CategoryType.INVESTMENT },
-  { name: "Bitcoin", type: CategoryType.INVESTMENT },
-  { name: "Other", type: CategoryType.INVESTMENT },
-  { name: "Savings Account", type: CategoryType.INVESTMENT },
+  // EXPENSE
+  { name: "Food", type: TransactionType.EXPENSE },
+  { name: "Transport", type: TransactionType.EXPENSE },
+  { name: "Entertainment", type: TransactionType.EXPENSE },
+  { name: "Shopping", type: TransactionType.EXPENSE },
+  { name: "Health", type: TransactionType.EXPENSE },
+  { name: "Other", type: TransactionType.EXPENSE },
+  // INCOME
+  { name: "Salary", type: TransactionType.INCOME },
+  { name: "Freelance", type: TransactionType.INCOME },
+  { name: "Business", type: TransactionType.INCOME },
+  { name: "Other", type: TransactionType.INCOME },
 ];
 
 export const DEFAULT_ASSETS = [
@@ -51,6 +54,11 @@ export const DEFAULT_INVESTMENT_TYPES = [
 ];
 
 export const DEFAULT_ACTIONS = [
+  {
+    icon: Star,
+    label: "Goals",
+    value: "goals",
+  },
   {
     icon: Wallet,
     label: "Add Assets",

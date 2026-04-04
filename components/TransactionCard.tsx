@@ -11,13 +11,32 @@ import { formatCurrency } from "@/lib/helper/formatCurrency";
 const TransactionCard = ({ transaction }: { transaction: TopSpendingItem }) => {
   const [open, setOpen] = useState(false);
 
+  const getLabel = (transaction: TopSpendingItem) => {
+    if (transaction.category?.name) return transaction.category.name;
+    switch (transaction.type) {
+      case TransactionType.SAVINGS:
+        return transaction.goal?.name ?? "Savings";
+      case TransactionType.INVESTMENTS:
+        return "Investment";
+      case TransactionType.ASSETS:
+        return "Asset";
+      default:
+        return "Unknown";
+    }
+  };
+
+  const isPositive = (type: string) =>
+    type === TransactionType.INCOME ||
+    type === TransactionType.ASSETS ||
+    type === TransactionType.INVESTMENTS;
+
   return (
     <>
       <Card className="p-1 w-full">
         <CardHeader className="p-3">
           <div className="flex w-full items-center gap-1">
             <div>
-              {transaction.type === TransactionType.INCOME ? (
+              {isPositive(transaction.type) ? (
                 <ArrowRight className="inline-block mr-2 text-green-500 -rotate-45" />
               ) : (
                 <ArrowRight className="inline-block mr-2 text-red-500 rotate-45" />
@@ -25,10 +44,16 @@ const TransactionCard = ({ transaction }: { transaction: TopSpendingItem }) => {
             </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="truncate">
-                {transaction.category?.name}
+                {getLabel(transaction)}
               </CardTitle>
               <CardDescription className="truncate">
-                {transaction.description}
+                {transaction.type === TransactionType.SAVINGS
+                  ? `Saved to goal`
+                  : transaction.type === TransactionType.INVESTMENTS
+                    ? `Investment`
+                    : transaction.type === TransactionType.ASSETS
+                      ? `Asset`
+                      : transaction.description}
               </CardDescription>
             </div>
             <div className="flex flex-col items-end gap-1 shrink-0">

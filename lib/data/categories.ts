@@ -7,11 +7,15 @@ export type CategoryDTO = {
   type: CategoryType;
   isDefault: boolean;
   createdAt: Date;
-  userId: string;
+  userId: string | null;
 };
 
 export async function getCategories(userId: string): Promise<CategoryDTO[]> {
-  const categories = await prisma.category.findMany({ where: { userId } });
+  const categories = await prisma.category.findMany({
+    where: {
+      OR: [{ userId: null }, { userId }],
+    },
+  });
   return categories.map((c) => ({
     id: c.id,
     name: c.name,
