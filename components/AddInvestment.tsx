@@ -78,6 +78,9 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
     resolver: zodResolver(investmentSchema),
     defaultValues: {
       type: InvestmentType.STOCK,
+      quantity: "",
+      totalInvestment: "",
+      unit: "shares",
     },
   });
 

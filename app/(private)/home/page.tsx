@@ -52,6 +52,8 @@ const Page = async () => {
           tabData={tabsData}
           assets={assets}
           investments={investments}
+          categories={categories}
+          goals={goals}
         />
       </div>
     </div>

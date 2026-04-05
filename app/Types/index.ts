@@ -1,5 +1,4 @@
-import { PREDEFINED_ASSETS } from "@/constants";
-import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import { TransactionType } from "@/lib/generated/prisma/browser";
 
 export type IncomeCardProps = {
   header: string;
@@ -23,8 +22,8 @@ export type TabsData = {
     amount: number;
     type: string;
     date: Date;
-    category: { name: string } | null;
-    goal: { name: string } | null;
+    category: { name: string; id: string } | null;
+    goal: { name: string; id: string } | null;
     description: string | null;
   }[];
   currentMonthTotal: number;
@@ -33,8 +32,8 @@ export type TabsData = {
     amount: number;
     type: string;
     date: Date;
-    category: { name: string } | null;
-    goal: { name: string } | null;
+    category: { name: string; id: string } | null;
+    goal: { name: string; id: string } | null;
     description: string | null;
   }[];
   spendingByCategory: {
@@ -57,17 +56,6 @@ export interface SettingsUser {
   image?: string | Blob | undefined;
 }
 
-// lib/assets/predefined.ts
-//
-// Master list of all assets users can track in Clarus.
-// - identifier: the key stored in Investment.assetIdentifier and AssetPrice.identifier
-// - ticker:     what gets passed to the price-fetch API (Yahoo Finance / CoinGecko)
-// - label:      display name shown in the UI
-// - type:       matches InvestmentType enum
-// - exchange:   informational, shown as a badge in the dropdown
-//
-// To add more assets over time, just append to the relevant section.
-
 export interface PredefinedAsset {
   identifier: string;
   ticker: string;
@@ -87,4 +75,12 @@ export interface SpendingChartProps {
   }[];
 }
 
-// ── Lookup helpers ────────────────────────────────────────────────────────────
+export type InitialValues = {
+  id: string;
+  type: TransactionType;
+  amount: number;
+  categoryId?: string | null;
+  goalId?: string | null;
+  date: Date;
+  description?: string | null;
+};

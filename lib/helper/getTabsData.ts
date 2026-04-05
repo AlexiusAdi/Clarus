@@ -8,8 +8,8 @@ export type TransactionDTO = {
   date: Date;
   createdAt: Date;
   description: string | null;
-  category: { name: string } | null;
-  goal: { name: string } | null;
+  category: { name: string; id: string } | null;
+  goal: { name: string; id: string } | null;
 };
 
 export type TabsDataDTO = {
@@ -29,8 +29,8 @@ export async function getTabsData(userId: string): Promise<TabsDataDTO> {
       type: true,
       date: true,
       createdAt: true,
-      category: { select: { name: true } },
-      goal: { select: { name: true } },
+      category: { select: { name: true, id: true } },
+      goal: { select: { name: true, id: true } },
       description: true,
     },
   });
@@ -61,7 +61,9 @@ export async function getTabsData(userId: string): Promise<TabsDataDTO> {
   const topSpending = transactions
     .filter(
       (t) =>
-        t.type === TransactionType.EXPENSE || t.type === TransactionType.INCOME,
+        t.type === TransactionType.EXPENSE ||
+        t.type === TransactionType.INCOME ||
+        t.type === TransactionType.SAVINGS,
     )
     .slice(0, 3);
 

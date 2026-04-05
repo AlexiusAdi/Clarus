@@ -146,6 +146,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // check this logic since if have multiple user fetch same asset, it will trigger multiple times, maybe we can add a check if the price is already updated in last 24 hours, then skip the fetch
   // Immediately seed price for this asset (fire and forget — don't await)
   fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/cron/fetch-prices`, {
     headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
