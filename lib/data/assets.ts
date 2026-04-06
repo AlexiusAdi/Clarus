@@ -8,6 +8,7 @@ export type AssetDTO = {
   value: number;
   date: Date;
   createdAt: Date;
+  acquisitionSource: string;
 };
 
 export async function getAssets(userId: string): Promise<AssetDTO[]> {
@@ -19,5 +20,6 @@ export async function getAssets(userId: string): Promise<AssetDTO[]> {
     value: a.value.toNumber(),
     date: a.date,
     createdAt: a.createdAt,
+    acquisitionSource: a.acquisitionSource,
   }));
 }

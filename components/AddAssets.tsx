@@ -17,6 +17,7 @@ import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { format } from "date-fns";
 import { NumericFormat } from "react-number-format";
+import { AssetInitialValues } from "@/app/Types";
 
 const assetSchema = z.object({
   type: z.enum(AssetType, "Asset type is required"),
@@ -41,8 +42,15 @@ const assetSchema = z.object({
 
 type AssetForm = z.infer<typeof assetSchema>;
 
-export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
+export const AddAssets = ({
+  onSuccess,
+  assetInitialValues,
+}: {
+  onSuccess: () => void;
+  assetInitialValues?: AssetInitialValues;
+}) => {
   const router = useRouter();
+  const isEditing = !!assetInitialValues;
 
   const {
     register,
@@ -53,19 +61,35 @@ export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
     reset,
   } = useForm<AssetForm>({
     resolver: zodResolver(assetSchema),
+    defaultValues: assetInitialValues
+      ? {
+          type: assetInitialValues.type as AssetType,
+          acquisitionSource:
+            assetInitialValues.acquisitionSource as AcquisitionSource,
+          name: assetInitialValues.name,
+          value: String(assetInitialValues.value),
+          date: new Date(assetInitialValues.date),
+        }
+      : undefined,
   });
 
   const selectedType = watch("type");
   const selectedSource = watch("acquisitionSource");
   const date = watch("date");
+  const value = watch("value");
 
   const onSubmit = async (data: AssetForm) => {
     try {
-      const res = await fetch("/api/user/asset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        isEditing
+          ? `/api/user/asset/${assetInitialValues.id}`
+          : "/api/user/asset",
+        {
+          method: isEditing ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        },
+      );
 
       const result = await res.json();
 
@@ -167,6 +191,7 @@ export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
           decimalSeparator=","
           prefix="Rp "
           placeholder="Enter value"
+          value={value ?? ""}
           onValueChange={(values) => {
             setValue("value", values.value, { shouldValidate: true });
           }}
@@ -208,7 +233,7 @@ export const AddAssets = ({ onSuccess }: { onSuccess: () => void }) => {
       </div>
 
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? <Spinner /> : "Add Asset"}
+        {isSubmitting ? <Spinner /> : isEditing ? "Update Asset" : "Add Asset"}
       </Button>
     </form>
   );

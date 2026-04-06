@@ -13,6 +13,7 @@ import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { format } from "date-fns";
 import { NumericFormat } from "react-number-format";
+import { GoalInitialValues } from "@/app/Types";
 
 const goalSchema = z.object({
   name: z.string().min(1, "Goal name is required"),
@@ -38,8 +39,15 @@ const goalSchema = z.object({
 
 type GoalForm = z.infer<typeof goalSchema>;
 
-export const AddGoal = ({ onSuccess }: { onSuccess: () => void }) => {
+export const AddGoal = ({
+  onSuccess,
+  goalInitialValues,
+}: {
+  onSuccess: () => void;
+  goalInitialValues?: GoalInitialValues;
+}) => {
   const router = useRouter();
+  const isEditing = !!goalInitialValues;
 
   const {
     register,
@@ -50,17 +58,34 @@ export const AddGoal = ({ onSuccess }: { onSuccess: () => void }) => {
     reset,
   } = useForm<GoalForm>({
     resolver: zodResolver(goalSchema),
+    defaultValues: goalInitialValues
+      ? {
+          name: goalInitialValues.name,
+          targetAmount: String(goalInitialValues.targetAmount),
+          currentAmount: String(goalInitialValues.currentAmount),
+          deadline: goalInitialValues.deadline
+            ? new Date(goalInitialValues.deadline)
+            : undefined,
+        }
+      : undefined,
   });
 
   const deadline = watch("deadline");
+  const targetAmount = watch("targetAmount");
+  const currentAmount = watch("currentAmount");
 
   const onSubmit = async (data: GoalForm) => {
     try {
-      const res = await fetch("/api/user/goals", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        isEditing
+          ? `/api/user/goals/${goalInitialValues!.id}`
+          : "/api/user/goal",
+        {
+          method: isEditing ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        },
+      );
 
       const result = await res.json();
 
@@ -68,12 +93,18 @@ export const AddGoal = ({ onSuccess }: { onSuccess: () => void }) => {
         throw new Error(result.error || "Something went wrong");
       }
 
-      toast.success("Goal added successfully!", { position: "top-center" });
+      toast.success(isEditing ? "Goal updated!" : "Goal added!", {
+        position: "top-center",
+      });
       reset();
       onSuccess();
       router.refresh();
     } catch (error) {
-      toast.error((error as Error).message || "Failed to add goal");
+      toast.error(
+        (error as Error).message ||
+          "Failed to " + (isEditing ? "update" : "add") + " goal",
+        { position: "top-center" },
+      );
     }
   };
 
@@ -104,9 +135,10 @@ export const AddGoal = ({ onSuccess }: { onSuccess: () => void }) => {
           decimalSeparator=","
           prefix="Rp "
           placeholder="Rp 0"
-          onValueChange={(values) => {
-            setValue("targetAmount", values.value, { shouldValidate: true });
-          }}
+          value={targetAmount ?? ""}
+          onValueChange={(values) =>
+            setValue("targetAmount", values.value, { shouldValidate: true })
+          }
         />
         {errors.targetAmount && (
           <span className="text-red-500 text-sm">
@@ -127,9 +159,10 @@ export const AddGoal = ({ onSuccess }: { onSuccess: () => void }) => {
           decimalSeparator=","
           prefix="Rp "
           placeholder="Rp 0"
-          onValueChange={(values) => {
-            setValue("currentAmount", values.value, { shouldValidate: true });
-          }}
+          value={currentAmount ?? ""}
+          onValueChange={(values) =>
+            setValue("currentAmount", values.value, { shouldValidate: true })
+          }
         />
         {errors.currentAmount && (
           <span className="text-red-500 text-sm">
@@ -175,7 +208,7 @@ export const AddGoal = ({ onSuccess }: { onSuccess: () => void }) => {
       </div>
 
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? <Spinner /> : "Add Goal"}
+        {isSubmitting ? <Spinner /> : isEditing ? "Update Goal" : "Add Goal"}
       </Button>
     </form>
   );

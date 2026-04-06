@@ -8,12 +8,15 @@ import {
   Banknote,
   Landmark,
   PackageOpen,
+  Pencil,
 } from "lucide-react";
-import { AssetType } from "@/lib/generated/prisma/browser";
+import { AssetType, InvestmentType } from "@/lib/generated/prisma/browser";
 import { format } from "date-fns";
 import Alert from "./Alert";
 import { AssetDTO } from "@/lib/data/assets";
 import { formatCurrency } from "@/lib/helper/formatCurrency";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
+import { AddAssets } from "./AddAssets";
 
 const ASSET_ICONS: Record<AssetType, React.ReactNode> = {
   GOLD: (
@@ -66,6 +69,7 @@ interface AssetCardProps {
 
 export const AssetCard = ({ asset }: AssetCardProps) => {
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   return (
     <>
@@ -98,13 +102,22 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
                     Acquired {format(new Date(asset.date), "EEE MMM dd, yyyy")}
                   </span>
                 </div>
-                <button onClick={() => setOpen(true)}>
-                  <Trash2
-                    width={16}
-                    height={16}
-                    className="text-red-500 cursor-pointer"
-                  />
-                </button>
+                <div className="flex gap-2">
+                  <button onClick={() => setEditOpen(true)}>
+                    <Pencil
+                      width={16}
+                      height={16}
+                      className="text-blue-500 cursor-pointer"
+                    />
+                  </button>
+                  <button onClick={() => setOpen(true)}>
+                    <Trash2
+                      width={16}
+                      height={16}
+                      className="text-red-500 cursor-pointer"
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -117,6 +130,27 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
         successMessage="Asset deleted"
         description="This action cannot be undone. This will permanently delete this asset."
       />
+
+      <Drawer open={editOpen} onOpenChange={setEditOpen}>
+        <DrawerContent className="h-auto">
+          <DrawerHeader>
+            <DrawerTitle>Edit Asset</DrawerTitle>
+          </DrawerHeader>
+          <div className="p-4 overflow-y-auto">
+            <AddAssets
+              onSuccess={() => setEditOpen(false)}
+              assetInitialValues={{
+                id: asset.id,
+                name: asset.name,
+                type: asset.type as InvestmentType,
+                value: asset.value,
+                date: asset.date,
+                acquisitionSource: asset.acquisitionSource,
+              }}
+            />
+          </div>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 };

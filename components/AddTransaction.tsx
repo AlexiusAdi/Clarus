@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { InitialValues } from "@/app/Types";
+import { TransactionInitialValues } from "@/app/Types";
 
 const transactionSchema = z.object({
   type: z.enum([
@@ -63,7 +63,7 @@ export const AddTransaction = ({
   categories: Category[];
   goals: GoalDTO[];
   onSuccess: () => void;
-  initialValues?: InitialValues;
+  initialValues?: TransactionInitialValues;
 }) => {
   const router = useRouter();
 
@@ -89,7 +89,6 @@ export const AddTransaction = ({
   });
 
   const isEditing = !!initialValues;
-  console.log(initialValues);
   const type = watch("type");
   const selectedCategory = watch("categoryId");
 

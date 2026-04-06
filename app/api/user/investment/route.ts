@@ -143,6 +143,7 @@ export async function POST(req: NextRequest) {
       amount: Number(totalInvestment),
       date: new Date(date),
       user: { connect: { id: session.user.id } },
+      investment: { connect: { id: investment.id } },
     },
   });
 

@@ -3,7 +3,6 @@ import { getGoals } from "@/lib/data/goals";
 import { GoalCard } from "@/components/GoalCard";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import GoalsAIFeedback from "@/components/GoalsAIFeedback";
 import GoalsAddButton from "@/components/GoalsAddButton";
 
 export default async function Page() {

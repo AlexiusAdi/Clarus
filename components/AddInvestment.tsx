@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { InvestmentInitialValues } from "@/app/Types";
 
 const TYPE_ACCENT: Record<InvestmentType, string> = {
   STOCK: "border-blue-500 border-2",
@@ -57,13 +58,18 @@ const investmentSchema = z.object({
     .refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) > 0, {
       message: "Total investment must be greater than 0",
     }),
-  notes: z.string().optional(),
 });
 
 type InvestmentForm = z.infer<typeof investmentSchema>;
 
 // ── Component ────────────────────────────────────────────────────────────────
-export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
+export const AddInvestment = ({
+  onSuccess,
+  investmentInitialValues,
+}: {
+  onSuccess: () => void;
+  investmentInitialValues?: InvestmentInitialValues;
+}) => {
   const router = useRouter();
 
   const {
@@ -76,18 +82,32 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
     reset,
   } = useForm<InvestmentForm>({
     resolver: zodResolver(investmentSchema),
-    defaultValues: {
-      type: InvestmentType.STOCK,
-      quantity: "",
-      totalInvestment: "",
-      unit: "shares",
-    },
+    defaultValues: investmentInitialValues
+      ? {
+          name: investmentInitialValues.name,
+          type: investmentInitialValues.type as InvestmentType,
+          assetIdentifier: investmentInitialValues.assetIdentifier ?? "",
+          totalInvestment: investmentInitialValues.totalInvestment.toString(),
+          quantity: investmentInitialValues.quantity.toString(),
+          unit: investmentInitialValues.unit,
+          date: new Date(investmentInitialValues.date),
+        }
+      : {
+          type: InvestmentType.STOCK,
+          name: "",
+          assetIdentifier: "",
+          quantity: "",
+          totalInvestment: "",
+          unit: "shares",
+          date: undefined,
+        },
   });
 
   const type = watch("type");
   const purchaseDate = watch("date");
   const quantity = watch("quantity");
   const totalInvestment = watch("totalInvestment");
+  const isEditing = !!investmentInitialValues;
 
   // Live total calculation
   const total =
@@ -115,11 +135,16 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const onSubmit = async (data: InvestmentForm) => {
     try {
-      const res = await fetch("/api/user/investment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        isEditing
+          ? `/api/user/investment/${investmentInitialValues?.id}`
+          : "/api/user/investment",
+        {
+          method: isEditing ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        },
+      );
 
       const result = await res.json();
 
@@ -346,21 +371,14 @@ export const AddInvestment = ({ onSuccess }: { onSuccess: () => void }) => {
         )}
       </div>
 
-      {/* ── Notes ── */}
-      <div className="flex flex-col gap-2">
-        <span>
-          Notes{" "}
-          <span className="text-muted-foreground text-xs">(Optional)</span>
-        </span>
-        <Input
-          type="text"
-          placeholder="e.g. Long-term hold"
-          {...register("notes")}
-        />
-      </div>
-
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? <Spinner /> : "Add Investment"}
+        {isSubmitting ? (
+          <Spinner />
+        ) : isEditing ? (
+          "Update Investment"
+        ) : (
+          "Add Investment"
+        )}
       </Button>
     </form>
   );

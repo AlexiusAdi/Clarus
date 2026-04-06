@@ -1,4 +1,7 @@
-import { TransactionType } from "@/lib/generated/prisma/browser";
+import {
+  InvestmentType,
+  TransactionType,
+} from "@/lib/generated/prisma/browser";
 
 export type IncomeCardProps = {
   header: string;
@@ -75,7 +78,7 @@ export interface SpendingChartProps {
   }[];
 }
 
-export type InitialValues = {
+export type TransactionInitialValues = {
   id: string;
   type: TransactionType;
   amount: number;
@@ -83,4 +86,32 @@ export type InitialValues = {
   goalId?: string | null;
   date: Date;
   description?: string | null;
+};
+
+export type InvestmentInitialValues = {
+  id: string;
+  name: string;
+  type: InvestmentType;
+  quantity: number;
+  assetIdentifier: string;
+  totalInvestment: number;
+  unit: string;
+  date: Date;
+};
+
+export type AssetInitialValues = {
+  id: string;
+  name: string;
+  type: InvestmentType;
+  value: number;
+  date: Date;
+  acquisitionSource: string;
+};
+
+export type GoalInitialValues = {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  deadline?: Date | null;
 };

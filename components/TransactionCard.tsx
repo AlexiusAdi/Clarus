@@ -107,7 +107,7 @@ const TransactionCard = ({
           <DrawerHeader>
             <DrawerTitle>Edit Transaction</DrawerTitle>
           </DrawerHeader>
-          <div className="p-4">
+          <div className="p-4 overflow-y-auto">
             <AddTransaction
               categories={categories}
               goals={goals}

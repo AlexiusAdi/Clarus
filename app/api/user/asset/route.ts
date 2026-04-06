@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
         amount: parsed,
         date: new Date(date),
         user: { connect: { id: userId } },
+        assets: { connect: { id: asset.id } },
       },
     });
 
