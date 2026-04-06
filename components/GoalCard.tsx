@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "./ui/card";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/helper/formatCurrency";
 import { GoalDTO } from "@/lib/data/goals";
 import Alert from "./Alert";
 import { format } from "date-fns";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
+import { AddGoal } from "./AddGoalCard";
 
 type GoalStatus = "on-track" | "behind" | "completed";
 
@@ -45,6 +47,8 @@ const getStatus = (goal: GoalDTO): GoalStatus => {
 
 export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
   const [alertOpen, setAlertOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
   const { status, monthlyNeeded, percent } = useMemo(() => {
     const now = Date.now();
     const percent = Math.min(
@@ -134,13 +138,22 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
           </div>
 
           <div className="flex justify-end pt-4">
-            <button onClick={() => setAlertOpen(true)}>
-              <Trash2
-                width={18}
-                height={18}
-                className="text-red-500 cursor-pointer"
-              />
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => setEditOpen(true)}>
+                <Pencil
+                  width={16}
+                  height={16}
+                  className="text-blue-500 cursor-pointer"
+                />
+              </button>
+              <button onClick={() => setAlertOpen(true)}>
+                <Trash2
+                  width={16}
+                  height={16}
+                  className="text-red-500 cursor-pointer"
+                />
+              </button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -152,6 +165,26 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
         successMessage="Goal deleted"
         description="This action cannot be undone."
       />
+
+      <Drawer open={editOpen} onOpenChange={setEditOpen}>
+        <DrawerContent className="h-auto">
+          <DrawerHeader>
+            <DrawerTitle>Edit Asset</DrawerTitle>
+          </DrawerHeader>
+          <div className="p-4 overflow-y-auto">
+            <AddGoal
+              onSuccess={() => setEditOpen(false)}
+              goalInitialValues={{
+                id: goal.id,
+                name: goal.name,
+                targetAmount: goal.targetAmount,
+                currentAmount: goal.currentAmount,
+                deadline: goal.deadline ? new Date(goal.deadline) : null,
+              }}
+            />
+          </div>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 };

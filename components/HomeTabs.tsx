@@ -10,15 +10,21 @@ import { AssetCard } from "./AssetCard";
 import { AssetDTO } from "@/lib/data/assets";
 import { InvestmentDTO } from "@/lib/data/investments";
 import { TabsDataDTO } from "@/lib/helper/getTabsData";
+import { Category } from "@/lib/generated/prisma/browser";
+import { GoalDTO } from "@/lib/data/goals";
 
 const HomeTabs = ({
   tabData,
   assets,
   investments,
+  categories,
+  goals,
 }: {
   tabData: TabsDataDTO;
   assets: AssetDTO[];
-  investments: InvestmentDTO[]; // Replace 'any' with the actual type for investments
+  investments: InvestmentDTO[];
+  categories: Category[];
+  goals: GoalDTO[];
 }) => {
   const { transactions, currentMonthTotal, topSpending, spendingByCategory } =
     tabData;
@@ -46,7 +52,12 @@ const HomeTabs = ({
                 data={spendingByCategory}
                 totalExpense={currentMonthTotal}
               />
-              <RecentActivities data={topSpending} isShown={true} />
+              <RecentActivities
+                data={topSpending}
+                isShown={true}
+                categories={categories}
+                goals={goals}
+              />
             </>
           )}
         </div>
@@ -54,7 +65,12 @@ const HomeTabs = ({
 
       {/* ✅ Transactions */}
       <TabsContent value="Transactions" className="w-full">
-        <RecentActivities data={transactions} isShown={false} />
+        <RecentActivities
+          data={transactions}
+          isShown={false}
+          categories={categories}
+          goals={goals}
+        />
       </TabsContent>
 
       {/* Investments */}

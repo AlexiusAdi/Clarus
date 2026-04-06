@@ -88,10 +88,17 @@ model Transaction {
   category    Category?       @relation(fields: [categoryId], references: [id])
   goal        Goal?           @relation(fields: [goalId], references: [id])
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  investmentId String?
+  investment   Investment? @relation(fields: [investmentId], references: [id])
+  assetId String?
+  assets   Asset? @relation(fields: [assetId], references: [id])
 
   @@index([userId, date])
   @@index([categoryId])
   @@index([goalId])
+  @@index([investmentId])
+  @@index([assetId])
+
 }
 
 model Asset {
@@ -104,6 +111,7 @@ model Asset {
   createdAt         DateTime          @default(now())
   userId            String
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
 
   @@index([userId])
 }
@@ -131,6 +139,7 @@ model Investment {
   userId           String
   user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   assetPrice       AssetPrice?    @relation(fields: [assetIdentifier], references: [identifier])
+  transactions Transaction[]
 
   @@index([userId])
   @@index([assetIdentifier])

@@ -1,13 +1,22 @@
 import { TabsData } from "@/app/Types";
 import TransactionCard from "./TransactionCard";
 import { useMemo } from "react";
+import { GoalDTO } from "@/lib/data/goals";
+import { Category } from "@/lib/generated/prisma/browser";
 
 type RecentActivitiesProps = {
   isShown: boolean;
   data: TabsData["topSpending"];
+  categories: Category[];
+  goals: GoalDTO[];
 };
 
-const RecentActivities = ({ isShown, data }: RecentActivitiesProps) => {
+const RecentActivities = ({
+  isShown,
+  data,
+  categories,
+  goals,
+}: RecentActivitiesProps) => {
   const groupedByDate = useMemo(() => {
     const groups: { date: string; transactions: typeof data }[] = [];
 
@@ -24,6 +33,7 @@ const RecentActivities = ({ isShown, data }: RecentActivitiesProps) => {
 
     return groups;
   }, [data]);
+  console.log(groupedByDate);
 
   return (
     <div className="flex flex-col gap-2">
@@ -41,7 +51,12 @@ const RecentActivities = ({ isShown, data }: RecentActivitiesProps) => {
               {date}
             </span>
             {transactions.map((transaction) => (
-              <TransactionCard key={transaction.id} transaction={transaction} />
+              <TransactionCard
+                key={transaction.id}
+                transaction={transaction}
+                categories={categories}
+                goals={goals}
+              />
             ))}
           </div>
         ))

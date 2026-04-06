@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Card, CardHeader } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { ChevronDownIcon } from "lucide-react";
 import { Category, TransactionType } from "@/lib/generated/prisma/browser";
-import { format } from "date-fns";
+import { constructNow, format } from "date-fns";
 import { Calendar } from "./ui/calendar";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { TransactionInitialValues } from "@/app/Types";
 
 const transactionSchema = z.object({
   type: z.enum([
@@ -57,10 +58,12 @@ export const AddTransaction = ({
   categories,
   goals,
   onSuccess,
+  initialValues,
 }: {
   categories: Category[];
   goals: GoalDTO[];
   onSuccess: () => void;
+  initialValues?: TransactionInitialValues;
 }) => {
   const router = useRouter();
 
@@ -73,14 +76,24 @@ export const AddTransaction = ({
     reset,
   } = useForm<TransactionForm>({
     resolver: zodResolver(transactionSchema),
-    defaultValues: {
-      type: TransactionType.EXPENSE,
-    },
+    defaultValues: initialValues
+      ? {
+          type: initialValues.type,
+          categoryId: initialValues.categoryId ?? "",
+          goalId: initialValues.goalId ?? "",
+          date: new Date(initialValues.date),
+          amount: String(initialValues.amount),
+          description: initialValues.description ?? "",
+        }
+      : { type: TransactionType.EXPENSE },
   });
 
+  const isEditing = !!initialValues;
   const type = watch("type");
   const selectedCategory = watch("categoryId");
+
   const date = watch("date");
+  const amount = watch("amount");
 
   const handleTypeChange = (newType: TransactionType) => {
     reset({
@@ -99,11 +112,16 @@ export const AddTransaction = ({
 
   const onSubmit = async (data: TransactionForm) => {
     try {
-      const res = await fetch("/api/user/transaction", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        isEditing
+          ? `/api/user/transaction/${initialValues.id}`
+          : "/api/user/transaction",
+        {
+          method: isEditing ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        },
+      );
 
       const result = await res.json();
 
@@ -131,70 +149,108 @@ export const AddTransaction = ({
     }
   };
 
+  useEffect(() => {
+    if (initialValues) {
+      reset({
+        type: initialValues.type,
+        categoryId: initialValues.categoryId ?? undefined,
+        goalId: initialValues.goalId ?? undefined,
+        date: new Date(initialValues.date),
+        amount: String(initialValues.amount),
+        description: initialValues.description ?? "",
+      });
+    }
+  }, [reset, initialValues]);
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="container flex flex-col gap-4"
     >
-      <div className="flex gap-2 justify-center">
-        <Card
-          onClick={() => handleTypeChange(TransactionType.EXPENSE)}
-          className={cn(
-            "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
-            type === TransactionType.EXPENSE && "border-red-500 border-2",
-          )}
-        >
-          <CardHeader className="justify-center font-semibold">
-            Expense
-          </CardHeader>
-        </Card>
-
-        <Card
-          onClick={() => handleTypeChange(TransactionType.INCOME)}
-          className={cn(
-            "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
-            type === TransactionType.INCOME && "border-green-500 border-2",
-          )}
-        >
-          <CardHeader className="justify-center font-semibold">
-            Income
-          </CardHeader>
-        </Card>
-
-        {goals.length > 0 && (
+      {isEditing ? (
+        <div className="flex justify-center">
+          <span
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-semibold",
+              type === TransactionType.EXPENSE && "border-red-500 border-2",
+              type === TransactionType.INCOME && "border-green-500 border-2",
+              type === TransactionType.SAVINGS && "border-blue-500 border-2",
+              type === TransactionType.INVESTMENTS &&
+                "bg-purple-100 text-purple-700",
+              type === TransactionType.ASSETS &&
+                "bg-yellow-100 text-yellow-700",
+            )}
+          >
+            {type}
+          </span>
+        </div>
+      ) : (
+        <div className="flex gap-2 justify-center">
           <Card
-            onClick={() => handleTypeChange(TransactionType.SAVINGS)}
+            onClick={() => handleTypeChange(TransactionType.EXPENSE)}
             className={cn(
               "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
-              type === TransactionType.SAVINGS && "border-blue-500",
+              type === TransactionType.EXPENSE && "border-red-500 border-2",
             )}
           >
             <CardHeader className="justify-center font-semibold">
-              Savings
+              Expense
             </CardHeader>
           </Card>
-        )}
-      </div>
+
+          <Card
+            onClick={() => handleTypeChange(TransactionType.INCOME)}
+            className={cn(
+              "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
+              type === TransactionType.INCOME && "border-green-500 border-2",
+            )}
+          >
+            <CardHeader className="justify-center font-semibold">
+              Income
+            </CardHeader>
+          </Card>
+
+          {goals.length > 0 && (
+            <Card
+              onClick={() => handleTypeChange(TransactionType.SAVINGS)}
+              className={cn(
+                "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
+                type === TransactionType.SAVINGS && "border-blue-500",
+              )}
+            >
+              <CardHeader className="justify-center font-semibold">
+                Savings
+              </CardHeader>
+            </Card>
+          )}
+        </div>
+      )}
 
       {type === TransactionType.SAVINGS && goals.length > 0 ? (
         <div className="flex flex-col gap-2">
           <span>Select Goal</span>
-          <Select
-            onValueChange={(val) =>
-              setValue("goalId", val, { shouldValidate: true })
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a goal" />
-            </SelectTrigger>
-            <SelectContent>
-              {goals.map((goal) => (
-                <SelectItem key={goal.id} value={goal.id}>
-                  {goal.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {isEditing ? (
+            <div className="px-3 py-2 rounded-md border bg-muted text-sm">
+              {goals.find((g) => g.id === watch("goalId"))?.name ?? "Savings"}
+            </div>
+          ) : (
+            <Select
+              onValueChange={(val) =>
+                setValue("goalId", val, { shouldValidate: true })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a goal" />
+              </SelectTrigger>
+              <SelectContent>
+                {goals.map((goal) => (
+                  <SelectItem key={goal.id} value={goal.id}>
+                    {goal.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           <span>Date</span>
           <Popover>
@@ -228,7 +284,6 @@ export const AddTransaction = ({
         <>
           <div className="flex flex-col gap-2">
             <span>Category</span>
-
             <div className="grid grid-cols-3 gap-2 h-24">
               {filteredCategories.map((cat) => (
                 <Card
@@ -251,7 +306,6 @@ export const AddTransaction = ({
                 </Card>
               ))}
             </div>
-
             {errors.categoryId && (
               <span className="text-red-500 text-sm">
                 {errors.categoryId.message}
@@ -306,8 +360,9 @@ export const AddTransaction = ({
           decimalSeparator=","
           prefix="Rp "
           placeholder="Enter value"
-          onValueChange={(amount) => {
-            setValue("amount", amount.value, { shouldValidate: true });
+          value={amount ?? ""}
+          onValueChange={(val) => {
+            setValue("amount", val.value, { shouldValidate: true });
           }}
         />
         {errors.amount && (
@@ -329,7 +384,13 @@ export const AddTransaction = ({
       )}
 
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? <Spinner /> : "Add Transaction"}
+        {isSubmitting ? (
+          <Spinner />
+        ) : isEditing ? (
+          "Update Transaction"
+        ) : (
+          "Add Transaction"
+        )}
       </Button>
     </form>
   );

@@ -2,12 +2,15 @@
 
 import { useState, useMemo } from "react";
 import { Card, CardContent } from "./ui/card";
-import { Trash2, TrendingUp } from "lucide-react";
+import { Pencil, Trash2, TrendingUp } from "lucide-react";
 import Alert from "./Alert";
 import { cn } from "@/lib/utils";
 import { TYPE_ICON } from "@/constants";
 import { AssetPriceDTO, InvestmentDTO } from "@/lib/data/investments";
 import { formatCurrency } from "@/lib/helper/formatCurrency";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
+import { AddInvestment } from "./AddInvestment";
+import { InvestmentType } from "@/lib/generated/prisma/browser";
 
 type Props = {
   investment: InvestmentDTO & {
@@ -17,6 +20,7 @@ type Props = {
 
 const InvestmentCard = ({ investment }: Props) => {
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   const Icon = TYPE_ICON[investment.type].icon;
   const iconStyle = TYPE_ICON[investment.type].className;
@@ -112,13 +116,22 @@ const InvestmentCard = ({ investment }: Props) => {
                 </span>
               </div>
 
-              <button onClick={() => setOpen(true)}>
-                <Trash2
-                  width={16}
-                  height={16}
-                  className="text-red-500 cursor-pointer"
-                />
-              </button>
+              <div className="flex gap-2">
+                <button onClick={() => setEditOpen(true)}>
+                  <Pencil
+                    width={16}
+                    height={16}
+                    className="text-blue-500 cursor-pointer"
+                  />
+                </button>
+                <button onClick={() => setOpen(true)}>
+                  <Trash2
+                    width={16}
+                    height={16}
+                    className="text-red-500 cursor-pointer"
+                  />
+                </button>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -131,6 +144,29 @@ const InvestmentCard = ({ investment }: Props) => {
         successMessage="Investment deleted"
         description="This action cannot be undone."
       />
+
+      <Drawer open={editOpen} onOpenChange={setEditOpen}>
+        <DrawerContent className="h-auto">
+          <DrawerHeader>
+            <DrawerTitle>Edit Investment</DrawerTitle>
+          </DrawerHeader>
+          <div className="p-4 overflow-y-auto">
+            <AddInvestment
+              onSuccess={() => setEditOpen(false)}
+              investmentInitialValues={{
+                id: investment.id,
+                name: investment.name,
+                type: investment.type,
+                assetIdentifier: investment.assetIdentifier,
+                totalInvestment: investment.totalInvestment,
+                quantity: investment.quantity,
+                unit: investment.unit,
+                date: investment.date,
+              }}
+            />
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
