@@ -119,7 +119,10 @@ export const AddTransaction = ({
         {
           method: isEditing ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            ...data,
+            date: format(data.date, "yyyy-MM-dd"),
+          }),
         },
       );
 
@@ -130,13 +133,23 @@ export const AddTransaction = ({
       }
 
       if (data.type === TransactionType.SAVINGS) {
-        toast.success("Savings added successfully!", {
-          position: "top-center",
-        });
+        toast.success(
+          isEditing
+            ? "Savings updated successfully!"
+            : "Savings added successfully!",
+          {
+            position: "top-center",
+          },
+        );
       } else {
-        toast.success("Transaction added successfully!", {
-          position: "top-center",
-        });
+        toast.success(
+          isEditing
+            ? "Transaction updated successfully!"
+            : "Transaction added successfully!",
+          {
+            position: "top-center",
+          },
+        );
       }
 
       reset();
@@ -163,10 +176,7 @@ export const AddTransaction = ({
   }, [reset, initialValues]);
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="container flex flex-col gap-4"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className=" flex flex-col gap-4">
       {isEditing ? (
         <div className="flex justify-center">
           <span

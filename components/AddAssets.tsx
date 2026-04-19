@@ -107,13 +107,10 @@ export const AddAssets = ({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="container flex flex-col gap-4"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <span>Asset Type</span>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
           {DEFAULT_ASSETS.map((asset) => (
             <Card
               key={asset.type}
@@ -121,7 +118,7 @@ export const AddAssets = ({
                 setValue("type", asset.type, { shouldValidate: true })
               }
               className={cn(
-                "h-10 p-2 justify-center cursor-pointer",
+                "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
                 selectedType === asset.type
                   ? "border-blue-500 bg-blue-100 dark:bg-blue-900/30"
                   : "opacity-60",

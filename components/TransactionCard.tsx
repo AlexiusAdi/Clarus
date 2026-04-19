@@ -47,19 +47,19 @@ const TransactionCard = ({
     <>
       <Card className="p-1 w-full">
         <CardHeader className="p-3">
-          <div className="flex w-full items-center gap-1">
-            <div>
+          <div className="flex w-full items-start gap-1 min-w-0">
+            <div className="mt-1">
               {isPositive(transaction.type) ? (
                 <ArrowRight className="inline-block mr-2 text-green-500 -rotate-45" />
               ) : (
                 <ArrowRight className="inline-block mr-2 text-red-500 rotate-45" />
               )}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 overflow-hidden">
               <CardTitle className="truncate">
                 {getLabel(transaction)}
               </CardTitle>
-              <CardDescription className="truncate">
+              <CardDescription className="line-clamp-2 text-xs wrap-break-word">
                 {transaction.type === TransactionType.SAVINGS
                   ? `Saved to goal`
                   : transaction.type === TransactionType.INVESTMENTS

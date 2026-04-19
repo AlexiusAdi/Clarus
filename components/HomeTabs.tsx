@@ -12,6 +12,7 @@ import { InvestmentDTO } from "@/lib/data/investments";
 import { TabsDataDTO } from "@/lib/helper/getTabsData";
 import { Category } from "@/lib/generated/prisma/browser";
 import { GoalDTO } from "@/lib/data/goals";
+import { useTabsContext } from "./TabsProvider";
 
 const HomeTabs = ({
   tabData,
@@ -28,16 +29,23 @@ const HomeTabs = ({
 }) => {
   const { transactions, currentMonthTotal, topSpending, spendingByCategory } =
     tabData;
+  const { activeTab, setActiveTab } = useTabsContext();
 
   return (
-    <Tabs defaultValue="overview" className="w-full items-center">
-      <TabsList>
-        <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="Transactions">Transactions</TabsTrigger>
-        <TabsTrigger value="Investments">Investments</TabsTrigger>
-        <TabsTrigger value="Assets">Assets</TabsTrigger>
-      </TabsList>
-
+    <Tabs
+      value={activeTab}
+      onValueChange={setActiveTab}
+      defaultValue="overview"
+      className="w-full items-center"
+    >
+      <div className="@xs/main:hidden">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="Transactions">Transactions</TabsTrigger>
+          <TabsTrigger value="Investments">Investments</TabsTrigger>
+          <TabsTrigger value="Assets">Assets</TabsTrigger>
+        </TabsList>
+      </div>
       {/* ✅ Overview */}
       <TabsContent value="overview" className="w-full">
         <div className="flex flex-col gap-3">

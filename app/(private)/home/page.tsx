@@ -11,6 +11,10 @@ import { getAssets } from "@/lib/data/assets";
 import { getGoals } from "@/lib/data/goals";
 import { getInvestments } from "@/lib/data/investments";
 import UserMenu from "@/components/UserMenu";
+import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import FloatingNav from "@/components/FloatingNav";
+import GoalsContent from "@/components/GoalsContent";
 
 const Page = async () => {
   const session = await auth();
@@ -35,28 +39,54 @@ const Page = async () => {
     ]);
 
   return (
-    <div className="@container/main w-screen mb-20 p-4">
-      <FloatingMenu categories={categories} goals={goals} assets={assets} />
-      <div className="w-full flex flex-col text-right pb-4">
-        <ThemeToggle />
-        <div className="flex justify-end gap-2 items-center">
-          <span>Hello, {session?.user?.name}</span>
+    <>
+      <AppSidebar user={settinguser} />
+      <SidebarInset>
+        <div className="@container/main p-4 md:px-10">
+          <div className="flex justify-between pb-4">
+            <div className="flex items-center justify-center px-4">
+              <SidebarTrigger className=" active:scale-125 hidden @4xl/main:block" />
+              <ThemeToggle />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="shadow-sm">Hello, {session?.user?.name}</span>
+              <UserMenu user={settinguser} />
+            </div>
+          </div>
+          <div className="@4xl/main:flex @4xl/main:flex-row @4xl/main:gap-4 @3xs/main:pb-20 @4xl/main:pb-0">
+            <div className="w-full @4xl/main:w-200 flex flex-col pb-4">
+              <FloatingNav
+                categories={categories}
+                goals={goals}
+                assets={assets}
+              />
+              <div className="@xl/main:hidden">
+                <FloatingMenu
+                  categories={categories}
+                  goals={goals}
+                  assets={assets}
+                />
+              </div>
 
-          <UserMenu user={settinguser} />
+              <div>
+                <NetWorthCard userNetWorth={netWorth} />
+                <GoalsContent goals={goals} />
+              </div>
+            </div>
+
+            <div className="flex w-full">
+              <HomeTabs
+                tabData={tabsData}
+                assets={assets}
+                investments={investments}
+                categories={categories}
+                goals={goals}
+              />
+            </div>
+          </div>
         </div>
-      </div>
-      <NetWorthCard userNetWorth={netWorth} />
-
-      <div className="flex w-full">
-        <HomeTabs
-          tabData={tabsData}
-          assets={assets}
-          investments={investments}
-          categories={categories}
-          goals={goals}
-        />
-      </div>
-    </div>
+      </SidebarInset>
+    </>
   );
 };
 

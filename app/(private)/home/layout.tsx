@@ -1,6 +1,8 @@
 // app/(private)/goals/layout.tsx
 "use client";
 
+import { TabsProvider } from "@/components/TabsProvider";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 
@@ -10,6 +12,7 @@ export default function GoalsLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -19,7 +22,9 @@ export default function GoalsLayout({
         exit={{ x: "100%" }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
       >
-        {children}
+        <SidebarProvider>
+          <TabsProvider>{children}</TabsProvider>
+        </SidebarProvider>
       </motion.div>
     </AnimatePresence>
   );

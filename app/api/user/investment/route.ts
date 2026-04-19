@@ -83,7 +83,6 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { name, type, assetIdentifier, quantity, unit, totalInvestment, date } =
     body;
-  console.log("POST /investment body:", body);
 
   if (
     !name ||

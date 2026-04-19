@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
     const { name, type, value, acquisitionSource, date } = body;
 
     const parsed = parseFloat(value);
-    console.log("Parsed value:", parsed);
     if (!value || isNaN(parsed)) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }

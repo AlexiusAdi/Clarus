@@ -169,7 +169,7 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
       <Drawer open={editOpen} onOpenChange={setEditOpen}>
         <DrawerContent className="h-auto">
           <DrawerHeader>
-            <DrawerTitle>Edit Asset</DrawerTitle>
+            <DrawerTitle>Edit Goal</DrawerTitle>
           </DrawerHeader>
           <div className="p-4 overflow-y-auto">
             <AddGoal

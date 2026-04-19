@@ -37,7 +37,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Goal is required" }, { status: 400 });
     }
 
-    if (type !== TransactionType.INCOME && type !== TransactionType.EXPENSE) {
+    // Cash balance check for SAVINGS and INVESTMENTS only (not ASSETS)
+    if (
+      type === TransactionType.SAVINGS ||
+      type === TransactionType.INVESTMENTS
+    ) {
       const totals = await prisma.transaction.groupBy({
         by: ["type"],
         where: { userId },
@@ -60,17 +64,9 @@ export async function POST(req: NextRequest) {
         totals
           .find((t) => t.type === TransactionType.INVESTMENTS)
           ?._sum.amount?.toNumber() ?? 0;
-      const totalAssets =
-        totals
-          .find((t) => t.type === TransactionType.ASSETS)
-          ?._sum.amount?.toNumber() ?? 0;
 
       const cashBalance =
-        totalIncome -
-        totalExpense -
-        totalSavings -
-        totalInvestments -
-        totalAssets;
+        totalIncome - totalExpense - totalSavings - totalInvestments;
 
       if (Number(amount) > cashBalance) {
         return NextResponse.json(
@@ -82,6 +78,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Goal validation for SAVINGS
     if (type === TransactionType.SAVINGS && goalId) {
       const goal = await prisma.goal.findUnique({
         where: { id: goalId },
@@ -117,6 +114,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Update goal progress for SAVINGS
     if (type === TransactionType.SAVINGS && goalId) {
       const updatedGoal = await prisma.goal.update({
         where: { id: goalId },

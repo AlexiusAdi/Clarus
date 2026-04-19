@@ -12,7 +12,6 @@ import {
 import { useState } from "react";
 import OptionCard from "./OptionCard";
 import { SettingsUser } from "@/app/Types";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 
 const UserMenu = ({ user }: { user: SettingsUser }) => {
   const [openSheet, setOpenSheet] = useState(false);
@@ -28,7 +27,7 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="rounded-full">
+          <div className="rounded-full cursor-pointer active:scale-125">
             <Avatar className="w-7 h-7 shadow-xl cursor-pointer">
               <AvatarImage
                 referrerPolicy="no-referrer"
@@ -37,7 +36,7 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
               />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
-          </button>
+          </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>

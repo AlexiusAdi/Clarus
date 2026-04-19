@@ -33,7 +33,6 @@ const RecentActivities = ({
 
     return groups;
   }, [data]);
-  console.log(groupedByDate);
 
   return (
     <div className="flex flex-col gap-2">

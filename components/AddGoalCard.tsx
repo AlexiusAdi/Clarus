@@ -79,7 +79,7 @@ export const AddGoal = ({
       const res = await fetch(
         isEditing
           ? `/api/user/goals/${goalInitialValues!.id}`
-          : "/api/user/goal",
+          : "/api/user/goals",
         {
           method: isEditing ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },

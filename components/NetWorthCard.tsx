@@ -51,7 +51,7 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
   };
 
   return (
-    <div>
+    <>
       <Card className="bg-obsidian text-white @2xs/main:gap-3">
         <CardHeader className="flex justify-between items-center">
           <CardTitle className="text-xl opacity-90">Total Net Worth</CardTitle>
@@ -90,7 +90,7 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
           )}
         </CardContent>
 
-        <CardContent className="flex justify-between gap-2">
+        <CardContent className="flex justify-center gap-2">
           <Card className="w-50 @xs/main:gap-0 bg-stellyIce border-stellyIce text-white/70">
             <CardHeader className="text-bold @2xs/main:text-md @2xs/main:px-3 @md/main:px-6">
               <CardTitle>Cash Balance</CardTitle>
@@ -153,6 +153,6 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
           isVisible={isVisible}
         />
       </div>
-    </div>
+    </>
   );
 }

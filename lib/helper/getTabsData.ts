@@ -47,6 +47,7 @@ export async function getTabsData(userId: string): Promise<TabsDataDTO> {
   }));
 
   const currentMonth = new Date().toISOString().slice(0, 7);
+  console.log(currentMonth);
 
   const expensePerMonthMap: Record<string, number> = {};
   transactions.forEach((txn) => {
@@ -78,6 +79,7 @@ export async function getTabsData(userId: string): Promise<TabsDataDTO> {
   const spendingByCategory = Object.entries(categoryMap).map(
     ([category, amount]) => ({ category, amount }),
   );
+  console.log("Spending by category:", spendingByCategory);
 
   return { transactions, currentMonthTotal, topSpending, spendingByCategory };
 }
