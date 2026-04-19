@@ -195,7 +195,7 @@ export const AddTransaction = ({
           </span>
         </div>
       ) : (
-        <div className="flex gap-2 justify-center">
+        <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
           <Card
             onClick={() => handleTypeChange(TransactionType.EXPENSE)}
             className={cn(
