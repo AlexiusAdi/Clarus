@@ -91,6 +91,9 @@ const HomeTabs = ({
       setRefetchActive(() => refetchTransactions);
     if (activeTab === "Assets") setRefetchActive(() => refetchAssets);
     if (activeTab === "Investments") setRefetchActive(() => refetchInvestments);
+    else if (activeTab === "overview") {
+      setRefetchActive(() => refetchTransactions);
+    }
   }, [activeTab]);
 
   return (
