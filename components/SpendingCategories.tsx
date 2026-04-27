@@ -7,9 +7,9 @@ const SpendingCategories = ({
   totalExpense,
 }: SpendingChartProps & { totalExpense: number }) => {
   return (
-    <Card className="w-full">
+    <Card className="w-full shadow-md">
       <CardHeader>
-        <CardTitle>Top Spending</CardTitle>
+        <CardTitle>Spending</CardTitle>
       </CardHeader>
       {data.length === 0 ? (
         <CardContent className="text-sm text-muted-foreground">

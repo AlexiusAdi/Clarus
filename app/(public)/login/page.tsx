@@ -29,31 +29,25 @@ export default function Login() {
 
   return (
     <div className="hero-container flex flex-col gap-8 items-center justify-center h-screen p-4">
-      <div id="title">
-        <a className="text-6xl" onClick={() => redirect("/login")}>
+      <div id="title" className="flex flex-col items-center gap-1">
+        <a
+          className="text-6xl text-obsidian"
+          onClick={() => redirect("/login")}
+        >
           Clarus
         </a>
+        <span className="text-sm text-muted-foreground tracking-wide">
+          Your finances, made clear.
+        </span>
       </div>
       <div id="login-card" className="w-full flex items-center justify-center">
-        <Card className=" w-full max-w-sm bg-porcelinwhite border-2 ">
-          <CardHeader>
-            <CardTitle className="flex flex-col gap-y-4">
-              <div className="flex flex-col gap-2 items-center dark:text-black">
-                <p>Please sign in to continue</p>
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex-col gap-2 dark:text-black dark:border-gray-gray-300">
-            <Button
-              variant="outline"
-              className="w-full bg-porcelinwhite border-2 border-gray-300 hover:bg-gray-100"
-              onClick={() => signIn("google", { callbackUrl: "/home" })}
-            >
-              <FcGoogle width={5} height={5} />
-              Login with Google
-            </Button>
-          </CardContent>
-        </Card>
+        <Button
+          className="w-3/4 h-12 active:scale-105 bg-obsidian hover:bg-obsidian/80 text-porcelinwhite gap-2.5"
+          onClick={() => signIn("google", { callbackUrl: "/home" })}
+        >
+          <FcGoogle size={16} />
+          Continue with Google
+        </Button>
       </div>
     </div>
   );

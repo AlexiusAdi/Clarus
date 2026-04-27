@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import GoalsAddButton from "@/components/GoalsAddButton";
 
-export default async function Page() {
+export default async function Goal() {
   const session = await auth();
   const goals = await getGoals(session?.user?.id!);
 

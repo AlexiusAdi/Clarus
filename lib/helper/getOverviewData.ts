@@ -12,16 +12,23 @@ export type TransactionDTO = {
   goal: { name: string; id: string } | null;
 };
 
-export type TabsDataDTO = {
-  transactions: TransactionDTO[];
+export type OverviewDataDTO = {
   currentMonthTotal: number;
   topSpending: TransactionDTO[];
   spendingByCategory: { category: string; amount: number }[];
 };
 
-export async function getTabsData(userId: string): Promise<TabsDataDTO> {
+export async function getOverviewData(
+  userId: string,
+): Promise<OverviewDataDTO> {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
   const raw = await prisma.transaction.findMany({
-    where: { userId },
+    where: {
+      userId,
+      date: { gte: startOfMonth },
+    },
     orderBy: { date: "desc" },
     select: {
       id: true,
@@ -46,17 +53,9 @@ export async function getTabsData(userId: string): Promise<TabsDataDTO> {
     goal: t.goal,
   }));
 
-  const currentMonth = new Date().toISOString().slice(0, 7);
-
-  const expensePerMonthMap: Record<string, number> = {};
-  transactions.forEach((txn) => {
-    if (txn.type !== TransactionType.EXPENSE) return;
-    const monthKey = txn.date.toISOString().slice(0, 7);
-    expensePerMonthMap[monthKey] =
-      (expensePerMonthMap[monthKey] || 0) + txn.amount;
-  });
-
-  const currentMonthTotal = expensePerMonthMap[currentMonth] ?? 0;
+  const currentMonthTotal = transactions
+    .filter((t) => t.type === TransactionType.EXPENSE)
+    .reduce((sum, t) => sum + t.amount, 0);
 
   const topSpending = transactions
     .filter(
@@ -70,7 +69,6 @@ export async function getTabsData(userId: string): Promise<TabsDataDTO> {
   const categoryMap: Record<string, number> = {};
   transactions.forEach((txn) => {
     if (txn.type !== TransactionType.EXPENSE) return;
-    if (txn.date.toISOString().slice(0, 7) !== currentMonth) return;
     const name = txn.category?.name ?? "Other";
     categoryMap[name] = (categoryMap[name] || 0) + txn.amount;
   });
@@ -79,5 +77,5 @@ export async function getTabsData(userId: string): Promise<TabsDataDTO> {
     ([category, amount]) => ({ category, amount }),
   );
 
-  return { transactions, currentMonthTotal, topSpending, spendingByCategory };
+  return { currentMonthTotal, topSpending, spendingByCategory };
 }

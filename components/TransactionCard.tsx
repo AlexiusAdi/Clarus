@@ -43,23 +43,27 @@ const TransactionCard = ({
     type === TransactionType.ASSETS ||
     type === TransactionType.INVESTMENTS;
 
+  const isActionable =
+    transaction.type !== TransactionType.ASSETS &&
+    transaction.type !== TransactionType.INVESTMENTS;
+
   return (
     <>
-      <Card className="p-1 w-full">
+      <Card className="p-1 w-full shadow-md">
         <CardHeader className="p-3">
-          <div className="flex w-full items-center gap-1">
-            <div>
+          <div className="flex w-full items-start gap-1 min-w-0">
+            <div className="mt-1">
               {isPositive(transaction.type) ? (
                 <ArrowRight className="inline-block mr-2 text-green-500 -rotate-45" />
               ) : (
                 <ArrowRight className="inline-block mr-2 text-red-500 rotate-45" />
               )}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 overflow-hidden">
               <CardTitle className="truncate">
                 {getLabel(transaction)}
               </CardTitle>
-              <CardDescription className="truncate">
+              <CardDescription className="line-clamp-2 text-xs wrap-break-word">
                 {transaction.type === TransactionType.SAVINGS
                   ? `Saved to goal`
                   : transaction.type === TransactionType.INVESTMENTS
@@ -74,20 +78,24 @@ const TransactionCard = ({
                 {formatCurrency(transaction.amount)}
               </span>
               <div className="flex gap-2">
-                <button onClick={() => setEditOpen(true)}>
-                  <Pencil
-                    width={16}
-                    height={16}
-                    className="text-blue-500 cursor-pointer"
-                  />
-                </button>
-                <button onClick={() => setOpen(true)}>
-                  <Trash2
-                    width={16}
-                    height={16}
-                    className="text-red-500 cursor-pointer"
-                  />
-                </button>
+                {isActionable && (
+                  <button onClick={() => setEditOpen(true)}>
+                    <Pencil
+                      width={16}
+                      height={16}
+                      className="text-blue-500 cursor-pointer"
+                    />
+                  </button>
+                )}
+                {isActionable && (
+                  <button onClick={() => setOpen(true)}>
+                    <Trash2
+                      width={16}
+                      height={16}
+                      className="text-red-500 cursor-pointer"
+                    />
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -51,8 +51,8 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
   };
 
   return (
-    <div>
-      <Card className="bg-obsidian text-white @2xs/main:gap-3">
+    <>
+      <Card className="bg-obsidian text-white @2xs/main:gap-3 shadow-md">
         <CardHeader className="flex justify-between items-center">
           <CardTitle className="text-xl opacity-90">Total Net Worth</CardTitle>
           {mounted ? (
@@ -90,8 +90,8 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
           )}
         </CardContent>
 
-        <CardContent className="flex justify-between gap-2">
-          <Card className="w-50 @xs/main:gap-0 bg-stellyIce border-stellyIce text-white/70">
+        <CardContent className="flex justify-center gap-2 w-full">
+          <Card className="flex-1 @xs/main:gap-0 bg-stellyIce border-stellyIce text-white/70">
             <CardHeader className="text-bold @2xs/main:text-md @2xs/main:px-3 @md/main:px-6">
               <CardTitle>Cash Balance</CardTitle>
             </CardHeader>
@@ -112,7 +112,7 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
             </CardContent>
           </Card>
 
-          <Card className="w-50 @xs/main:gap-0 bg-stellyIce border-stellyIce text-white/70">
+          <Card className="flex-1 @xs/main:gap-0 bg-stellyIce border-stellyIce text-white/70">
             <CardHeader className="text-bold @2xs/main:text-md @2xs/main:px-3 @md/main:px-6">
               <CardTitle>Investments</CardTitle>
             </CardHeader>
@@ -140,7 +140,7 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
           header="Income"
           amount={totalIncome}
           icon={
-            <ArrowRight className="inline-block mr-2 text-green-500 rotate-320" />
+            <ArrowRight className="inline-block mr-2 text-green-500 -rotate-45 shadow-accent" />
           }
           isVisible={isVisible}
         />
@@ -148,11 +148,11 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
           header="Expenses"
           amount={totalExpense}
           icon={
-            <ArrowRight className="inline-block mr-2 text-red-500 rotate-30" />
+            <ArrowRight className="inline-block mr-2 text-red-500 rotate-45 shadow-accent" />
           }
           isVisible={isVisible}
         />
       </div>
-    </div>
+    </>
   );
 }

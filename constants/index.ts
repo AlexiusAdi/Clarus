@@ -9,6 +9,7 @@ import {
   Bitcoin,
   CircleDollarSign,
   Coins,
+  Landmark,
   PiggyBank,
   Star,
   TrendingUp,
@@ -55,14 +56,9 @@ export const DEFAULT_INVESTMENT_TYPES = [
 
 export const DEFAULT_ACTIONS = [
   {
-    icon: Star,
-    label: "Goals",
-    value: "goals",
-  },
-  {
     icon: Wallet,
-    label: "Add Assets",
-    value: "assets",
+    label: "Add Transaction",
+    value: "expense",
   },
   {
     icon: PiggyBank,
@@ -70,9 +66,14 @@ export const DEFAULT_ACTIONS = [
     value: "savings",
   },
   {
-    icon: Wallet,
-    label: "Add Transaction",
-    value: "expense",
+    icon: Landmark,
+    label: "Add Assets",
+    value: "assets",
+  },
+  {
+    icon: Star,
+    label: "Add Goals",
+    value: "goals",
   },
 ];
 

@@ -10,7 +10,6 @@ import { AssetPriceDTO, InvestmentDTO } from "@/lib/data/investments";
 import { formatCurrency } from "@/lib/helper/formatCurrency";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
 import { AddInvestment } from "./AddInvestment";
-import { InvestmentType } from "@/lib/generated/prisma/browser";
 
 type Props = {
   investment: InvestmentDTO & {

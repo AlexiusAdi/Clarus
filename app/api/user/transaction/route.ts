@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/enums";
+import { TransactionDTO } from "@/lib/helper/getOverviewData";
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,7 +38,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Goal is required" }, { status: 400 });
     }
 
-    if (type !== TransactionType.INCOME && type !== TransactionType.EXPENSE) {
+    // Cash balance check for SAVINGS and INVESTMENTS only (not ASSETS)
+    if (
+      type === TransactionType.SAVINGS ||
+      type === TransactionType.INVESTMENTS
+    ) {
       const totals = await prisma.transaction.groupBy({
         by: ["type"],
         where: { userId },
@@ -60,17 +65,9 @@ export async function POST(req: NextRequest) {
         totals
           .find((t) => t.type === TransactionType.INVESTMENTS)
           ?._sum.amount?.toNumber() ?? 0;
-      const totalAssets =
-        totals
-          .find((t) => t.type === TransactionType.ASSETS)
-          ?._sum.amount?.toNumber() ?? 0;
 
       const cashBalance =
-        totalIncome -
-        totalExpense -
-        totalSavings -
-        totalInvestments -
-        totalAssets;
+        totalIncome - totalExpense - totalSavings - totalInvestments;
 
       if (Number(amount) > cashBalance) {
         return NextResponse.json(
@@ -82,6 +79,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Goal validation for SAVINGS
     if (type === TransactionType.SAVINGS && goalId) {
       const goal = await prisma.goal.findUnique({
         where: { id: goalId },
@@ -117,6 +115,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Update goal progress for SAVINGS
     if (type === TransactionType.SAVINGS && goalId) {
       const updatedGoal = await prisma.goal.update({
         where: { id: goalId },
@@ -136,6 +135,67 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(transaction, { status: 201 });
   } catch (error) {
     console.error("POST /transactions error:", error);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
+
+    const userDetail = await prisma.userDetail.upsert({
+      where: { userId },
+      update: {},
+      create: { userId },
+    });
+
+    const pageSize = userDetail.pageSize;
+
+    const [raw, total] = await Promise.all([
+      prisma.transaction.findMany({
+        where: { userId },
+        orderBy: { date: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: {
+          id: true,
+          amount: true,
+          type: true,
+          date: true,
+          createdAt: true,
+          description: true,
+          category: { select: { name: true, id: true } },
+          goal: { select: { name: true, id: true } },
+        },
+      }),
+      prisma.transaction.count({ where: { userId } }),
+    ]);
+
+    const data: TransactionDTO[] = raw.map((t) => ({
+      id: t.id,
+      amount: t.amount.toNumber(),
+      type: t.type,
+      date: t.date,
+      createdAt: t.createdAt,
+      description: t.description,
+      category: t.category,
+      goal: t.goal,
+    }));
+
+    return NextResponse.json({ data, total, page, pageSize });
+  } catch (error) {
+    console.error("GET /transaction error:", error);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 },

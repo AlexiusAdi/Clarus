@@ -29,7 +29,6 @@ export default function ThemeToggle() {
               animate={{ opacity: 1, x: 0, y: 0, rotate: 0 }}
               exit={{ opacity: 0, x: -40, y: 40, rotate: -20 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="absolute"
             >
               {resolvedTheme === "light" ? <SunIcon /> : <MoonIcon />}
             </motion.div>

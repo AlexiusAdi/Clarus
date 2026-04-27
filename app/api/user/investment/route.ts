@@ -27,19 +27,35 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const investments = await prisma.investment.findMany({
-    where: { userId: session.user.id },
-    include: { assetPrice: true },
-    orderBy: { date: "desc" },
+  const userId = session.user.id; // ← was missing
+
+  const { searchParams } = new URL(req.url);
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1")); // ← was missing
+
+  const userDetail = await prisma.userDetail.upsert({
+    where: { userId },
+    update: {},
+    create: { userId },
   });
+
+  const pageSize = userDetail.pageSize;
+
+  const [investments, total] = await Promise.all([
+    prisma.investment.findMany({
+      where: { userId },
+      include: { assetPrice: true },
+      orderBy: { date: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.investment.count({ where: { userId } }),
+  ]);
 
   const data = investments.map((inv) => {
     const quantity = inv.quantity.toNumber();
     const costPerUnit = inv.costPerUnit.toNumber();
     const currentPriceIdr = inv.assetPrice?.priceIdr.toNumber() ?? null;
-
     const normalizedQuantity = inv.unit === "lot" ? quantity * 100 : quantity;
-
     const amountInvested = normalizedQuantity * costPerUnit;
     const currentValue =
       currentPriceIdr !== null ? normalizedQuantity * currentPriceIdr : null;
@@ -57,6 +73,7 @@ export async function GET(req: NextRequest) {
       quantity,
       unit: inv.unit,
       costPerUnit,
+      totalInvestment: inv.totalInvestment.toNumber(),
       date: inv.date,
       amountInvested,
       currentPriceIdr,
@@ -64,10 +81,16 @@ export async function GET(req: NextRequest) {
       pnlAbs,
       pnlPct,
       priceUpdatedAt: inv.assetPrice?.updatedAt ?? null,
+      assetPrice: inv.assetPrice
+        ? {
+            identifier: inv.assetPrice.identifier,
+            priceIdr: inv.assetPrice.priceIdr.toNumber(),
+          }
+        : null,
     };
   });
 
-  return NextResponse.json(data);
+  return NextResponse.json({ data, total, page, pageSize });
 }
 
 // ── POST — create a new holding ───────────────────────────────────────────────
@@ -83,7 +106,6 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { name, type, assetIdentifier, quantity, unit, totalInvestment, date } =
     body;
-  console.log("POST /investment body:", body);
 
   if (
     !name ||

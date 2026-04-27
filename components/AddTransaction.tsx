@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { TransactionInitialValues } from "@/app/Types";
+import { useTabsContext } from "./TabsProvider";
 
 const transactionSchema = z.object({
   type: z.enum([
@@ -87,6 +88,7 @@ export const AddTransaction = ({
         }
       : { type: TransactionType.EXPENSE },
   });
+  const { refetchActive } = useTabsContext();
 
   const isEditing = !!initialValues;
   const type = watch("type");
@@ -119,7 +121,10 @@ export const AddTransaction = ({
         {
           method: isEditing ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            ...data,
+            date: format(data.date, "yyyy-MM-dd"),
+          }),
         },
       );
 
@@ -130,18 +135,29 @@ export const AddTransaction = ({
       }
 
       if (data.type === TransactionType.SAVINGS) {
-        toast.success("Savings added successfully!", {
-          position: "top-center",
-        });
+        toast.success(
+          isEditing
+            ? "Savings updated successfully!"
+            : "Savings added successfully!",
+          {
+            position: "top-center",
+          },
+        );
       } else {
-        toast.success("Transaction added successfully!", {
-          position: "top-center",
-        });
+        toast.success(
+          isEditing
+            ? "Transaction updated successfully!"
+            : "Transaction added successfully!",
+          {
+            position: "top-center",
+          },
+        );
       }
 
       reset();
       onSuccess();
       router.refresh();
+      refetchActive();
     } catch (error) {
       toast.error((error as Error).message || "Failed to add transaction", {
         position: "top-center",
@@ -163,10 +179,7 @@ export const AddTransaction = ({
   }, [reset, initialValues]);
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="container flex flex-col gap-4"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className=" flex flex-col gap-4">
       {isEditing ? (
         <div className="flex justify-center">
           <span
@@ -185,7 +198,12 @@ export const AddTransaction = ({
           </span>
         </div>
       ) : (
-        <div className="flex gap-2 justify-center">
+        <div
+          className={cn(
+            "grid grid-cols-2 gap-2 items-center justify-center",
+            goals.length > 0 && "xl:grid-cols-3",
+          )}
+        >
           <Card
             onClick={() => handleTypeChange(TransactionType.EXPENSE)}
             className={cn(

@@ -33,7 +33,7 @@ export default function SpendingChart({ data }: SpendingChartProps) {
   ) satisfies ChartConfig;
 
   return (
-    <Card>
+    <Card className="shadow-md">
       <CardHeader>
         <CardTitle>Spending Breakdown</CardTitle>
       </CardHeader>

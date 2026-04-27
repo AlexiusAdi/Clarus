@@ -24,6 +24,23 @@ model User {
   sessions      Session[]
   transactions  Transaction[]
   goals         Goal[]
+  userDetail    UserDetail?
+}
+
+model UserDetail {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  pageSize            Int      @default(10)
+  financialResetDay   Int      @default(1)   // 1-28, day of month period resets
+
+  // Email notifications
+  emailNotification   Boolean  @default(false)
+  notificationDay     Int      @default(1)   // day of month to send summary
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model Account {
@@ -89,9 +106,9 @@ model Transaction {
   goal        Goal?           @relation(fields: [goalId], references: [id])
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   investmentId String?
-  investment   Investment? @relation(fields: [investmentId], references: [id])
+  investment  Investment? @relation(fields: [investmentId], references: [id], onDelete: Cascade)
   assetId String?
-  assets   Asset? @relation(fields: [assetId], references: [id])
+ assets      Asset?      @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
   @@index([userId, date])
   @@index([categoryId])

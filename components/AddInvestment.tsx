@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { InvestmentInitialValues } from "@/app/Types";
+import { useTabsContext } from "./TabsProvider";
 
 const TYPE_ACCENT: Record<InvestmentType, string> = {
   STOCK: "border-blue-500 border-2",
@@ -102,6 +103,7 @@ export const AddInvestment = ({
           date: undefined,
         },
   });
+  const { refetchActive } = useTabsContext();
 
   const type = watch("type");
   const purchaseDate = watch("date");
@@ -159,6 +161,7 @@ export const AddInvestment = ({
       reset();
       onSuccess();
       router.refresh();
+      refetchActive();
     } catch (error) {
       toast.error((error as Error).message || "Failed to add investment", {
         position: "top-center",
@@ -169,20 +172,20 @@ export const AddInvestment = ({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="container flex flex-col gap-4"
+      className="flex flex-col gap-4 justify-center"
     >
       {/* ── Asset type selector ── */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
         {DEFAULT_INVESTMENT_TYPES.map((t) => (
           <Card
             key={t.value}
             onClick={() => handleTypeChange(t.value)}
             className={cn(
-              "h-12 p-2 flex justify-center items-center cursor-pointer transition-all",
+              "w-40 h-12 p-2 flex justify-center items-center cursor-pointer shadow-md",
               type === t.value ? TYPE_ACCENT[t.value] : "opacity-60",
             )}
           >
-            <CardHeader className="justify-center font-semibold text-sm">
+            <CardHeader className="justify-center font-semibold">
               {t.name}
             </CardHeader>
           </Card>

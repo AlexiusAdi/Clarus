@@ -78,7 +78,7 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
 
   return (
     <>
-      <Card className="w-full">
+      <Card className="w-full shadow-md">
         <CardContent className="p-4">
           {/* Header */}
           <div className="flex items-center gap-3 mb-4">
@@ -169,7 +169,7 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
       <Drawer open={editOpen} onOpenChange={setEditOpen}>
         <DrawerContent className="h-auto">
           <DrawerHeader>
-            <DrawerTitle>Edit Asset</DrawerTitle>
+            <DrawerTitle>Edit Goal</DrawerTitle>
           </DrawerHeader>
           <div className="p-4 overflow-y-auto">
             <AddGoal

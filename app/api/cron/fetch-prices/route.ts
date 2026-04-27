@@ -7,7 +7,6 @@ const TROY_OZ_TO_GRAM = 31.1035;
 
 function isAuthorized(req: NextRequest): boolean {
   const authHeader = req.headers.get("authorization");
-  console.log("[fetch-prices] Authorization header:", authHeader);
   return authHeader === `Bearer ${process.env.CRON_SECRET}`;
 }
 
