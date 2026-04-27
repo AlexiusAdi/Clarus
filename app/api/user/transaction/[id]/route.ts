@@ -32,6 +32,19 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    if (
+      transaction.type === TransactionType.ASSETS ||
+      transaction.type === TransactionType.INVESTMENTS
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Assets and investments must be deleted from their respective tabs.",
+        },
+        { status: 400 },
+      );
+    }
+
     await prisma.transaction.delete({
       where: { id },
     });

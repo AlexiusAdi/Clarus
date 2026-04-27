@@ -43,9 +43,13 @@ const TransactionCard = ({
     type === TransactionType.ASSETS ||
     type === TransactionType.INVESTMENTS;
 
+  const isActionable =
+    transaction.type !== TransactionType.ASSETS &&
+    transaction.type !== TransactionType.INVESTMENTS;
+
   return (
     <>
-      <Card className="p-1 w-full">
+      <Card className="p-1 w-full shadow-md">
         <CardHeader className="p-3">
           <div className="flex w-full items-start gap-1 min-w-0">
             <div className="mt-1">
@@ -74,20 +78,24 @@ const TransactionCard = ({
                 {formatCurrency(transaction.amount)}
               </span>
               <div className="flex gap-2">
-                <button onClick={() => setEditOpen(true)}>
-                  <Pencil
-                    width={16}
-                    height={16}
-                    className="text-blue-500 cursor-pointer"
-                  />
-                </button>
-                <button onClick={() => setOpen(true)}>
-                  <Trash2
-                    width={16}
-                    height={16}
-                    className="text-red-500 cursor-pointer"
-                  />
-                </button>
+                {isActionable && (
+                  <button onClick={() => setEditOpen(true)}>
+                    <Pencil
+                      width={16}
+                      height={16}
+                      className="text-blue-500 cursor-pointer"
+                    />
+                  </button>
+                )}
+                {isActionable && (
+                  <button onClick={() => setOpen(true)}>
+                    <Trash2
+                      width={16}
+                      height={16}
+                      className="text-red-500 cursor-pointer"
+                    />
+                  </button>
+                )}
               </div>
             </div>
           </div>

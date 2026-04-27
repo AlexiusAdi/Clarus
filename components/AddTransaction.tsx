@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { TransactionInitialValues } from "@/app/Types";
+import { useTabsContext } from "./TabsProvider";
 
 const transactionSchema = z.object({
   type: z.enum([
@@ -87,6 +88,7 @@ export const AddTransaction = ({
         }
       : { type: TransactionType.EXPENSE },
   });
+  const { refetchActive } = useTabsContext();
 
   const isEditing = !!initialValues;
   const type = watch("type");
@@ -155,6 +157,7 @@ export const AddTransaction = ({
       reset();
       onSuccess();
       router.refresh();
+      refetchActive();
     } catch (error) {
       toast.error((error as Error).message || "Failed to add transaction", {
         position: "top-center",
@@ -195,7 +198,12 @@ export const AddTransaction = ({
           </span>
         </div>
       ) : (
-        <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
+        <div
+          className={cn(
+            "grid grid-cols-2 gap-2 items-center justify-center",
+            goals.length > 0 && "xl:grid-cols-3",
+          )}
+        >
           <Card
             onClick={() => handleTypeChange(TransactionType.EXPENSE)}
             className={cn(

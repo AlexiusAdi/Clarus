@@ -12,9 +12,13 @@ import {
 import { useState } from "react";
 import OptionCard from "./OptionCard";
 import { SettingsUser } from "@/app/Types";
+import SettingsCard from "./SettingsCard";
+import { Settings, User } from "lucide-react";
 
 const UserMenu = ({ user }: { user: SettingsUser }) => {
-  const [openSheet, setOpenSheet] = useState(false);
+  const [openSheet, setOpenSheet] = useState<"profile" | "settings" | null>(
+    null,
+  );
 
   const initials = (user.name ?? "?")
     .split(" ")
@@ -38,15 +42,26 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
             </Avatar>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="center">
           <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={() => setOpenSheet(true)}>
-              Option
+            <DropdownMenuItem onSelect={() => setOpenSheet("profile")}>
+              <User width={14} className="mr-2" /> Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setOpenSheet("settings")}>
+              <Settings width={14} className="mr-2" /> Settings
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      <OptionCard user={user} open={openSheet} onOpenChange={setOpenSheet} />
+      <OptionCard
+        user={user}
+        open={openSheet === "profile"}
+        onOpenChange={(o) => setOpenSheet(o ? "profile" : null)}
+      />
+      <SettingsCard
+        open={openSheet === "settings"}
+        onOpenChange={(o) => setOpenSheet(o ? "settings" : null)}
+      />
     </>
   );
 };

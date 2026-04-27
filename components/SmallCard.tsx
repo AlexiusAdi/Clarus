@@ -11,7 +11,7 @@ export const SmallCard = ({
   isVisible,
 }: IncomeCardProps) => {
   return (
-    <Card className="flex-1 p-3 gap-0">
+    <Card className="flex-1 p-3 gap-0 shadow-md">
       <CardHeader className="px-2 pb-1 gap-1">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-1">
@@ -24,13 +24,20 @@ export const SmallCard = ({
         {amount === 0 ? (
           <span className="text-base opacity-50">No transactions</span>
         ) : isVisible ? (
-          <NumericFormat
-            value={amount}
-            displayType="text"
-            thousandSeparator="."
-            decimalSeparator=","
-            prefix="Rp "
-          />
+          <>
+            <div>
+              <span className="text-xs sm:text-sm text-gray-400 whitespace-nowrap">
+                Monthly {header}
+              </span>
+            </div>
+            <NumericFormat
+              value={amount}
+              displayType="text"
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="Rp "
+            />
+          </>
         ) : (
           "*******"
         )}

@@ -7,6 +7,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "@/components/ui/carousel";
 
 export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
@@ -31,19 +33,19 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
       <h2 className="text-center text-xl font-bold">Goals</h2>
       {/* Summary */}
       <div className="grid grid-cols-3 gap-2">
-        <Card className="bg-foreground text-background">
+        <Card className="bg-foreground text-background shadow-md">
           <CardContent className="p-3 text-center">
             <p className="text-xl font-bold">{activeGoals.length}</p>
             <p className="text-xs mt-0.5">Active</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-md">
           <CardContent className="p-3 text-center">
             <p className="text-xl font-bold">{completedGoals.length}</p>
             <p className="text-xs text-muted-foreground mt-0.5">Completed</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-md">
           <CardContent className="p-3 text-center">
             <p className="text-xl font-bold">{avgProgress.toFixed(0)}%</p>
             <p className="text-xs text-muted-foreground mt-0.5">Avg Progress</p>
@@ -57,15 +59,19 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             Active Goals
           </p>
-          <Carousel opts={{ align: "center", dragFree: true }}>
-            <CarouselContent>
-              {activeGoals.map((goal) => (
-                <CarouselItem key={goal.id} className="basis-1/1">
-                  <GoalCard goal={goal} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+          <div className="px-12">
+            <Carousel opts={{ align: "center", dragFree: true }}>
+              <CarouselContent>
+                {activeGoals.map((goal) => (
+                  <CarouselItem key={goal.id} className="basis-1/1">
+                    <GoalCard goal={goal} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </div>
         </>
       )}
 
@@ -75,15 +81,19 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             Completed
           </p>
-          <Carousel opts={{ align: "start", dragFree: true }}>
-            <CarouselContent>
-              {completedGoals.map((goal) => (
-                <CarouselItem key={goal.id} className="basis-1/1">
-                  <GoalCard goal={goal} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+          <div className="px-12">
+            <Carousel opts={{ align: "start", dragFree: true }}>
+              <CarouselContent>
+                {completedGoals.map((goal) => (
+                  <CarouselItem key={goal.id} className="basis-1/1">
+                    <GoalCard goal={goal} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </div>
         </>
       )}
     </div>

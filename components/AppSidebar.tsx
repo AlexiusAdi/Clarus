@@ -12,7 +12,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -21,6 +20,8 @@ import {
 import Link from "next/link";
 import { SettingsUser } from "@/app/Types";
 import { useTabsContext } from "./TabsProvider";
+import Image from "next/image";
+import icon from "../app/icon.png";
 
 const navMain = [
   { tab: "overview", label: "Overview", icon: LayoutDashboard },
@@ -41,10 +42,9 @@ export function AppSidebar({ user }: { user: SettingsUser }) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-foreground text-background">
-                  <span className="text-sm font-semibold">C</span>
+                <div className="flex aspect-square items-center justify-center rounded-lg">
+                  <Image src={icon} alt="icon" width={32} height={32} />
                 </div>
-                <span className="font-semibold">Clarus</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

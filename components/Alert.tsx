@@ -14,6 +14,7 @@ import {
 import { Spinner } from "./ui/spinner";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTabsContext } from "./TabsProvider";
 
 interface AlertProps {
   open: boolean;
@@ -32,6 +33,7 @@ const Alert = ({
 }: AlertProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
+  const { refetchActive } = useTabsContext();
 
   const handleDelete = async () => {
     try {
@@ -45,6 +47,7 @@ const Alert = ({
       }
 
       toast.success(successMessage, { position: "top-center" });
+      refetchActive();
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to delete");

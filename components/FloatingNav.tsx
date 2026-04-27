@@ -43,18 +43,24 @@ export default function FloatingNav({
         {DEFAULT_ACTIONS.map((action) => {
           const Icon = action.icon;
           return (
-            <Button
-              key={action.value}
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                setSelectedAction(action.value);
-                setDrawerOpen(true);
-              }}
-              className="rounded-xl w-10 h-10 hover:scale-125 transition-all"
-            >
-              <Icon className="w-5 h-5" />
-            </Button>
+            <div key={action.value} className="relative group">
+              {/* Tooltip */}
+              <span className="absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-1 text-xs rounded-lg bg-popover text-popover-foreground border shadow-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                {action.label}
+              </span>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSelectedAction(action.value);
+                  setDrawerOpen(true);
+                }}
+                className="rounded-xl w-10 h-10 hover:scale-125 transition-all"
+              >
+                <Icon className="w-5 h-5" />
+              </Button>
+            </div>
           );
         })}
       </div>

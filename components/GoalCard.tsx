@@ -78,7 +78,7 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
 
   return (
     <>
-      <Card className="w-full">
+      <Card className="w-full shadow-md">
         <CardContent className="p-4">
           {/* Header */}
           <div className="flex items-center gap-3 mb-4">

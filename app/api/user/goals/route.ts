@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { name, targetAmount, currentAmount, deadline } = body;
-    console.log(body);
 
     if (!name) {
       return NextResponse.json(

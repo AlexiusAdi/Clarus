@@ -18,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { format } from "date-fns";
 import { NumericFormat } from "react-number-format";
 import { AssetInitialValues } from "@/app/Types";
+import { useTabsContext } from "./TabsProvider";
 
 const assetSchema = z.object({
   type: z.enum(AssetType, "Asset type is required"),
@@ -72,6 +73,7 @@ export const AddAssets = ({
         }
       : undefined,
   });
+  const { refetchActive } = useTabsContext();
 
   const selectedType = watch("type");
   const selectedSource = watch("acquisitionSource");
@@ -101,6 +103,7 @@ export const AddAssets = ({
       reset();
       onSuccess();
       router.refresh();
+      refetchActive();
     } catch (error) {
       toast.error((error as Error).message || "Failed to add asset");
     }
