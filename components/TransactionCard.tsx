@@ -51,8 +51,8 @@ const TransactionCard = ({
     <>
       <Card className="p-1 w-full shadow-md">
         <CardHeader className="p-3">
-          <div className="flex w-full items-start gap-1 min-w-0">
-            <div className="mt-1">
+          <div className="flex w-full gap-1 min-w-0">
+            <div className="flex items-center shadow-sm">
               {isPositive(transaction.type) ? (
                 <ArrowRight className="inline-block mr-2 text-green-500 -rotate-45" />
               ) : (

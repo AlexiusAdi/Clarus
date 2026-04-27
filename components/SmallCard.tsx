@@ -21,15 +21,15 @@ export const SmallCard = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="px-3 font-semibold">
+        <div>
+          <span className="text-xs sm:text-sm text-gray-400 whitespace-nowrap">
+            Monthly {header}
+          </span>
+        </div>
         {amount === 0 ? (
           <span className="text-base opacity-50">No transactions</span>
         ) : isVisible ? (
           <>
-            <div>
-              <span className="text-xs sm:text-sm text-gray-400 whitespace-nowrap">
-                Monthly {header}
-              </span>
-            </div>
             <NumericFormat
               value={amount}
               displayType="text"
