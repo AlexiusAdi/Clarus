@@ -21,13 +21,9 @@ export type OverviewDataDTO = {
 export async function getOverviewData(
   userId: string,
 ): Promise<OverviewDataDTO> {
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
   const raw = await prisma.transaction.findMany({
     where: {
       userId,
-      date: { gte: startOfMonth },
     },
     orderBy: { date: "desc" },
     select: {
