@@ -56,11 +56,11 @@ const Page = async () => {
           </div>
           <div className="@3xl/main:flex @3xl/main:flex-row @3xl/main:gap-4 @3xs/main:pb-20 @3xl/main:pb-0">
             <div className="w-full @3xl/main:w-300 flex flex-col pb-4">
-              {/* <FloatingNav
+              <FloatingNav
                 categories={categories}
                 goals={goals}
                 assets={assets}
-              /> */}
+              />
               <div className="@2sm/main:hidden">
                 <FloatingMenu
                   categories={categories}
