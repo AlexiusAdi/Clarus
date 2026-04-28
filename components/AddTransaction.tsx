@@ -165,6 +165,8 @@ export const AddTransaction = ({
     }
   };
 
+  console.log(filteredCategories);
+
   useEffect(() => {
     if (initialValues) {
       reset({
