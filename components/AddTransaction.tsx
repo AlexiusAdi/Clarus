@@ -165,8 +165,6 @@ export const AddTransaction = ({
     }
   };
 
-  console.log(filteredCategories);
-
   useEffect(() => {
     if (initialValues) {
       reset({
@@ -179,6 +177,10 @@ export const AddTransaction = ({
       });
     }
   }, [reset, initialValues]);
+
+  useEffect(() => {
+    console.log("MOUNT AddTransaction", Math.random());
+  }, []);
 
   return (
     <form
@@ -334,7 +336,6 @@ export const AddTransaction = ({
             )}
           </div>
 
-          {/* DATE */}
           <div className="flex flex-col gap-2">
             <span>Date</span>
 
