@@ -172,7 +172,7 @@ export const AddInvestment = ({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-4 justify-center"
+      className="flex flex-col gap-4 justify-center w-full max-w-md mx-auto"
     >
       {/* ── Asset type selector ── */}
       <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
@@ -181,7 +181,7 @@ export const AddInvestment = ({
             key={t.value}
             onClick={() => handleTypeChange(t.value)}
             className={cn(
-              "w-40 h-12 p-2 flex justify-center items-center cursor-pointer shadow-md",
+              "h-12 p-2 flex justify-center items-center cursor-pointer shadow-md",
               type === t.value ? TYPE_ACCENT[t.value] : "opacity-60",
             )}
           >
