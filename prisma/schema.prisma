@@ -90,6 +90,7 @@ model Category {
   transactions Transaction[]
 
   @@index([userId])
+  @@unique([name, type, userId])
 }
 
 model Transaction {
