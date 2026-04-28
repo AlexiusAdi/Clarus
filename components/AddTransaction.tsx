@@ -179,7 +179,10 @@ export const AddTransaction = ({
   }, [reset, initialValues]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className=" flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className=" flex flex-col gap-4 w-full max-w-md mx-auto"
+    >
       {isEditing ? (
         <div className="flex justify-center">
           <span
@@ -207,7 +210,7 @@ export const AddTransaction = ({
           <Card
             onClick={() => handleTypeChange(TransactionType.EXPENSE)}
             className={cn(
-              "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
+              "h-12 p-2 flex justify-center items-center cursor-pointer",
               type === TransactionType.EXPENSE && "border-red-500 border-2",
             )}
           >
@@ -219,7 +222,7 @@ export const AddTransaction = ({
           <Card
             onClick={() => handleTypeChange(TransactionType.INCOME)}
             className={cn(
-              "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
+              "h-12 p-2 flex justify-center items-center cursor-pointer",
               type === TransactionType.INCOME && "border-green-500 border-2",
             )}
           >
@@ -302,7 +305,7 @@ export const AddTransaction = ({
         <>
           <div className="flex flex-col gap-2">
             <span>Category</span>
-            <div className="grid grid-cols-3 gap-2 h-24">
+            <div className="grid grid-cols-3 gap-2">
               {filteredCategories.map((cat) => (
                 <Card
                   key={cat.id}
@@ -310,7 +313,7 @@ export const AddTransaction = ({
                     setValue("categoryId", cat.id, { shouldValidate: true })
                   }
                   className={cn(
-                    "h-10 p-2 justify-center cursor-pointer",
+                    "h-10 flex items-center justify-center cursor-pointer",
                     selectedCategory === cat.id
                       ? type === "INCOME"
                         ? "border-green-500 border-2"
@@ -318,9 +321,7 @@ export const AddTransaction = ({
                       : "opacity-60",
                   )}
                 >
-                  <CardHeader className="justify-center font-semibold">
-                    {cat.name}
-                  </CardHeader>
+                  <span className="text-sm font-semibold px-2">{cat.name}</span>
                 </Card>
               ))}
             </div>
