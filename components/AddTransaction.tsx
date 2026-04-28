@@ -251,7 +251,7 @@ export const AddTransaction = ({
         </div>
       )}
 
-      {type === TransactionType.SAVINGS && goals.length > 0 ? (
+      {/* {type === TransactionType.SAVINGS && goals.length > 0 ? (
         <div className="flex flex-col gap-2">
           <span>Select Goal</span>
           {isEditing ? (
@@ -371,7 +371,69 @@ export const AddTransaction = ({
             )}
           </div>
         </>
-      )}
+      )} */}
+
+      <div className="flex flex-col gap-2">
+        <span>Category</span>
+        <div className="grid grid-cols-3 gap-2">
+          {filteredCategories.map((cat) => (
+            <Card
+              key={cat.id}
+              onClick={() =>
+                setValue("categoryId", cat.id, { shouldValidate: true })
+              }
+              className={cn(
+                "h-10 flex items-center justify-center cursor-pointer",
+                selectedCategory === cat.id
+                  ? type === "INCOME"
+                    ? "border-green-500 border-2"
+                    : "border-red-500 border-2"
+                  : "opacity-60",
+              )}
+            >
+              <span className="text-sm font-semibold px-2">{cat.name}</span>
+            </Card>
+          ))}
+        </div>
+        {errors.categoryId && (
+          <span className="text-red-500 text-sm">
+            {errors.categoryId.message}
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span>Date</span>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              data-empty={!date}
+              className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
+            >
+              {date ? format(date, "PPP") : <span>Pick a date</span>}
+              <ChevronDownIcon />
+            </Button>
+          </PopoverTrigger>
+
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(d) => {
+                if (d) setValue("date", d, { shouldValidate: true });
+              }}
+              disabled={{ after: new Date() }}
+            />
+          </PopoverContent>
+        </Popover>
+
+        {errors.date && (
+          <span className="text-red-500 text-sm">{errors.date.message}</span>
+        )}
+      </div>
 
       {/* AMOUNT */}
       <div className="flex flex-col gap-2">
