@@ -61,13 +61,13 @@ const Page = async () => {
                 goals={goals}
                 assets={assets}
               />
-              <div className="@2sm/main:hidden">
+              {/* <div className="@2sm/main:hidden">
                 <FloatingMenu
                   categories={categories}
                   goals={goals}
                   assets={assets}
                 />
-              </div>
+              </div> */}
 
               <div>
                 <NetWorthCard userNetWorth={netWorth} />
