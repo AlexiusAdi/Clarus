@@ -193,9 +193,13 @@ export const AddAssets = ({
           prefix="Rp "
           placeholder="Enter value"
           value={value ?? ""}
+          inputMode="decimal"
           onValueChange={(values) => {
             setValue("value", values.value, { shouldValidate: true });
           }}
+          onFocus={(e) =>
+            e.target.scrollIntoView({ behavior: "smooth", block: "center" })
+          }
         />
         {errors.value && (
           <span className="text-red-500 text-sm">{errors.value.message}</span>

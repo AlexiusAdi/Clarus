@@ -315,7 +315,11 @@ export const AddInvestment = ({
               thousandSeparator="."
               decimalSeparator=","
               value={field.value || ""}
+              inputMode="decimal"
               onValueChange={(v) => field.onChange(v.value)}
+              onFocus={(e) =>
+                e.target.scrollIntoView({ behavior: "smooth", block: "center" })
+              }
             />
           )}
         />
@@ -362,8 +366,12 @@ export const AddInvestment = ({
               thousandSeparator="."
               decimalSeparator=","
               prefix="Rp "
+              inputMode="decimal"
               value={field.value || ""}
               onValueChange={(v) => field.onChange(v.value)}
+              onFocus={(e) =>
+                e.target.scrollIntoView({ behavior: "smooth", block: "center" })
+              }
             />
           )}
         />
