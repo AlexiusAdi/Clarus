@@ -42,7 +42,7 @@ export default function Login() {
       </div>
       <div id="login-card" className="w-full flex items-center justify-center">
         <Button
-          className="w-3/4 h-12 active:scale-105 bg-obsidian hover:bg-obsidian/80 text-porcelinwhite gap-2.5"
+          className="active:scale-105 bg-obsidian hover:bg-obsidian/80 text-porcelinwhite gap-2.5"
           onClick={() => signIn("google", { callbackUrl: "/home" })}
         >
           <FcGoogle size={16} />

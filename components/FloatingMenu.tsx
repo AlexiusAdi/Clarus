@@ -100,7 +100,7 @@ export default function FloatingMenu({
             </DrawerTitle>
           </DrawerHeader>
 
-          <div className="overflow-auto p-4">
+          <div className="overflow-auto max-h-[85dvh] p-4">
             {selectedAction === "expense" && (
               <div className="flex items-center justify-center">
                 <AddTransaction

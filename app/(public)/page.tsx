@@ -1,6 +1,7 @@
 "use client";
 
 import TransitionEffect from "@/components/TransitionEffect";
+import { Button } from "@/components/ui/button";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRouter } from "next/navigation";
@@ -49,12 +50,12 @@ export default function Home() {
         </div>
 
         <div id="startButton" className="w-full flex justify-center">
-          <button
+          <Button
             onClick={() => router.push("/login")}
-            className="w-3/4 h-11 bg-obsidian hover:bg-obsidian/80 text-porcelinwhite rounded-[10px] text-sm font-medium transition-colors cursor-pointer"
+            className=" h-11 bg-obsidian hover:bg-obsidian/80 text-porcelinwhite rounded-[10px] text-sm font-medium transition-colors cursor-pointer"
           >
             Get started
-          </button>
+          </Button>
         </div>
       </div>
     </div>

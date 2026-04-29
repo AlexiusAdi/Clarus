@@ -178,10 +178,6 @@ export const AddTransaction = ({
     }
   }, [reset, initialValues]);
 
-  useEffect(() => {
-    console.log("MOUNT AddTransaction", Math.random());
-  }, []);
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -383,9 +379,13 @@ export const AddTransaction = ({
           prefix="Rp "
           placeholder="Enter value"
           value={amount ?? ""}
+          inputMode="decimal"
           onValueChange={(val) => {
             setValue("amount", val.value, { shouldValidate: true });
           }}
+          onFocus={(e) =>
+            e.target.scrollIntoView({ behavior: "smooth", block: "center" })
+          }
         />
         {errors.amount && (
           <span className="text-red-500 text-sm">{errors.amount.message}</span>
