@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -75,9 +76,19 @@ export default function FloatingNav({
               {selectedAction === "assets" && "Add Assets"}
               {selectedAction === "goals" && "Add Goals"}
             </DrawerTitle>
+            <DrawerDescription>
+              {selectedAction === "expense" &&
+                "Record a new transaction to your account"}
+              {selectedAction === "savings" &&
+                "Add a new investment to your portfolio"}
+              {selectedAction === "assets" &&
+                "Add a new asset to track its value"}
+              {selectedAction === "goals" &&
+                "Set a new savings goal to work towards"}
+            </DrawerDescription>
           </DrawerHeader>
 
-          <div className="overflow-auto p-4">
+          <div className="overflow-auto max-h-[85dvh] p-4">
             {selectedAction === "expense" && (
               <div className="flex items-center justify-center">
                 <AddTransaction
