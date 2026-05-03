@@ -38,7 +38,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Goal is required" }, { status: 400 });
     }
 
-    // Cash balance check for SAVINGS and INVESTMENTS only (not ASSETS)
     if (
       type === TransactionType.SAVINGS ||
       type === TransactionType.INVESTMENTS
@@ -79,7 +78,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Goal validation for SAVINGS
     if (type === TransactionType.SAVINGS && goalId) {
       const goal = await prisma.goal.findUnique({
         where: { id: goalId },
@@ -115,7 +113,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Update goal progress for SAVINGS
     if (type === TransactionType.SAVINGS && goalId) {
       const updatedGoal = await prisma.goal.update({
         where: { id: goalId },
@@ -124,12 +121,13 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      if (updatedGoal.currentAmount >= updatedGoal.targetAmount) {
-        await prisma.goal.update({
-          where: { id: goalId },
-          data: { isCompleted: true },
-        });
-      }
+      const current = updatedGoal.currentAmount.toNumber();
+      const target = updatedGoal.targetAmount.toNumber();
+
+      await prisma.goal.update({
+        where: { id: goalId },
+        data: { isCompleted: current >= target },
+      });
     }
 
     return NextResponse.json(transaction, { status: 201 });

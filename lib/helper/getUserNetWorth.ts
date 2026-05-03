@@ -16,7 +16,16 @@ export async function getUserNetWorth(userId: string): Promise<UserNetWorth> {
     .filter((txn) => txn.type === TransactionType.EXPENSE)
     .reduce((acc, txn) => acc + txn.amount.toNumber(), 0);
 
-  const cashBalance = totalIncome - totalExpense;
+  const totalSavings = transactions
+    .filter((txn) => txn.type === TransactionType.SAVINGS)
+    .reduce((acc, txn) => acc + txn.amount.toNumber(), 0);
+
+  const totalInvestmentTxns = transactions
+    .filter((txn) => txn.type === TransactionType.INVESTMENTS)
+    .reduce((acc, txn) => acc + txn.amount.toNumber(), 0);
+
+  const cashBalance =
+    totalIncome - totalExpense - totalSavings - totalInvestmentTxns;
 
   const investments = await prisma.investment.findMany({
     where: { userId },

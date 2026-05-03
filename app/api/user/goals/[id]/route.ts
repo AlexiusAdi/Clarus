@@ -87,18 +87,19 @@ export async function PATCH(
     if (goal.userId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+    const parsedCurrent = currentAmount
+      ? Number(currentAmount)
+      : goal.currentAmount.toNumber();
+    const parsedTarget = Number(targetAmount);
 
     const updated = await prisma.goal.update({
       where: { id },
       data: {
         name,
-        targetAmount: Number(targetAmount),
-        currentAmount: currentAmount
-          ? Number(currentAmount)
-          : goal.currentAmount,
+        targetAmount: parsedTarget,
+        currentAmount: parsedCurrent,
         deadline: deadline ? new Date(deadline) : null,
-        isCompleted:
-          Number(currentAmount ?? goal.currentAmount) >= Number(targetAmount),
+        isCompleted: parsedCurrent >= parsedTarget,
       },
     });
 

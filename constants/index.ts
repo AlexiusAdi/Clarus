@@ -70,11 +70,6 @@ export const DEFAULT_ACTIONS = [
     label: "Add Assets",
     value: "assets",
   },
-  {
-    icon: Star,
-    label: "Add Goals",
-    value: "goals",
-  },
 ];
 
 export const PREDEFINED_ASSETS: PredefinedAsset[] = [

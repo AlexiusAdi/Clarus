@@ -35,6 +35,9 @@ export async function POST(req: NextRequest) {
         targetAmount: Number(targetAmount),
         currentAmount: currentAmount ? Number(currentAmount) : 0,
         deadline: deadline ? new Date(deadline) : null,
+        isCompleted: currentAmount
+          ? Number(currentAmount) >= Number(targetAmount)
+          : false,
         user: { connect: { id: userId } },
       },
     });
