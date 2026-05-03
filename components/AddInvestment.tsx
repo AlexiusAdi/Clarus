@@ -41,25 +41,41 @@ const TYPE_ACCENT: Record<InvestmentType, string> = {
 };
 
 // ── Zod schema ───────────────────────────────────────────────────────────────
-const investmentSchema = z.object({
-  type: z.enum(InvestmentType),
-  name: z.string().min(1, "Asset name is required"),
-  assetIdentifier: z.string().optional(),
-  date: z.date("Purchase date is required"),
-  quantity: z
-    .string()
-    .min(1, "Quantity is required")
-    .refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) > 0, {
-      message: "Quantity must be greater than 0",
-    }),
-  unit: z.string().min(1, "Unit is required"),
-  totalInvestment: z
-    .string()
-    .min(1, "Total investment is required")
-    .refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) > 0, {
-      message: "Total investment must be greater than 0",
-    }),
-});
+const investmentSchema = z
+  .object({
+    type: z.enum(InvestmentType),
+    name: z.string().min(1, "Asset name is required"),
+    assetIdentifier: z.string().optional(),
+    date: z.date("Purchase date is required"),
+    quantity: z.string().optional(),
+    unit: z.string().min(1, "Unit is required"),
+    totalInvestment: z
+      .string()
+      .min(1, "Total investment is required")
+      .refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) > 0, {
+        message: "Total investment must be greater than 0",
+      }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type !== "OTHER") {
+      if (!data.quantity) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Quantity is required",
+          path: ["quantity"],
+        });
+      } else if (
+        isNaN(parseFloat(data.quantity)) ||
+        parseFloat(data.quantity) <= 0
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Quantity must be greater than 0",
+          path: ["quantity"],
+        });
+      }
+    }
+  });
 
 type InvestmentForm = z.infer<typeof investmentSchema>;
 
@@ -121,15 +137,13 @@ export const AddInvestment = ({
     reset({ type: newType });
     if (newType === InvestmentType.GOLD) {
       setValue("unit", "gram");
+      setValue("assetIdentifier", "gold");
     } else if (newType === InvestmentType.CRYPTO) {
       setValue("unit", "coin");
     } else if (newType === InvestmentType.STOCK) {
-      setValue("unit", "shares"); // default
-    }
-
-    if (newType === InvestmentType.GOLD) {
-      setValue("unit", "gram");
-      setValue("assetIdentifier", "gold");
+      setValue("unit", "shares");
+    } else if (newType === InvestmentType.OTHER) {
+      setValue("unit", "unit");
     }
 
     setValue("name", "");
@@ -305,6 +319,9 @@ export const AddInvestment = ({
       <div className="flex flex-col gap-2">
         <span>
           {type === InvestmentType.GOLD ? "Weight (grams)" : "Quantity / Units"}
+          {type === InvestmentType.OTHER && (
+            <span className="text-muted-foreground text-sm"> (optional)</span>
+          )}
         </span>
         <Controller
           control={control}
@@ -316,6 +333,7 @@ export const AddInvestment = ({
               decimalSeparator=","
               value={field.value || ""}
               inputMode="decimal"
+              placeholder={type === InvestmentType.OTHER ? "e.g. 1" : ""}
               onValueChange={(v) => field.onChange(v.value)}
               onFocus={(e) =>
                 e.target.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -323,7 +341,7 @@ export const AddInvestment = ({
             />
           )}
         />
-        {errors.quantity && (
+        {errors.quantity && type !== InvestmentType.OTHER && (
           <span className="text-red-500 text-sm">
             {errors.quantity.message}
           </span>

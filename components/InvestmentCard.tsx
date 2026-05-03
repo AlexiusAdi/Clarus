@@ -24,6 +24,8 @@ const InvestmentCard = ({ investment }: Props) => {
   const Icon = TYPE_ICON[investment.type].icon;
   const iconStyle = TYPE_ICON[investment.type].className;
 
+  const isOther = investment.type === "OTHER";
+
   const costPerUnit = investment.costPerUnit;
   const currentPrice = investment.assetPrice?.priceIdr ?? null;
   const marketPlacePerLot = currentPrice !== null ? currentPrice * 100 : null;
@@ -63,9 +65,11 @@ const InvestmentCard = ({ investment }: Props) => {
             <div className="flex justify-between">
               <div>
                 <h1 className="font-bold">{investment.name}</h1>
-                <span className="text-sm text-muted-foreground">
-                  {investment.assetIdentifier}
-                </span>
+                {!isOther && (
+                  <span className="text-sm text-muted-foreground">
+                    {investment.assetIdentifier}
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col items-end">
@@ -73,8 +77,12 @@ const InvestmentCard = ({ investment }: Props) => {
                   {formatCurrency(investment.totalInvestment)}
                 </span>
 
-                {/* 🔥 Trend */}
-                {profit !== null ? (
+                {/* Trend — only for trackable types */}
+                {isOther ? (
+                  <span className="text-muted-foreground text-sm">
+                    No price tracking
+                  </span>
+                ) : profit !== null ? (
                   <span
                     className={cn(
                       "flex items-center gap-1 text-sm font-medium",
@@ -96,23 +104,29 @@ const InvestmentCard = ({ investment }: Props) => {
               </div>
             </div>
 
-            {/* Info */}
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <span className="font-semibold">Market Price / LOT</span>
-              <span className="flex justify-end">
-                {marketPlacePerLot !== null
-                  ? formatCurrency(marketPlacePerLot)
-                  : "-"}
-              </span>
-            </div>
+            {/* Market price row — hidden for OTHER */}
+            {!isOther && (
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <span className="font-semibold">Market Price / LOT</span>
+                <span className="flex justify-end">
+                  {marketPlacePerLot !== null
+                    ? formatCurrency(marketPlacePerLot)
+                    : "-"}
+                </span>
+              </div>
+            )}
 
             {/* Bottom */}
             <div className="flex justify-between items-center">
               <div className="flex-1 bg-accent rounded-xl p-1.5 mr-3 text-sm">
-                <span>
-                  {investment.quantity} {investment.unit} -{" "}
-                  {formatCurrency(costPerUnit)} / {investment.unit}
-                </span>
+                {isOther ? (
+                  <span>{formatCurrency(invested)} total</span>
+                ) : (
+                  <span>
+                    {investment.quantity} {investment.unit} —{" "}
+                    {formatCurrency(costPerUnit)} / {investment.unit}
+                  </span>
+                )}
               </div>
 
               <div className="flex gap-2">
