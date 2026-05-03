@@ -6,14 +6,20 @@ import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { SmallCard } from "./SmallCard";
 import { UserNetWorth } from "@/app/Types";
 import { NumericFormat } from "react-number-format";
-
-interface NetWorthCardProps {
-  userNetWorth: UserNetWorth;
-}
+import { Button } from "./ui/button";
+import { GoalDTO } from "@/lib/data/goals";
+import { useRouter } from "next/navigation";
+import { getGoalsSummary } from "@/lib/helper/getGoalsSummary";
 
 const VISIBILITY_KEY = "clarus_networth_visible";
 
-export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
+export default function NetWorthCard({
+  userNetWorth,
+  goals,
+}: {
+  userNetWorth: UserNetWorth;
+  goals: GoalDTO[];
+}) {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
@@ -24,6 +30,8 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
     cashBalance = 0,
     totalInvestments = 0,
   } = userNetWorth ?? {};
+
+  const router = useRouter();
 
   const hasData =
     totalIncome > 0 ||
@@ -50,31 +58,77 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
     });
   };
 
+  const { activeGoals, onTrackGoals } = getGoalsSummary(goals);
+
   return (
     <>
       <Card className="bg-obsidian text-white @2xs/main:gap-3 shadow-md">
         <CardHeader className="flex justify-between items-center">
-          <CardTitle className="text-xl opacity-90">Total Net Worth</CardTitle>
-          {mounted ? (
-            hasData && (
-              <button
-                onClick={toggleVisibility}
-                aria-label={isVisible ? "Hide amount" : "Show amount"}
-                className="hover:opacity-70 transition"
-              >
-                {isVisible ? (
-                  <Eye className="w-6 h-6" />
-                ) : (
-                  <EyeOff className="w-6 h-6" />
-                )}
-              </button>
-            )
-          ) : (
-            <span className="text-sm opacity-50">Loading...</span>
-          )}
+          <div className="flex justify-between items-center w-full">
+            <CardTitle className="text-xl opacity-90">
+              Total Net Worth
+            </CardTitle>
+            <Button
+              onClick={() => router.push("/goals")}
+              className="rounded-full text-xs font-medium transition-colors @md/main:hidden"
+              style={{
+                background:
+                  activeGoals.length > 0
+                    ? "rgba(74,222,128,0.15)"
+                    : "rgba(255,255,255,0.1)",
+                border:
+                  activeGoals.length > 0
+                    ? "0.5px solid rgba(74,222,128,0.35)"
+                    : "0.5px solid rgba(255,255,255,0.18)",
+                color:
+                  activeGoals.length > 0 ? "#4ade80" : "rgba(255,255,255,0.6)",
+              }}
+            >
+              {activeGoals.length > 0 ? (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="6.5"
+                      stroke="#4ade80"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="M5 8.5l2 2 4-4"
+                      stroke="#4ade80"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  {onTrackGoals.length} of {activeGoals.length} on track
+                </>
+              ) : (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="6.5"
+                      stroke="rgba(255,255,255,0.5)"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="M8 5v3l1.5 1.5"
+                      stroke="rgba(255,255,255,0.5)"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  Set a goal
+                </>
+              )}
+            </Button>
+          </div>
         </CardHeader>
 
-        <CardContent className="text-3xl">
+        <CardContent className="text-3xl flex justify-between">
           {!hasData || netWorth === 0 ? (
             <span className="text-base opacity-50">No transactions Yet</span>
           ) : isVisible ? (
@@ -87,6 +141,19 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
             />
           ) : (
             "******"
+          )}
+          {hasData && (
+            <button
+              onClick={toggleVisibility}
+              aria-label={isVisible ? "Hide amount" : "Show amount"}
+              className="hover:opacity-70 transition"
+            >
+              {isVisible ? (
+                <Eye className="w-6 h-6" />
+              ) : (
+                <EyeOff className="w-6 h-6" />
+              )}
+            </button>
           )}
         </CardContent>
 
@@ -117,7 +184,7 @@ export default function NetWorthCard({ userNetWorth }: NetWorthCardProps) {
               <CardTitle>Investments</CardTitle>
             </CardHeader>
             <CardContent className="@2xs/main:px-3 @md/main:px-6 font-semibold @2xs/main:text-md @md/main:text-lg">
-              {!hasData || totalInvestments == 0 ? (
+              {!hasData || totalInvestments === 0 ? (
                 <span className="text-base opacity-50">No transactions</span>
               ) : isVisible ? (
                 <NumericFormat

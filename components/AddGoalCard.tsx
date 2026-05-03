@@ -111,7 +111,7 @@ export const AddGoal = ({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col w-100 gap-4"
+      className="flex flex-col gap-4 w-full max-w-md mx-auto"
     >
       {/* GOAL NAME */}
       <div className="flex flex-col gap-2">

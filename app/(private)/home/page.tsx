@@ -70,7 +70,7 @@ const Page = async () => {
               </div>
 
               <div>
-                <NetWorthCard userNetWorth={netWorth} />
+                <NetWorthCard userNetWorth={netWorth} goals={goals} />
                 <div className="hidden @4xl/main:block">
                   <GoalsContent goals={goals} />
                 </div>

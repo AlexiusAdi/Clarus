@@ -4,18 +4,12 @@ import { GoalCard } from "@/components/GoalCard";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import GoalsAddButton from "@/components/GoalsAddButton";
+import { getGoalsSummary } from "@/lib/helper/getGoalsSummary";
 
 export default async function Goal() {
   const session = await auth();
   const goals = await getGoals(session?.user?.id!);
-
-  const activeGoals = goals.filter((g) => !g.isCompleted);
-  const completedGoals = goals.filter((g) => g.isCompleted);
-  const avgProgress =
-    activeGoals.reduce(
-      (sum, g) => sum + Math.min((g.currentAmount / g.targetAmount) * 100, 100),
-      0,
-    ) / (activeGoals.length || 1);
+  const { activeGoals, completedGoals, avgProgress } = getGoalsSummary(goals);
 
   return (
     <div className="w-screen min-h-screen mb-20 p-4 max-w-md mx-auto">
