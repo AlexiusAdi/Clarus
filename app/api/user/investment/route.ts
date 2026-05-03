@@ -107,29 +107,34 @@ export async function POST(req: NextRequest) {
   const { name, type, assetIdentifier, quantity, unit, totalInvestment, date } =
     body;
 
-  if (
-    !name ||
-    !type ||
-    !assetIdentifier ||
-    !quantity ||
-    !unit ||
-    !totalInvestment ||
-    !date
-  ) {
+  if (!name || !type || !unit || !totalInvestment || !date) {
     return NextResponse.json(
       { error: "Missing required fields" },
       { status: 400 },
     );
   }
 
-  let normalizedIdentifier = assetIdentifier.trim();
-
-  if (type === "STOCK" && !normalizedIdentifier.endsWith(".JK")) {
-    normalizedIdentifier = `${normalizedIdentifier}.JK`;
+  if (type !== "OTHER" && !quantity) {
+    return NextResponse.json(
+      { error: "Quantity is required" },
+      { status: 400 },
+    );
   }
 
-  // Optional: normalize crypto to lowercase (CoinGecko uses lowercase IDs)
-  if (type === "CRYPTO") {
+  if (type !== "OTHER" && !assetIdentifier) {
+    return NextResponse.json(
+      { error: "Asset identifier is required" },
+      { status: 400 },
+    );
+  }
+
+  let normalizedIdentifier = assetIdentifier?.trim() ?? "";
+
+  if (type === "OTHER") {
+    normalizedIdentifier = `other_${name.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
+  } else if (type === "STOCK" && !normalizedIdentifier.endsWith(".JK")) {
+    normalizedIdentifier = `${normalizedIdentifier}.JK`;
+  } else if (type === "CRYPTO") {
     normalizedIdentifier = normalizedIdentifier.toLowerCase();
   }
 
@@ -139,18 +144,20 @@ export async function POST(req: NextRequest) {
     create: {
       identifier: normalizedIdentifier,
       type,
-      priceIdr: 0, // temporary placeholder until cron updates
+      priceIdr: 0,
     },
   });
 
-  const costPerUnit = Number(totalInvestment) / Number(quantity);
+  const parsedQuantity = quantity ? Number(quantity) : 0;
+  const costPerUnit =
+    parsedQuantity > 0 ? Number(totalInvestment) / parsedQuantity : 0;
 
   const investment = await prisma.investment.create({
     data: {
       name,
       type,
       assetIdentifier: normalizedIdentifier,
-      quantity: Number(quantity),
+      quantity: parsedQuantity,
       unit,
       costPerUnit,
       totalInvestment: Number(totalInvestment),
@@ -169,13 +176,13 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // check this logic since if have multiple user fetch same asset, it will trigger multiple times, maybe we can add a check if the price is already updated in last 24 hours, then skip the fetch
-  // Immediately seed price for this asset (fire and forget — don't await)
-  fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/cron/fetch-prices`, {
-    headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
-  }).catch((err) =>
-    console.error("[investments POST] Price seed failed:", err),
-  );
+  if (type !== "OTHER") {
+    fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/cron/fetch-prices`, {
+      headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
+    }).catch((err) =>
+      console.error("[investments POST] Price seed failed:", err),
+    );
+  }
 
   return NextResponse.json(investment, { status: 201 });
 }

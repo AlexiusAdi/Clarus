@@ -8,7 +8,6 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Pie, PieChart } from "recharts";
-import { Investment } from "@/lib/generated/prisma/client";
 import { useMemo } from "react";
 import { InvestmentDTO } from "@/lib/data/investments";
 import { formatCurrency } from "@/lib/helper/formatCurrency";
@@ -29,15 +28,12 @@ export default function InvestmentChart({
     const grouped: Record<string, number> = {};
 
     investments.forEach((inv) => {
-      const value = inv.quantity * inv.costPerUnit;
+      const value = inv.totalInvestment;
 
       let key: string;
-
       if (inv.type === "STOCK") {
-        // ✅ group by ticker
         key = inv.assetIdentifier;
       } else {
-        // ✅ group by type
         key = inv.type || "OTHER";
       }
 
@@ -45,13 +41,13 @@ export default function InvestmentChart({
     });
 
     return Object.entries(grouped).map(([key, value]) => {
-      const isStock = key.includes("."); // simple heuristic for ticker
+      const isStock = key.includes(".");
 
       return {
         name: key,
         value,
         fill: isStock
-          ? "#3b82f6" // all stocks same color (or randomize later)
+          ? COLORS.STOCK
           : COLORS[key as keyof typeof COLORS] || "#888",
       };
     });
@@ -65,6 +61,8 @@ export default function InvestmentChart({
     GOLD: { label: "Gold", color: COLORS.GOLD },
     OTHER: { label: "Other", color: COLORS.OTHER },
   } satisfies ChartConfig;
+
+  if (investments.length === 0) return null;
 
   return (
     <Card>
