@@ -8,39 +8,75 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  name          String?
-  email         String        @unique
-  emailVerified DateTime?
-  image         String?
-  is_premium    Boolean       @default(false)
-  premiumExpiresAt  DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  account       Account[]
-  assets        Asset[]
-  categories    Category[]
-  investments   Investment[]
-  sessions      Session[]
-  transactions  Transaction[]
-  goals         Goal[]
-  userDetail    UserDetail?
+  id                    String                @id @default(cuid())
+  name                  String?
+  email                 String                @unique
+  emailVerified         DateTime?
+  image                 String?
+  plan                  PlanType              @default(FREE)
+  planExpiresAt         DateTime?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  account               Account[]
+  assets                Asset[]
+  categories            Category[]
+  investments           Investment[]
+  sessions              Session[]
+  transactions          Transaction[]
+  goals                 Goal[]
+  userDetail            UserDetail?
+  scheduledTransactions ScheduledTransaction[]
+  planHistory           PlanHistory[]
+}
+
+model PlanHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fromPlan  PlanType
+  toPlan    PlanType
+  source    String
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model ScheduledTransaction {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Decimal         @db.Decimal(18, 2)
+  type        TransactionType
+  description String?
+  categoryId  String?
+  category    Category?       @relation(fields: [categoryId], references: [id])
+  goalId      String?
+  goal        Goal?           @relation(fields: [goalId], references: [id])
+  frequency   Frequency
+  interval    Int             @default(1)
+  startDate   DateTime
+  endDate     DateTime?
+  nextRunDate DateTime
+  lastRunDate DateTime?
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([nextRunDate, isActive])
 }
 
 model UserDetail {
-  id                  String   @id @default(uuid())
-  userId              String   @unique
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  pageSize            Int      @default(10)
-  financialResetDay   Int      @default(1)   // 1-28, day of month period resets
-
-  // Email notifications
-  emailNotification   Boolean  @default(false)
-  notificationDay     Int      @default(1)   // day of month to send summary
-
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pageSize          Int      @default(10)
+  financialResetDay Int      @default(1)
+  emailNotification Boolean  @default(false)
+  notificationDay   Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model Account {
@@ -80,43 +116,43 @@ model VerificationToken {
 }
 
 model Category {
-  id           String        @id @default(uuid())
-  name         String
-  type         TransactionType
-  isDefault    Boolean       @default(false)
-  createdAt    DateTime      @default(now())
-  userId       String?
-  user         User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
+  id                    String                @id @default(uuid())
+  name                  String
+  type                  TransactionType
+  isDefault             Boolean               @default(false)
+  createdAt             DateTime              @default(now())
+  userId                String?
+  user                  User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions          Transaction[]
+  scheduledTransactions ScheduledTransaction[]
 
   @@index([userId])
   @@unique([name, type, userId])
 }
 
 model Transaction {
-  id          String          @id @default(uuid())
-  amount      Decimal         @db.Decimal(18, 2)
-  type        TransactionType
-  description String?
-  date        DateTime
-  createdAt   DateTime        @default(now())
-  categoryId  String?
-  goalId      String?
-  userId      String
-  category    Category?       @relation(fields: [categoryId], references: [id])
-  goal        Goal?           @relation(fields: [goalId], references: [id])
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String          @id @default(uuid())
+  amount       Decimal         @db.Decimal(18, 2)
+  type         TransactionType
+  description  String?
+  date         DateTime
+  createdAt    DateTime        @default(now())
+  categoryId   String?
+  goalId       String?
+  userId       String
+  category     Category?       @relation(fields: [categoryId], references: [id])
+  goal         Goal?           @relation(fields: [goalId], references: [id])
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   investmentId String?
-  investment  Investment? @relation(fields: [investmentId], references: [id], onDelete: Cascade)
-  assetId String?
- assets      Asset?      @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  investment   Investment?     @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+  assetId      String?
+  assets       Asset?          @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
   @@index([userId, date])
   @@index([categoryId])
   @@index([goalId])
   @@index([investmentId])
   @@index([assetId])
-
 }
 
 model Asset {
@@ -129,51 +165,36 @@ model Asset {
   createdAt         DateTime          @default(now())
   userId            String
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
+  transactions      Transaction[]
 
   @@index([userId])
 }
 
-// ── Investment ────────────────────────────────────────────────────────────────
-// currentValue and returnPct are removed — they are now computed at query time
-// by joining with AssetPrice. assetIdentifier links to AssetPrice.identifier.
-//
-// Examples per type:
-//   GOLD   → assetIdentifier: "gold",     quantity: 10,   unit: "gram"
-//   STOCK  → assetIdentifier: "BBCA.JK",  quantity: 100,  unit: "lot"
-//   CRYPTO → assetIdentifier: "bitcoin",  quantity: 0.05, unit: "coin"
-
 model Investment {
-  id               String         @id @default(uuid())
-  name             String         // display label, e.g. "Gold bar — Pegadaian"
-  type             InvestmentType
-  assetIdentifier  String         // lookup key into AssetPrice, e.g. "gold", "BBCA.JK"
-  quantity         Decimal         @db.Decimal(18, 2)
-  unit             String         // "gram" | "lot" | "coin" | "share"
-  costPerUnit      Decimal         @db.Decimal(18, 2)
-  totalInvestment  Decimal         @db.Decimal(18, 2)
-  date             DateTime       // purchase date
-  createdAt        DateTime       @default(now())
-  userId           String
-  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assetPrice       AssetPrice?    @relation(fields: [assetIdentifier], references: [identifier])
-  transactions Transaction[]
+  id              String         @id @default(uuid())
+  name            String
+  type            InvestmentType
+  assetIdentifier String
+  quantity        Decimal        @db.Decimal(18, 2)
+  unit            String
+  costPerUnit     Decimal        @db.Decimal(18, 2)
+  totalInvestment Decimal        @db.Decimal(18, 2)
+  date            DateTime
+  trackOnly       Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assetPrice      AssetPrice?    @relation(fields: [assetIdentifier], references: [identifier])
+  transactions    Transaction[]
 
   @@index([userId])
   @@index([assetIdentifier])
 }
 
-// ── AssetPrice ────────────────────────────────────────────────────────────────
-// One row per tracked asset. Upserted by the cron job (/api/cron/fetch-prices).
-// priceIdr is always the price per the smallest unit:
-//   GOLD   → price per 1 gram in IDR
-//   STOCK  → price per 1 share in IDR
-//   CRYPTO → price per 1 coin in IDR
-
 model AssetPrice {
-  identifier  String         @id  // "gold" | "BBCA.JK" | "bitcoin"
+  identifier  String         @id
   type        InvestmentType
-  priceIdr    Decimal         @db.Decimal(18, 2) // latest price in IDR
+  priceIdr    Decimal        @db.Decimal(18, 2)
   updatedAt   DateTime       @updatedAt
   investments Investment[]
 
@@ -181,19 +202,33 @@ model AssetPrice {
 }
 
 model Goal {
-  id            String        @id @default(uuid())
-  name          String
-  targetAmount  Decimal       @db.Decimal(18, 2)
-  currentAmount Decimal       @db.Decimal(18, 2) @default(0)
-  deadline      DateTime?
-  isCompleted   Boolean       @default(false)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  userId        String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions  Transaction[]
+  id                    String                @id @default(uuid())
+  name                  String
+  targetAmount          Decimal               @db.Decimal(18, 2)
+  currentAmount         Decimal               @db.Decimal(18, 2) @default(0)
+  deadline              DateTime?
+  isCompleted           Boolean               @default(false)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  userId                String
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions          Transaction[]
+  scheduledTransactions ScheduledTransaction[]
 
   @@index([userId])
+}
+
+enum PlanType {
+  FREE
+  PRO
+  ELITE
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  CUSTOM
 }
 
 enum TransactionType {

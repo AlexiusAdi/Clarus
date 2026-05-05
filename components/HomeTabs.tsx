@@ -19,7 +19,12 @@ import InvestmentChart from "./InvestmentChart";
 import InvestmentCard from "./InvestmentCard";
 import { InvestmentCardSkeleton } from "./skeleton/InvestmentCardSkeleton";
 import { useTabData } from "@/hooks/useTabData";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ScheduledTransactionDrawer } from "./ScheduledTransactionDrawer";
+import { RepeatIcon } from "lucide-react";
+import { Button } from "./ui/button";
+import { getScheduledTransactions } from "@/lib/helper/getScheduledTransactions";
+import { useScheduledTransactionsContext } from "./ScheduledTransactionsProvider";
 
 const HomeTabs = ({
   overviewData,
@@ -33,6 +38,10 @@ const HomeTabs = ({
   const { currentMonthTotal, topSpending, spendingByCategory } = overviewData;
   const { activeTab, setActiveTab, settingsVersion } = useTabsContext();
   const { refetchActive, setRefetchActive } = useTabsContext();
+  const [scheduledOpen, setScheduledOpen] = useState(false);
+
+  const { items: scheduledTransactions, setItems: setScheduledTransactions } =
+    useScheduledTransactionsContext();
 
   const {
     data: transactions,
@@ -111,7 +120,6 @@ const HomeTabs = ({
           <TabsTrigger value="Assets">Assets</TabsTrigger>
         </TabsList>
       </div>
-
       {/* Overview */}
       <TabsContent value="overview" className="w-full">
         <div className="flex flex-col gap-3">
@@ -137,6 +145,7 @@ const HomeTabs = ({
         </div>
       </TabsContent>
 
+      {/* Transactions Tab */}
       <TabsContent value="Transactions" className="w-full min-h-150">
         {initialLoading ? (
           <div className="flex flex-col gap-2">
@@ -148,6 +157,19 @@ const HomeTabs = ({
           <div
             className={`transition-all duration-150 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
           >
+            {scheduledTransactions.length > 0 && (
+              <Button onClick={() => setScheduledOpen(true)} variant="ghost">
+                <RepeatIcon size={14} />
+                Scheduled
+              </Button>
+            )}
+
+            <ScheduledTransactionDrawer
+              open={scheduledOpen}
+              onOpenChange={setScheduledOpen}
+              onListChange={setScheduledTransactions}
+            />
+
             <RecentActivities
               data={transactions}
               isShown={false}
@@ -162,7 +184,6 @@ const HomeTabs = ({
           </div>
         )}
       </TabsContent>
-
       <TabsContent
         value="Investments"
         className="w-full flex flex-col gap-2 min-h-150"
@@ -201,7 +222,6 @@ const HomeTabs = ({
           </div>
         )}
       </TabsContent>
-
       <TabsContent
         value="Assets"
         className="w-full flex flex-col gap-2 min-h-150"

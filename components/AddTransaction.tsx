@@ -6,9 +6,13 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { ChevronDownIcon } from "lucide-react";
-import { Category, TransactionType } from "@/lib/generated/prisma/browser";
-import { constructNow, format } from "date-fns";
+import { ChevronDownIcon, RepeatIcon } from "lucide-react";
+import {
+  Category,
+  Frequency,
+  TransactionType,
+} from "@/lib/generated/prisma/browser";
+import { format } from "date-fns";
 import { Calendar } from "./ui/calendar";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,31 +31,56 @@ import {
 } from "./ui/select";
 import { TransactionInitialValues } from "@/app/Types";
 import { useTabsContext } from "./TabsProvider";
+import { FREQUENCY_OPTIONS } from "@/constants";
 
-const transactionSchema = z.object({
-  type: z.enum([
-    TransactionType.EXPENSE,
-    TransactionType.INCOME,
-    TransactionType.SAVINGS,
-    TransactionType.INVESTMENTS,
-    TransactionType.ASSETS,
-  ]),
-  categoryId: z.string().optional(),
-  date: z.date("Date is required"),
-  amount: z
-    .string("Amount is required")
-    .refine((val) => !isNaN(parseFloat(val)), {
-      message: "Amount is required",
-    })
-    .refine((val) => parseFloat(val) > 0, {
-      message: "Amount must be greater than 0",
-    })
-    .refine((val) => val.replace(/\D/g, "").length <= 12, {
-      message: "Amount must be at most 12 digits",
-    }),
-  description: z.string().optional(),
-  goalId: z.string().optional(),
-});
+const transactionSchema = z
+  .object({
+    type: z.enum([
+      TransactionType.EXPENSE,
+      TransactionType.INCOME,
+      TransactionType.SAVINGS,
+      TransactionType.INVESTMENTS,
+      TransactionType.ASSETS,
+    ]),
+    categoryId: z.string("Please select a category"),
+    date: z.date("Date is required"),
+    amount: z
+      .string("Amount is required")
+      .refine((val) => !isNaN(parseFloat(val)), {
+        message: "Amount is required",
+      })
+      .refine((val) => parseFloat(val) > 0, {
+        message: "Amount must be greater than 0",
+      })
+      .refine((val) => val.replace(/\D/g, "").length <= 12, {
+        message: "Amount must be at most 12 digits",
+      }),
+    description: z.string().optional(),
+    goalId: z.string().optional(),
+
+    // recurring fields — only validated when isRecurring is true
+    isRecurring: z.boolean(),
+    frequency: z.nativeEnum(Frequency).optional(),
+    interval: z.number().min(1).max(365).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.isRecurring && !data.frequency) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select a frequency",
+        path: ["frequency"],
+      });
+    }
+    if (data.isRecurring && data.frequency === Frequency.CUSTOM) {
+      if (!data.interval || data.interval < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Please enter a valid interval",
+          path: ["interval"],
+        });
+      }
+    }
+  });
 
 type TransactionForm = z.infer<typeof transactionSchema>;
 
@@ -60,13 +89,16 @@ export const AddTransaction = ({
   goals,
   onSuccess,
   initialValues,
+  onScheduled,
 }: {
   categories: Category[];
   goals: GoalDTO[];
   onSuccess: () => void;
   initialValues?: TransactionInitialValues;
+  onScheduled?: () => void;
 }) => {
   const router = useRouter();
+  const { refetchActive } = useTabsContext();
 
   const {
     register,
@@ -85,17 +117,22 @@ export const AddTransaction = ({
           date: new Date(initialValues.date),
           amount: String(initialValues.amount),
           description: initialValues.description ?? "",
+          isRecurring: false,
         }
-      : { type: TransactionType.EXPENSE },
+      : {
+          type: TransactionType.EXPENSE,
+          isRecurring: false,
+        },
   });
-  const { refetchActive } = useTabsContext();
 
   const isEditing = !!initialValues;
   const type = watch("type");
   const selectedCategory = watch("categoryId");
-
   const date = watch("date");
   const amount = watch("amount");
+  const isRecurring = watch("isRecurring");
+  const frequency = watch("frequency");
+  const interval = watch("interval");
 
   const handleTypeChange = (newType: TransactionType) => {
     reset({
@@ -104,6 +141,7 @@ export const AddTransaction = ({
       amount: "",
       date: undefined,
       description: "",
+      isRecurring: false,
     });
   };
 
@@ -114,47 +152,56 @@ export const AddTransaction = ({
 
   const onSubmit = async (data: TransactionForm) => {
     try {
-      const res = await fetch(
-        isEditing
+      // Route to scheduled or regular transaction endpoint
+      const url = data.isRecurring
+        ? "/api/user/scheduled-transaction"
+        : isEditing
           ? `/api/user/transaction/${initialValues.id}`
-          : "/api/user/transaction",
-        {
-          method: isEditing ? "PATCH" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+          : "/api/user/transaction";
+
+      const method = data.isRecurring ? "POST" : isEditing ? "PATCH" : "POST";
+
+      const body = data.isRecurring
+        ? {
+            amount: data.amount,
+            type: data.type,
+            categoryId: data.categoryId,
+            description: data.description,
+            frequency: data.frequency,
+            // CUSTOM uses the interval field, others default to 1
+            interval: data.frequency === Frequency.CUSTOM ? data.interval : 1,
+            startDate: format(data.date, "yyyy-MM-dd"),
+          }
+        : {
             ...data,
             date: format(data.date, "yyyy-MM-dd"),
-          }),
-        },
-      );
+          };
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
 
       const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Something went wrong");
 
-      if (!res.ok) {
-        throw new Error(result.error || "Something went wrong");
-      }
-
-      if (data.type === TransactionType.SAVINGS) {
-        toast.success(
-          isEditing
+      const label = data.isRecurring
+        ? "Recurring transaction scheduled!"
+        : data.type === TransactionType.SAVINGS
+          ? isEditing
             ? "Savings updated successfully!"
-            : "Savings added successfully!",
-          {
-            position: "top-center",
-          },
-        );
-      } else {
-        toast.success(
-          isEditing
+            : "Savings added successfully!"
+          : isEditing
             ? "Transaction updated successfully!"
-            : "Transaction added successfully!",
-          {
-            position: "top-center",
-          },
-        );
-      }
+            : "Transaction added successfully!";
 
+      toast.success(label, { position: "top-center" });
       reset();
+
+      if (data.isRecurring) {
+        onScheduled?.(); // notify parent a scheduled tx was created
+      }
       onSuccess();
       router.refresh();
       refetchActive();
@@ -174,6 +221,7 @@ export const AddTransaction = ({
         date: new Date(initialValues.date),
         amount: String(initialValues.amount),
         description: initialValues.description ?? "",
+        isRecurring: false,
       });
     }
   }, [reset, initialValues]);
@@ -181,8 +229,9 @@ export const AddTransaction = ({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className=" flex flex-col gap-4 w-full max-w-md mx-auto"
+      className="flex flex-col gap-4 w-full max-w-md mx-auto"
     >
+      {/* TYPE SELECTOR */}
       {isEditing ? (
         <div className="flex justify-center">
           <span
@@ -236,7 +285,7 @@ export const AddTransaction = ({
               onClick={() => handleTypeChange(TransactionType.SAVINGS)}
               className={cn(
                 "w-40 h-12 p-2 flex justify-center items-center cursor-pointer",
-                type === TransactionType.SAVINGS && "border-blue-500",
+                type === TransactionType.SAVINGS && "border-blue-500 border-2",
               )}
             >
               <CardHeader className="justify-center font-semibold">
@@ -247,6 +296,7 @@ export const AddTransaction = ({
         </div>
       )}
 
+      {/* SAVINGS GOAL SELECTOR */}
       {type === TransactionType.SAVINGS && goals.length > 0 ? (
         <div className="flex flex-col gap-2">
           <span>Select Goal</span>
@@ -303,6 +353,7 @@ export const AddTransaction = ({
         </div>
       ) : (
         <>
+          {/* CATEGORY */}
           <div className="flex flex-col gap-2">
             <span>Category</span>
             <div className="grid grid-cols-3 gap-2">
@@ -332,9 +383,9 @@ export const AddTransaction = ({
             )}
           </div>
 
+          {/* DATE */}
           <div className="flex flex-col gap-2">
-            <span>Date</span>
-
+            <span>{isRecurring ? "Start Date" : "Date"}</span>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -347,7 +398,6 @@ export const AddTransaction = ({
                   <ChevronDownIcon />
                 </Button>
               </PopoverTrigger>
-
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
@@ -355,11 +405,11 @@ export const AddTransaction = ({
                   onSelect={(d) => {
                     if (d) setValue("date", d, { shouldValidate: true });
                   }}
-                  disabled={{ after: new Date() }}
+                  // recurring can start today or future; regular is past/today only
+                  disabled={isRecurring ? undefined : { after: new Date() }}
                 />
               </PopoverContent>
             </Popover>
-
             {errors.date && (
               <span className="text-red-500 text-sm">
                 {errors.date.message}
@@ -380,9 +430,9 @@ export const AddTransaction = ({
           placeholder="Enter value"
           value={amount ?? ""}
           inputMode="decimal"
-          onValueChange={(val) => {
-            setValue("amount", val.value, { shouldValidate: true });
-          }}
+          onValueChange={(val) =>
+            setValue("amount", val.value, { shouldValidate: true })
+          }
           onFocus={(e) =>
             e.target.scrollIntoView({ behavior: "smooth", block: "center" })
           }
@@ -391,23 +441,121 @@ export const AddTransaction = ({
           <span className="text-red-500 text-sm">{errors.amount.message}</span>
         )}
       </div>
+
+      {/* DESCRIPTION — hidden for savings */}
       {type !== TransactionType.SAVINGS && (
-        <>
-          {/* DESCRIPTION */}
-          <div className="flex flex-col gap-2">
-            <span>Description (Optional)</span>
-            <Input
-              type="text"
-              placeholder="Enter description"
-              {...register("description")}
-            />
-          </div>
-        </>
+        <div className="flex flex-col gap-2">
+          <span>Description (Optional)</span>
+          <Input
+            type="text"
+            placeholder="Enter description"
+            {...register("description")}
+          />
+        </div>
+      )}
+
+      {/* RECURRING TOGGLE — hidden when editing */}
+      {!isEditing && type !== TransactionType.SAVINGS && (
+        <div className="flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setValue("isRecurring", !isRecurring);
+              setValue("frequency", undefined);
+              setValue("interval", undefined);
+            }}
+            className={cn(
+              "flex items-center gap-2 w-fit text-sm font-medium transition-colors",
+              isRecurring ? "text-primary" : "text-muted-foreground",
+            )}
+          >
+            <RepeatIcon size={15} />
+            Recurring
+            {/* pill indicator */}
+            <span
+              className={cn(
+                "w-8 h-4 rounded-full transition-colors relative",
+                isRecurring ? "bg-primary" : "bg-muted-foreground/30",
+              )}
+            >
+              <span
+                className={cn(
+                  "absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all",
+                  isRecurring ? "left-4" : "left-0.5",
+                )}
+              />
+            </span>
+          </button>
+
+          {/* FREQUENCY SELECTOR */}
+          {isRecurring && (
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-4 gap-1.5 pb-4">
+                {FREQUENCY_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setValue("frequency", opt.value, {
+                        shouldValidate: true,
+                      });
+                      if (opt.value !== Frequency.CUSTOM)
+                        setValue("interval", 1);
+                    }}
+                    className={cn(
+                      "h-9 rounded-md text-sm font-medium border transition-colors",
+                      frequency === opt.value
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-transparent text-muted-foreground border-border hover:border-primary/50",
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              {errors.frequency && (
+                <span className="text-red-500 text-sm">
+                  {errors.frequency.message}
+                </span>
+              )}
+
+              {/* CUSTOM INTERVAL */}
+              {frequency === Frequency.CUSTOM && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">
+                    Every
+                  </span>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={365}
+                    placeholder="e.g. 10"
+                    value={interval ?? ""}
+                    onChange={(e) =>
+                      setValue("interval", parseInt(e.target.value) || 1, {
+                        shouldValidate: true,
+                      })
+                    }
+                    className="w-24"
+                  />
+                  <span className="text-sm text-muted-foreground">days</span>
+                  {errors.interval && (
+                    <span className="text-red-500 text-sm">
+                      {errors.interval.message}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       )}
 
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? (
           <Spinner />
+        ) : isRecurring ? (
+          "Schedule Transaction"
         ) : isEditing ? (
           "Update Transaction"
         ) : (
