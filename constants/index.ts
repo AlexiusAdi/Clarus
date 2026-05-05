@@ -2,6 +2,7 @@ import { PredefinedAsset } from "@/app/Types";
 import {
   AcquisitionSource,
   AssetType,
+  Frequency,
   InvestmentType,
   TransactionType,
 } from "@/lib/generated/prisma/enums";
@@ -627,3 +628,10 @@ export const TYPE_ICON = {
     className: "text-gray-500 bg-gray-100",
   },
 } as const;
+
+export const FREQUENCY_OPTIONS: { label: string; value: Frequency }[] = [
+  { label: "Daily", value: Frequency.DAILY },
+  { label: "Weekly", value: Frequency.WEEKLY },
+  { label: "Monthly", value: Frequency.MONTHLY },
+  { label: "Custom", value: Frequency.CUSTOM },
+];

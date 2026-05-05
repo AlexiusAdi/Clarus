@@ -18,6 +18,7 @@ import { AddInvestment } from "./AddInvestment";
 import { GoalDTO } from "@/lib/data/goals";
 import { AssetDTO } from "@/lib/data/assets";
 import { useRouter } from "next/navigation";
+import { useScheduledTransactionsContext } from "./ScheduledTransactionsProvider";
 
 export default function FloatingMenu({
   categories,
@@ -31,6 +32,11 @@ export default function FloatingMenu({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const router = useRouter();
+
+  const { items: scheduledTransactions, setItems: setScheduledTransactions } =
+    useScheduledTransactionsContext();
+
+  const { fetchScheduled } = useScheduledTransactionsContext();
 
   return (
     <>
@@ -107,6 +113,7 @@ export default function FloatingMenu({
                   categories={categories}
                   goals={goals}
                   onSuccess={() => setDrawerOpen(false)}
+                  onScheduled={fetchScheduled}
                 />
               </div>
             )}
