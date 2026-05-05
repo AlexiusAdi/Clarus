@@ -635,3 +635,25 @@ export const FREQUENCY_OPTIONS: { label: string; value: Frequency }[] = [
   { label: "Monthly", value: Frequency.MONTHLY },
   { label: "Custom", value: Frequency.CUSTOM },
 ];
+
+export const PRO_FEATURES = [
+  { label: "Unlimited assets", included: true },
+  { label: "Unlimited investments", included: true },
+  { label: "Goals tracking", included: true },
+  { label: "AI insights on goals", included: true },
+  { label: "Spending forecasts", included: false },
+  { label: "Full AI insights", included: false },
+  { label: "CSV export", included: false },
+  { label: "Email digests", included: false },
+];
+
+export const ELITE_FEATURES = [
+  { label: "Unlimited assets", included: true },
+  { label: "Unlimited investments", included: true },
+  { label: "Goals tracking", included: true },
+  { label: "AI insights on goals", included: true },
+  { label: "Spending forecasts", included: true },
+  { label: "Full AI insights", included: true },
+  { label: "CSV export", included: true },
+  { label: "Email digests", included: true },
+];
