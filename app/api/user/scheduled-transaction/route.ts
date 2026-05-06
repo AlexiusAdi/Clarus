@@ -25,6 +25,20 @@ export async function POST(req: Request) {
     const body = await req.json();
     const data = createSchema.parse(body);
 
+    const userScheduledCount = await prisma.scheduledTransaction.count({
+      where: { userId: session.user.id },
+    });
+
+    if (session.user.plan === "FREE" && userScheduledCount > 5) {
+      return NextResponse.json(
+        {
+          error:
+            "Free plan users can only have up to 5 scheduled transactions. Please upgrade to add more.",
+        },
+        { status: 403 },
+      );
+    }
+
     const startDate = new Date(data.startDate);
 
     const scheduled = await prisma.scheduledTransaction.create({

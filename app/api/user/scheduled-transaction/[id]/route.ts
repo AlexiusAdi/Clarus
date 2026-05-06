@@ -1,8 +1,11 @@
 import { auth } from "@/auth";
+import { isPro } from "@/lib/helper/plan";
 import { computeNextRunDate } from "@/lib/helper/scheduled-transactions";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+
+const FREE_LIMIT = 5;
 
 // 1. remove Frequency import from /browser, use string literals instead
 const patchSchema = z.object({
@@ -36,6 +39,28 @@ export async function PATCH(
 
     const body = await req.json();
     const data = patchSchema.parse(body);
+
+    if (data.isActive === true && !existing.isActive) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { plan: true },
+      });
+
+      if (user && !isPro(user.plan)) {
+        const activeCount = await prisma.scheduledTransaction.count({
+          where: { userId, isActive: true },
+        });
+
+        if (activeCount >= FREE_LIMIT) {
+          return NextResponse.json(
+            {
+              error: `Free plan is limited to ${FREE_LIMIT} active scheduled transactions. Upgrade to Pro to activate more.`,
+            },
+            { status: 403 },
+          );
+        }
+      }
+    }
 
     const frequencyChanged =
       data.frequency && data.frequency !== existing.frequency;

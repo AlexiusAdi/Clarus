@@ -14,16 +14,15 @@ import FloatingNav from "@/components/FloatingNav";
 import GoalsContent from "@/components/GoalsContent";
 import { getOverviewData } from "@/lib/helper/getOverviewData";
 import { getAssets } from "@/lib/data/assets";
-import { getInvestments } from "@/lib/data/investments";
 import { getScheduledTransactions } from "@/lib/helper/getScheduledTransactions";
 import { ScheduledTransactionsProvider } from "@/components/ScheduledTransactionsProvider";
 import UpgradeBanner from "@/components/UpgradeBanner";
+import { PlanType } from "@/lib/generated/prisma/enums";
 
 const Page = async () => {
   const session = await auth();
   const userId = session?.user?.id;
   const userPlan = session?.user?.plan;
-  console.log("User Plan:", userPlan);
 
   if (!userId) return null;
 
@@ -32,6 +31,8 @@ const Page = async () => {
     email: session?.user?.email ?? undefined,
     image: session?.user?.image ?? undefined,
   };
+
+  const isPremium = userPlan !== PlanType.FREE;
 
   const [
     categories,
@@ -81,8 +82,12 @@ const Page = async () => {
                 </div>
 
                 <div>
-                  <NetWorthCard userNetWorth={netWorth} goals={goals} />
-                  <UpgradeBanner plan={userPlan} />
+                  <NetWorthCard
+                    userNetWorth={netWorth}
+                    goals={goals}
+                    showGoals={isPremium}
+                  />
+                  {!isPremium && <UpgradeBanner plan={userPlan} />}
                   <div className="hidden @4xl/main:block">
                     <GoalsContent goals={goals} />
                   </div>

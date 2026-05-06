@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/browser";
+import { isPro } from "@/lib/helper/plan";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,6 +28,24 @@ export async function POST(req: NextRequest) {
         { error: "Invalid target amount" },
         { status: 400 },
       );
+    }
+
+    const GOAL_FREE_LIMIT = 2;
+
+    if (!isPro(session.user.plan)) {
+      const goalCount = await prisma.goal.count({
+        where: { userId, isCompleted: false },
+      });
+
+      if (goalCount >= GOAL_FREE_LIMIT) {
+        return NextResponse.json(
+          {
+            error:
+              "Free plan is limited to 2 active goals. Upgrade to Pro for unlimited.",
+          },
+          { status: 403 },
+        );
+      }
     }
 
     const goal = await prisma.goal.create({

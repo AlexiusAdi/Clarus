@@ -1,48 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { fetchAndCacheAssetPrices } from "@/lib/helper/fetchAndCacheAssetPrices";
 import { prisma } from "@/lib/prisma";
-import { getAssetByIdentifier } from "@/lib/helper/getAssetByIdentifier";
-
-const IDR_PER_USD = 16350; // fallback — swap with a live FX call if needed
-const TROY_OZ_TO_GRAM = 31.1035;
+import { computeNextRunDate } from "@/lib/helper/scheduled-transactions";
+import { isPro } from "@/lib/helper/plan";
 
 function isAuthorized(req: NextRequest): boolean {
-  const authHeader = req.headers.get("authorization");
-  return authHeader === `Bearer ${process.env.CRON_SECRET}`;
-}
-
-async function fetchGoldPriceIdr(): Promise<number> {
-  // GC=F is gold futures on Yahoo Finance
-  const res = await fetch(
-    "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=1d",
-    { cache: "no-store" },
+  return (
+    req.headers.get("authorization") === `Bearer ${process.env.CRON_SECRET}`
   );
-  if (!res.ok) throw new Error(`yahoo error: ${res.status}`);
-  const data = await res.json();
-  const usdPerOz = data.chart.result[0].meta.regularMarketPrice;
-  if (!usdPerOz) throw new Error("No gold price returned");
-  return (usdPerOz / TROY_OZ_TO_GRAM) * IDR_PER_USD;
-}
-
-async function fetchStockPriceIdr(ticker: string): Promise<number> {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok)
-    throw new Error(`Yahoo Finance error for ${ticker}: ${res.status}`);
-  const data = await res.json();
-  const price: number = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-  if (!price) throw new Error(`No price returned for ${ticker}`);
-  // IDX stocks (.JK) are already in IDR; US stocks need conversion
-  return ticker.endsWith(".JK") ? price : price * IDR_PER_USD;
-}
-
-async function fetchCryptoPriceIdr(coinId: string): Promise<number> {
-  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=idr`;
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) throw new Error(`CoinGecko error for ${coinId}: ${res.status}`);
-  const data = await res.json();
-  const price: number = data?.[coinId]?.idr;
-  if (!price) throw new Error(`No IDR price returned for ${coinId}`);
-  return price;
 }
 
 export async function GET(req: NextRequest) {
@@ -50,65 +15,82 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const tracked = await prisma.investment.findMany({
-    distinct: ["assetIdentifier"],
-    select: { assetIdentifier: true },
+  // Job 1 — fetch asset prices
+  const priceResult = await fetchAndCacheAssetPrices();
+
+  // Job 2 — process scheduled transactions
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const due = await prisma.scheduledTransaction.findMany({
+    where: {
+      isActive: true,
+      nextRunDate: { lte: today },
+      OR: [{ endDate: null }, { endDate: { gte: today } }],
+    },
+    include: { user: true },
   });
 
-  if (tracked.length === 0) {
-    return NextResponse.json({ message: "No assets to update" });
-  }
+  let processed = 0;
+  let failed = 0;
 
-  const results: {
-    identifier: string;
-    status: "ok" | "error";
-    error?: string;
-  }[] = [];
+  const FREE_LIMIT = 5;
+  const freeUserCount: Record<string, number> = {};
 
-  for (const { assetIdentifier } of tracked) {
-    // Resolve ticker and type from the predefined list
-    const asset = getAssetByIdentifier(assetIdentifier);
-
-    if (!asset) {
-      results.push({
-        identifier: assetIdentifier,
-        status: "error",
-        error: "Unknown asset — not in predefined list",
-      });
-      continue;
-    }
-
+  for (const scheduled of due) {
     try {
-      let priceIdr: number;
-
-      if (asset.type === "GOLD") {
-        priceIdr = await fetchGoldPriceIdr();
-      } else if (asset.type === "STOCK") {
-        priceIdr = await fetchStockPriceIdr(asset.ticker);
-      } else if (asset.type === "CRYPTO") {
-        priceIdr = await fetchCryptoPriceIdr(asset.ticker);
-      } else {
-        results.push({ identifier: assetIdentifier, status: "ok" });
-        continue;
+      if (!isPro(scheduled.user.plan)) {
+        const count = freeUserCount[scheduled.userId] ?? 0;
+        if (count >= FREE_LIMIT) {
+          // deactivate instead of silently skipping
+          await prisma.scheduledTransaction.update({
+            where: { id: scheduled.id },
+            data: { isActive: false },
+          });
+          console.log(
+            `Deactivated ${scheduled.id} — free user ${scheduled.userId} exceeded limit`,
+          );
+          continue;
+        }
+        freeUserCount[scheduled.userId] = count + 1;
       }
 
-      await prisma.assetPrice.upsert({
-        where: { identifier: assetIdentifier },
-        update: { priceIdr, updatedAt: new Date() },
-        create: { identifier: assetIdentifier, type: asset.type, priceIdr },
-      });
+      await prisma.$transaction([
+        prisma.transaction.create({
+          data: {
+            userId: scheduled.userId,
+            amount: scheduled.amount,
+            type: scheduled.type,
+            categoryId: scheduled.categoryId,
+            description: scheduled.description,
+            date: today,
+          },
+        }),
+        prisma.scheduledTransaction.update({
+          where: { id: scheduled.id },
+          data: {
+            lastRunDate: today,
+            nextRunDate: computeNextRunDate(
+              today,
+              scheduled.frequency,
+              scheduled.interval,
+            ),
+          },
+        }),
+      ]);
 
-      results.push({ identifier: assetIdentifier, status: "ok" });
+      processed++;
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error(`[fetch-prices] Failed for ${assetIdentifier}:`, message);
-      results.push({
-        identifier: assetIdentifier,
-        status: "error",
-        error: message,
-      });
+      console.error(
+        `Failed to process scheduled transaction ${scheduled.id}:`,
+        err,
+      );
+      failed++;
     }
   }
 
-  return NextResponse.json({ updated: results });
+  return NextResponse.json({
+    prices: priceResult,
+    scheduled: { processed, failed },
+  });
 }

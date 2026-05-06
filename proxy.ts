@@ -37,6 +37,17 @@ export default auth(async (req) => {
     }
   }
 
+  const user = await prisma.user.findUnique({
+    where: { id: req.auth!.user!.id! },
+    select: { plan: true },
+  });
+
+  const isFreePlan = user?.plan === "FREE";
+
+  if (isFreePlan && pathname.startsWith("/goals")) {
+    return NextResponse.redirect(new URL("/upgrade", nextUrl));
+  }
+
   return NextResponse.next();
 });
 
