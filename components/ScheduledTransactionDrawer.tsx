@@ -295,21 +295,31 @@ export function ScheduledTransactionDrawer({
                       </div>
 
                       {/* Frequency badge + next run */}
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="px-2 py-0.5 rounded-full border text-xs">
-                          {frequencyLabel(item.frequency, item.interval)}
-                        </span>
-                        <span>
-                          Next:{" "}
-                          {new Date(item.nextRunDate).toLocaleDateString(
-                            "id-ID",
-                            {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            },
-                          )}
-                        </span>
+                      <div className="flex justify-between w-full">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span className="px-2 py-0.5 rounded-full border text-xs">
+                            {frequencyLabel(item.frequency, item.interval)}
+                          </span>
+                          <span>
+                            Next:{" "}
+                            {new Date(item.nextRunDate).toLocaleDateString(
+                              "id-ID",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              },
+                            )}
+                          </span>
+
+                          <div>
+                            {item.isActive ? (
+                              <span className="text-green-500">Active</span>
+                            ) : (
+                              <span className="text-red-500">Paused</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
                       {/* Actions */}

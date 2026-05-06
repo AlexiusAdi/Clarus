@@ -16,9 +16,11 @@ const VISIBILITY_KEY = "clarus_networth_visible";
 export default function NetWorthCard({
   userNetWorth,
   goals,
+  showGoals = false,
 }: {
   userNetWorth: UserNetWorth;
   goals: GoalDTO[];
+  showGoals?: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -68,63 +70,67 @@ export default function NetWorthCard({
             <CardTitle className="text-xl opacity-90">
               Total Net Worth
             </CardTitle>
-            <Button
-              onClick={() => router.push("/goals")}
-              className="rounded-full text-xs font-medium transition-colors @md/main:hidden"
-              style={{
-                background:
-                  activeGoals.length > 0
-                    ? "rgba(74,222,128,0.15)"
-                    : "rgba(255,255,255,0.1)",
-                border:
-                  activeGoals.length > 0
-                    ? "0.5px solid rgba(74,222,128,0.35)"
-                    : "0.5px solid rgba(255,255,255,0.18)",
-                color:
-                  activeGoals.length > 0 ? "#4ade80" : "rgba(255,255,255,0.6)",
-              }}
-            >
-              {activeGoals.length > 0 ? (
-                <>
-                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                    <circle
-                      cx="8"
-                      cy="8"
-                      r="6.5"
-                      stroke="#4ade80"
-                      strokeWidth="1.5"
-                    />
-                    <path
-                      d="M5 8.5l2 2 4-4"
-                      stroke="#4ade80"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  {onTrackGoals.length} of {activeGoals.length} on track
-                </>
-              ) : (
-                <>
-                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                    <circle
-                      cx="8"
-                      cy="8"
-                      r="6.5"
-                      stroke="rgba(255,255,255,0.5)"
-                      strokeWidth="1.5"
-                    />
-                    <path
-                      d="M8 5v3l1.5 1.5"
-                      stroke="rgba(255,255,255,0.5)"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  Set a goal
-                </>
-              )}
-            </Button>
+            {showGoals && (
+              <Button
+                onClick={() => router.push("/goals")}
+                className="rounded-full text-xs font-medium transition-colors @md/main:hidden"
+                style={{
+                  background:
+                    activeGoals.length > 0
+                      ? "rgba(74,222,128,0.15)"
+                      : "rgba(255,255,255,0.1)",
+                  border:
+                    activeGoals.length > 0
+                      ? "0.5px solid rgba(74,222,128,0.35)"
+                      : "0.5px solid rgba(255,255,255,0.18)",
+                  color:
+                    activeGoals.length > 0
+                      ? "#4ade80"
+                      : "rgba(255,255,255,0.6)",
+                }}
+              >
+                {activeGoals.length > 0 ? (
+                  <>
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="6.5"
+                        stroke="#4ade80"
+                        strokeWidth="1.5"
+                      />
+                      <path
+                        d="M5 8.5l2 2 4-4"
+                        stroke="#4ade80"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    {onTrackGoals.length} of {activeGoals.length} on track
+                  </>
+                ) : (
+                  <>
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="6.5"
+                        stroke="rgba(255,255,255,0.5)"
+                        strokeWidth="1.5"
+                      />
+                      <path
+                        d="M8 5v3l1.5 1.5"
+                        stroke="rgba(255,255,255,0.5)"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    Set a goal
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </CardHeader>
 
