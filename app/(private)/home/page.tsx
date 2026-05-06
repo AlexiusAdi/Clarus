@@ -17,10 +17,13 @@ import { getAssets } from "@/lib/data/assets";
 import { getInvestments } from "@/lib/data/investments";
 import { getScheduledTransactions } from "@/lib/helper/getScheduledTransactions";
 import { ScheduledTransactionsProvider } from "@/components/ScheduledTransactionsProvider";
+import UpgradeBanner from "@/components/UpgradeBanner";
 
 const Page = async () => {
   const session = await auth();
   const userId = session?.user?.id;
+  const userPlan = session?.user?.plan;
+  console.log("User Plan:", userPlan);
 
   if (!userId) return null;
 
@@ -79,6 +82,7 @@ const Page = async () => {
 
                 <div>
                   <NetWorthCard userNetWorth={netWorth} goals={goals} />
+                  <UpgradeBanner plan={userPlan} />
                   <div className="hidden @4xl/main:block">
                     <GoalsContent goals={goals} />
                   </div>
