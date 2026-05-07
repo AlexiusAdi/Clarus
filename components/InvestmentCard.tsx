@@ -73,7 +73,7 @@ const InvestmentCard = ({ investment }: Props) => {
               </div>
 
               <div className="flex flex-col items-end">
-                <span className="text-md font-semibold shadow-sm">
+                <span className="text-md font-semibold">
                   {formatCurrency(investment.totalInvestment)}
                 </span>
 
