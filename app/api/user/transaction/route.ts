@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/enums";
 import { TransactionDTO } from "@/lib/helper/getOverviewData";
+import { isPro } from "@/lib/helper/plan";
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,6 +33,25 @@ export async function POST(req: NextRequest) {
         { error: "Category is required" },
         { status: 400 },
       );
+    }
+
+    const GOAL_FREE_LIMIT = 2;
+
+    if (type === "SAVINGS" && goalId && !isPro(session.user.plan)) {
+      const userGoals = await prisma.goal.findMany({
+        where: { userId, isCompleted: false },
+        orderBy: { createdAt: "asc" },
+        select: { id: true },
+        take: GOAL_FREE_LIMIT,
+      });
+
+      const allowedGoalIds = userGoals.map((g) => g.id);
+      if (!allowedGoalIds.includes(goalId)) {
+        return NextResponse.json(
+          { error: "Upgrade to Pro to contribute to this goal." },
+          { status: 403 },
+        );
+      }
     }
 
     if (type === TransactionType.SAVINGS && !goalId) {

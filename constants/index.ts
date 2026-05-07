@@ -639,6 +639,7 @@ export const FREQUENCY_OPTIONS: { label: string; value: Frequency }[] = [
 export const PRO_FEATURES = [
   { label: "Unlimited assets", included: true },
   { label: "Unlimited investments", included: true },
+  { label: "Unlimited Scheduled Transactions", included: true },
   { label: "Goals tracking", included: true },
   { label: "AI insights on goals", included: true },
   { label: "Spending forecasts", included: false },
@@ -650,6 +651,7 @@ export const PRO_FEATURES = [
 export const ELITE_FEATURES = [
   { label: "Unlimited assets", included: true },
   { label: "Unlimited investments", included: true },
+  { label: "Unlimited Scheduled Transactions", included: true },
   { label: "Goals tracking", included: true },
   { label: "AI insights on goals", included: true },
   { label: "Spending forecasts", included: true },

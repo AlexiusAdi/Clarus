@@ -23,7 +23,6 @@ import { useEffect, useState } from "react";
 import { ScheduledTransactionDrawer } from "./ScheduledTransactionDrawer";
 import { RepeatIcon } from "lucide-react";
 import { Button } from "./ui/button";
-import { getScheduledTransactions } from "@/lib/helper/getScheduledTransactions";
 import { useScheduledTransactionsContext } from "./ScheduledTransactionsProvider";
 
 const HomeTabs = ({
@@ -158,17 +157,23 @@ const HomeTabs = ({
             className={`transition-all duration-150 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
           >
             {scheduledTransactions.length > 0 && (
-              <Button onClick={() => setScheduledOpen(true)} variant="ghost">
+              <Button
+                onClick={() => setScheduledOpen(true)}
+                variant="ghost"
+                className=" active:scale-90"
+              >
                 <RepeatIcon size={14} />
                 Scheduled
               </Button>
             )}
 
-            <ScheduledTransactionDrawer
-              open={scheduledOpen}
-              onOpenChange={setScheduledOpen}
-              onListChange={setScheduledTransactions}
-            />
+            <div className="overflow-auto max-h-[85dvh] p-4">
+              <ScheduledTransactionDrawer
+                open={scheduledOpen}
+                onOpenChange={setScheduledOpen}
+                onListChange={setScheduledTransactions}
+              />
+            </div>
 
             <RecentActivities
               data={transactions}

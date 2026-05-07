@@ -79,7 +79,10 @@ const TransactionCard = ({
               </span>
               <div className="flex gap-2">
                 {isActionable && (
-                  <button onClick={() => setEditOpen(true)}>
+                  <button
+                    onClick={() => setEditOpen(true)}
+                    className="active:scale-90"
+                  >
                     <Pencil
                       width={16}
                       height={16}
@@ -88,7 +91,10 @@ const TransactionCard = ({
                   </button>
                 )}
                 {isActionable && (
-                  <button onClick={() => setOpen(true)}>
+                  <button
+                    onClick={() => setOpen(true)}
+                    className="active:scale-90"
+                  >
                     <Trash2
                       width={16}
                       height={16}

@@ -73,7 +73,7 @@ const InvestmentCard = ({ investment }: Props) => {
               </div>
 
               <div className="flex flex-col items-end">
-                <span className="text-md font-semibold shadow-sm">
+                <span className="text-md font-semibold">
                   {formatCurrency(investment.totalInvestment)}
                 </span>
 
@@ -134,10 +134,13 @@ const InvestmentCard = ({ investment }: Props) => {
                   <Pencil
                     width={16}
                     height={16}
-                    className="text-blue-500 cursor-pointer"
+                    className="text-blue-500 cursor-pointer active:scale-90"
                   />
                 </button>
-                <button onClick={() => setOpen(true)}>
+                <button
+                  onClick={() => setOpen(true)}
+                  className="active:scale-90"
+                >
                   <Trash2
                     width={16}
                     height={16}
