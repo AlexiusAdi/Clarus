@@ -103,7 +103,10 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => setEditOpen(true)}>
+                  <button
+                    onClick={() => setEditOpen(true)}
+                    className="active:scale-90"
+                  >
                     <Pencil
                       width={16}
                       height={16}
@@ -114,7 +117,7 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
                     <Trash2
                       width={16}
                       height={16}
-                      className="text-red-500 cursor-pointer"
+                      className="text-red-500 cursor-pointer active:scale-90"
                     />
                   </button>
                 </div>
