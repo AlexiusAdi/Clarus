@@ -47,7 +47,7 @@ const investmentSchema = z
     name: z.string().min(1, "Asset name is required"),
     assetIdentifier: z.string().optional(),
     date: z.date("Purchase date is required"),
-    quantity: z.string().optional(),
+    quantity: z.string().min(1, "Quantity is required"),
     unit: z.string().min(1, "Unit is required"),
     totalInvestment: z
       .string()
@@ -60,7 +60,7 @@ const investmentSchema = z
     if (data.type !== "OTHER") {
       if (!data.quantity) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: "Quantity is required",
           path: ["quantity"],
         });
@@ -69,7 +69,7 @@ const investmentSchema = z
         parseFloat(data.quantity) <= 0
       ) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: "Quantity must be greater than 0",
           path: ["quantity"],
         });
@@ -195,7 +195,7 @@ export const AddInvestment = ({
             key={t.value}
             onClick={() => handleTypeChange(t.value)}
             className={cn(
-              "h-12 p-2 flex justify-center items-center cursor-pointer shadow-md",
+              "h-12 p-2 flex justify-center items-center cursor-pointer shadow-md active:scale-95 transition-transform",
               type === t.value ? TYPE_ACCENT[t.value] : "opacity-60",
             )}
           >
@@ -215,7 +215,7 @@ export const AddInvestment = ({
               type="button"
               variant="outline"
               data-empty={!purchaseDate}
-              className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
+              className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground active:scale-95 transition-transform"
             >
               {purchaseDate ? (
                 format(purchaseDate, "PPP")

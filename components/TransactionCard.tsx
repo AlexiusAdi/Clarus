@@ -81,7 +81,7 @@ const TransactionCard = ({
                 {isActionable && (
                   <button
                     onClick={() => setEditOpen(true)}
-                    className="active:scale-90"
+                    className="active:scale-95 transition-transform"
                   >
                     <Pencil
                       width={16}
@@ -93,7 +93,7 @@ const TransactionCard = ({
                 {isActionable && (
                   <button
                     onClick={() => setOpen(true)}
-                    className="active:scale-90"
+                    className="active:scale-95 transition-transform"
                   >
                     <Trash2
                       width={16}

@@ -134,17 +134,14 @@ const InvestmentCard = ({ investment }: Props) => {
                   <Pencil
                     width={16}
                     height={16}
-                    className="text-blue-500 cursor-pointer active:scale-90"
+                    className="text-blue-500 cursor-pointer active:scale-95 transition-transform"
                   />
                 </button>
-                <button
-                  onClick={() => setOpen(true)}
-                  className="active:scale-90"
-                >
+                <button onClick={() => setOpen(true)}>
                   <Trash2
                     width={16}
                     height={16}
-                    className="text-red-500 cursor-pointer"
+                    className="text-red-500 cursor-pointer active:scale-95 transition-transform"
                   />
                 </button>
               </div>

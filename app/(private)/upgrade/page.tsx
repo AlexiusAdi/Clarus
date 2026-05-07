@@ -120,7 +120,7 @@ const UpgradePage = async () => {
 
       {/* Back link */}
       <Link href="/" className="p-4">
-        <Button className=" active:scale-95">← Back</Button>
+        <Button className="active:scale-95 transition-transform">← Back</Button>
       </Link>
     </div>
   );

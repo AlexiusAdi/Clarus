@@ -364,7 +364,7 @@ export const AddTransaction = ({
                     setValue("categoryId", cat.id, { shouldValidate: true })
                   }
                   className={cn(
-                    "h-10 flex items-center justify-center cursor-pointer",
+                    "h-10 flex items-center justify-center cursor-pointer active:scale-95 transition-transform",
                     selectedCategory === cat.id
                       ? type === "INCOME"
                         ? "border-green-500 border-2"
@@ -465,7 +465,7 @@ export const AddTransaction = ({
               setValue("interval", undefined);
             }}
             className={cn(
-              "flex items-center gap-2 w-fit text-sm font-medium transition-colors",
+              "flex items-center gap-2 w-fit text-sm font-medium active:scale-95 transition-transform",
               isRecurring ? "text-primary" : "text-muted-foreground",
             )}
           >
@@ -503,7 +503,7 @@ export const AddTransaction = ({
                         setValue("interval", 1);
                     }}
                     className={cn(
-                      "h-9 rounded-md text-sm font-medium border transition-colors",
+                      "h-9 rounded-md text-sm font-medium border transition-colors active:scale-95 active:opacity-75",
                       frequency === opt.value
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-transparent text-muted-foreground border-border hover:border-primary/50",
