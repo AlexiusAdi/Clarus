@@ -65,13 +65,13 @@ const Alert = ({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="active:scale-90">
+          <AlertDialogCancel className="active:scale-95 transition-transform">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isDeleting}
-            className="active:scale-90"
+            className="active:scale-95 transition-transform"
           >
             {isDeleting ? <Spinner /> : "Delete"}
           </AlertDialogAction>

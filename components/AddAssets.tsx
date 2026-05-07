@@ -124,7 +124,7 @@ export const AddAssets = ({
                 setValue("type", asset.type, { shouldValidate: true })
               }
               className={cn(
-                "h-12 p-2 flex justify-center items-center cursor-pointer",
+                "h-12 p-2 flex justify-center items-center cursor-pointer active:scale-95 transition-transform",
                 selectedType === asset.type
                   ? "border-blue-500 bg-blue-100 dark:bg-blue-900/30"
                   : "opacity-60",
@@ -153,7 +153,7 @@ export const AddAssets = ({
                 })
               }
               className={cn(
-                "h-10 flex items-center justify-center cursor-pointer",
+                "h-10 flex items-center justify-center cursor-pointer active:scale-95 transition-transform",
                 selectedSource === source.value
                   ? "border-blue-500 bg-blue-100 dark:bg-blue-900/30"
                   : "opacity-60",
