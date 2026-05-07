@@ -31,7 +31,7 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="rounded-full cursor-pointer active:scale-125">
+          <div className="rounded-full cursor-pointer active:scale-95 transition-transform">
             <Avatar className="w-7 h-7 shadow-xl cursor-pointer">
               <AvatarImage
                 referrerPolicy="no-referrer"

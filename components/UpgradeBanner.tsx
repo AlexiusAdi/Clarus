@@ -22,7 +22,7 @@ const UpgradeBanner = ({ plan }: UpgradeBannerProps) => {
       </div>
       <Link
         href="/upgrade"
-        className="shrink-0 text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
+        className="shrink-0 text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors active:scale-95"
       >
         See plans →
       </Link>

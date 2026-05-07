@@ -21,8 +21,12 @@ export default auth(async (req) => {
 
   // Onboarding check for logged in users
   if (isLoggedIn && !isPublicRoute) {
+    const userId = req.auth?.user?.id;
+
+    if (!userId) return NextResponse.redirect(new URL("/login", nextUrl));
+
     const userDetail = await prisma.userDetail.findUnique({
-      where: { userId: req.auth!.user!.id! },
+      where: { userId },
       select: { id: true },
     });
 
@@ -35,17 +39,15 @@ export default auth(async (req) => {
     if (hasOnboarded && pathname === "/onboarding") {
       return NextResponse.redirect(new URL("/home", nextUrl));
     }
-  }
 
-  const user = await prisma.user.findUnique({
-    where: { id: req.auth!.user!.id! },
-    select: { plan: true },
-  });
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true },
+    });
 
-  const isFreePlan = user?.plan === "FREE";
-
-  if (isFreePlan && pathname.startsWith("/goals")) {
-    return NextResponse.redirect(new URL("/upgrade", nextUrl));
+    if (user?.plan === "FREE" && pathname.startsWith("/goals")) {
+      return NextResponse.redirect(new URL("/upgrade", nextUrl));
+    }
   }
 
   return NextResponse.next();

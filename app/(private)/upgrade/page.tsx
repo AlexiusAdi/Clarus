@@ -4,7 +4,8 @@ import Link from "next/link";
 import { ELITE_FEATURES, PRO_FEATURES } from "@/constants";
 import { Button } from "@/components/ui/button";
 
-const FREE_LIMITS = "3 assets & investments · No goals · No AI";
+const FREE_LIMITS =
+  "3 assets, 3 investments and 5 Scheduled Transactions · No goals · No AI";
 
 const UpgradePage = async () => {
   const session = await auth();
@@ -119,7 +120,7 @@ const UpgradePage = async () => {
 
       {/* Back link */}
       <Link href="/" className="p-4">
-        <Button>← Back</Button>
+        <Button className="active:scale-95 transition-transform">← Back</Button>
       </Link>
     </div>
   );
