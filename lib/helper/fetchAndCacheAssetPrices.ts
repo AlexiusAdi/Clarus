@@ -4,10 +4,15 @@ import { getAssetByIdentifier } from "@/lib/helper/getAssetByIdentifier";
 const IDR_PER_USD = 16350;
 const TROY_OZ_TO_GRAM = 31.1035;
 
+const YAHOO_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+  Accept: "application/json",
+};
+
 async function fetchGoldPriceIdr(): Promise<number> {
   const res = await fetch(
     "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=1d",
-    { cache: "no-store" },
+    { cache: "no-store", headers: YAHOO_HEADERS },
   );
   if (!res.ok) throw new Error(`yahoo error: ${res.status}`);
   const data = await res.json();
@@ -17,8 +22,9 @@ async function fetchGoldPriceIdr(): Promise<number> {
 }
 
 async function fetchStockPriceIdr(ticker: string): Promise<number> {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
-  const res = await fetch(url, { cache: "no-store" });
+  const encodedTicker = encodeURIComponent(ticker);
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodedTicker}?interval=1d&range=1d`;
+  const res = await fetch(url, { cache: "no-store", headers: YAHOO_HEADERS });
   if (!res.ok)
     throw new Error(`Yahoo Finance error for ${ticker}: ${res.status}`);
   const data = await res.json();
@@ -38,9 +44,10 @@ async function fetchCryptoPriceIdr(coinId: string): Promise<number> {
 }
 
 export async function fetchAndCacheAssetPrices() {
-  const tracked = await prisma.investment.findMany({
-    distinct: ["assetIdentifier"],
-    select: { assetIdentifier: true },
+  // Query AssetPrice table directly — seeded from PREDEFINED_ASSETS
+  // so we always fetch prices for all known assets, not just user holdings
+  const tracked = await prisma.assetPrice.findMany({
+    select: { identifier: true },
   });
 
   if (tracked.length === 0) return { updated: [] };
@@ -51,14 +58,14 @@ export async function fetchAndCacheAssetPrices() {
     error?: string;
   }[] = [];
 
-  for (const { assetIdentifier } of tracked) {
-    const asset = getAssetByIdentifier(assetIdentifier);
+  for (const { identifier } of tracked) {
+    const asset = getAssetByIdentifier(identifier);
 
     if (!asset) {
       results.push({
-        identifier: assetIdentifier,
+        identifier,
         status: "error",
-        error: "Unknown asset",
+        error: "Unknown asset — not in predefined list",
       });
       continue;
     }
@@ -73,25 +80,22 @@ export async function fetchAndCacheAssetPrices() {
       } else if (asset.type === "CRYPTO") {
         priceIdr = await fetchCryptoPriceIdr(asset.ticker);
       } else {
-        results.push({ identifier: assetIdentifier, status: "ok" });
+        // OTHER — skip price fetch
+        results.push({ identifier, status: "ok" });
         continue;
       }
 
       await prisma.assetPrice.upsert({
-        where: { identifier: assetIdentifier },
+        where: { identifier },
         update: { priceIdr, updatedAt: new Date() },
-        create: { identifier: assetIdentifier, type: asset.type, priceIdr },
+        create: { identifier, type: asset.type, priceIdr },
       });
 
-      results.push({ identifier: assetIdentifier, status: "ok" });
+      results.push({ identifier, status: "ok" });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error(`[fetch-prices] Failed for ${assetIdentifier}:`, message);
-      results.push({
-        identifier: assetIdentifier,
-        status: "error",
-        error: message,
-      });
+      console.error(`[fetch-prices] Failed for ${identifier}:`, message);
+      results.push({ identifier, status: "error", error: message });
     }
   }
 
