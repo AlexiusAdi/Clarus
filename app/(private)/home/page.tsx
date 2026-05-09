@@ -30,6 +30,7 @@ const Page = async () => {
     name: session?.user?.name ?? undefined,
     email: session?.user?.email ?? undefined,
     image: session?.user?.image ?? undefined,
+    planType: userPlan ?? PlanType.FREE,
   };
 
   const isPremium = userPlan !== PlanType.FREE;
