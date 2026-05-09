@@ -132,8 +132,6 @@ export async function POST(req: NextRequest) {
 
   if (type === "OTHER") {
     normalizedIdentifier = `other_${name.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
-  } else if (type === "STOCK" && !normalizedIdentifier.endsWith(".JK")) {
-    normalizedIdentifier = `${normalizedIdentifier}.JK`;
   } else if (type === "CRYPTO") {
     normalizedIdentifier = normalizedIdentifier.toLowerCase();
   }
