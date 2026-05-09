@@ -10,6 +10,8 @@ import { Button } from "./ui/button";
 import { GoalDTO } from "@/lib/data/goals";
 import { useRouter } from "next/navigation";
 import { getGoalsSummary } from "@/lib/helper/getGoalsSummary";
+import { PlanType } from "@/lib/generated/prisma/browser";
+import { cn } from "@/lib/utils";
 
 const VISIBILITY_KEY = "clarus_networth_visible";
 
@@ -17,10 +19,12 @@ export default function NetWorthCard({
   userNetWorth,
   goals,
   showGoals = false,
+  userPlan,
 }: {
   userNetWorth: UserNetWorth;
   goals: GoalDTO[];
   showGoals?: boolean;
+  userPlan: string;
 }) {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -32,6 +36,13 @@ export default function NetWorthCard({
     cashBalance = 0,
     totalInvestments = 0,
   } = userNetWorth ?? {};
+
+  const cardBg =
+    userPlan === PlanType.ELITE
+      ? "bg-gradient-to-br from-amber-900/80 to-amber-600/60" // or whatever color you want
+      : userPlan === PlanType.PRO
+        ? "bg-gradient-to-br from-violet-900/80 to-violet-600/60"
+        : "bg-obsidian";
 
   const router = useRouter();
 
@@ -64,7 +75,21 @@ export default function NetWorthCard({
 
   return (
     <>
-      <Card className="bg-obsidian text-white @2xs/main:gap-3 shadow-md">
+      <Card
+        className={cn(
+          "text-white @2xs/main:gap-3 shadow-md",
+          userPlan === PlanType.ELITE
+            ? "bg-linear-to-br from-goldensand/40 to-goldensand/-30"
+            : userPlan === PlanType.PRO
+              ? "bg-linear-to-br from-violet-900 to-violet-700"
+              : "bg-obsidian",
+        )}
+      >
+        <CardHeader className="pb-0">
+          <span className="text-xs font-medium px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 w-fit">
+            ✦ {userPlan} plan
+          </span>
+        </CardHeader>
         <CardHeader className="flex justify-between items-center">
           <div className="flex justify-between items-center w-full">
             <CardTitle className="text-xl opacity-90">

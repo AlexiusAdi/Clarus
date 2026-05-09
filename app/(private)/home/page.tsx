@@ -87,6 +87,7 @@ const Page = async () => {
                     userNetWorth={netWorth}
                     goals={goals}
                     showGoals={isPremium}
+                    userPlan={userPlan}
                   />
                   {!isPremium && <UpgradeBanner plan={userPlan} />}
                   <div className="hidden @4xl/main:block">
