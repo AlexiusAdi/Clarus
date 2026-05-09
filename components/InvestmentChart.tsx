@@ -75,7 +75,7 @@ export default function InvestmentChart({
           <PieChart>
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent hideLabel className=" min-w-45" />}
             />
             <Pie
               data={chartData}

@@ -17,16 +17,16 @@ const COLORS = ["#3b82f6", "#22c55e", "#f97316", "#6366f1", "#a855f7"];
 
 export default function SpendingChart({ data }: SpendingChartProps) {
   const chartData = data.map((item, index) => ({
-    browser: item.category,
-    visitors: item.amount,
+    category: item.category,
+    amount: item.amount,
     fill: COLORS[index % COLORS.length],
   }));
 
   const chartConfig = Object.fromEntries(
     chartData.map((item, index) => [
-      item.browser,
+      item.category,
       {
-        label: item.browser,
+        label: item.category,
         color: COLORS[index % COLORS.length],
       },
     ]),
@@ -45,17 +45,17 @@ export default function SpendingChart({ data }: SpendingChartProps) {
             <PieChart>
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent hideLabel />}
+                content={<ChartTooltipContent hideLabel className="min-w-45" />}
               />
               <Pie
                 data={chartData}
-                dataKey="visitors"
-                nameKey="browser"
+                dataKey="amount"
+                nameKey="category"
                 innerRadius={60}
                 strokeWidth={5}
               />
               <ChartLegend
-                content={<ChartLegendContent nameKey="browser" />}
+                content={<ChartLegendContent nameKey="category" />}
                 className="flex flex-wrap gap-2 justify-center pt-4"
               />
             </PieChart>
