@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
+import { ImportTutorial } from "./ImportTutorial";
 
 type Props = {
   open: boolean;
@@ -167,25 +168,7 @@ export default function ImportCard({ open, onOpenChange, planType }: Props) {
             />
           </div>
 
-          {/* Row limit info */}
-          <Card>
-            <CardContent className="p-0 divide-y divide-border">
-              <div className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <Download className="w-4 h-4 text-muted-foreground" />
-                  <p className="text-sm font-medium">Template</p>
-                </div>
-                <a
-                  href="import-template.xlsx"
-                  download
-                  className="text-sm text-emerald-500 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Download .xlsx
-                </a>
-              </div>
-            </CardContent>
-          </Card>
+          <ImportTutorial />
 
           <Button
             onClick={() => setConfirmOpen(true)}
