@@ -31,7 +31,7 @@ export default function Login() {
     <div className="hero-container flex flex-col gap-8 items-center justify-center h-screen p-4">
       <div id="title" className="flex flex-col items-center gap-1">
         <a
-          className="text-6xl text-obsidian"
+          className="text-6xl dark:text-porcelinwhite text-obsidian"
           onClick={() => redirect("/login")}
         >
           Clarus

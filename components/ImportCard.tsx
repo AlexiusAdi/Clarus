@@ -63,16 +63,14 @@ export default function ImportCard({ open, onOpenChange, planType }: Props) {
 
       const json = await res.json();
       if (!res.ok) {
-        // Show the specific message from the API
         toast.error(json.message ?? "Import failed", {
-          duration: 15000, // longer so user can read it
+          duration: 15000,
         });
 
-        // If there are row-level validation errors, show each one
         if (json.errors?.length) {
           json.errors.forEach((e: { row: number; errors: string[] }) => {
             toast.error(`Row ${e.row}: ${e.errors.join(", ")}`, {
-              duration: 15000, // longer so user can read it
+              duration: 15000,
             });
           });
         }
@@ -94,7 +92,7 @@ export default function ImportCard({ open, onOpenChange, planType }: Props) {
     onOpenChange(v);
   };
 
-  if (planType === "FREE") return null; // or render an upsell sheet instead
+  if (planType === "FREE") return null;
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
@@ -104,7 +102,6 @@ export default function ImportCard({ open, onOpenChange, planType }: Props) {
         </SheetHeader>
 
         <div className="w-full max-w-md mx-auto pb-24 px-4 flex flex-col gap-4">
-          {/* Plan badge */}
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             Plan
           </p>
@@ -126,7 +123,6 @@ export default function ImportCard({ open, onOpenChange, planType }: Props) {
             </CardContent>
           </Card>
 
-          {/* Upload */}
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             File
           </p>

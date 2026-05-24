@@ -40,7 +40,9 @@ export default function Home() {
       <div className="flex flex-col w-full items-center justify-center h-screen gap-10 p-4">
         <div className="flex flex-col items-center gap-2">
           <div id="welcome">
-            <h1 className="text-6xl text-obsidian">Clarus</h1>
+            <h1 className="text-6xl  dark:text-porcelinwhite text-obsidian">
+              Clarus
+            </h1>
           </div>
           <div id="tagline">
             <span className="text-sm text-muted-foreground tracking-wide">
