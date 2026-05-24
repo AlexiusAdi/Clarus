@@ -659,3 +659,6 @@ export const ELITE_FEATURES = [
   { label: "CSV export", included: true },
   { label: "Email digests", included: true },
 ];
+
+export const FREE_LIMITS =
+  "3 assets, 3 investments and 5 Scheduled Transactions · No goals · No AI";

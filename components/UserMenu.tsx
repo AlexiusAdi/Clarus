@@ -11,11 +11,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import OptionCard from "./OptionCard";
 import { SettingsUser } from "@/app/Types";
 import SettingsCard from "./SettingsCard";
 import { Settings, Upload, User } from "lucide-react";
 import ImportCard from "./ImportCard";
+import { PlanType } from "@/lib/generated/prisma/enums";
+import UserCard from "./UserCard";
 
 const UserMenu = ({ user }: { user: SettingsUser }) => {
   const [openSheet, setOpenSheet] = useState<
@@ -49,7 +50,7 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
             <DropdownMenuItem onSelect={() => setOpenSheet("profile")}>
               <User width={14} className="mr-2" /> Profile
             </DropdownMenuItem>
-            {user.planType !== "FREE" && (
+            {user.planType === PlanType.ELITE && (
               <DropdownMenuItem onSelect={() => setOpenSheet("import")}>
                 <Upload width={14} className="mr-2" /> Import
               </DropdownMenuItem>
@@ -61,7 +62,7 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      <OptionCard
+      <UserCard
         user={user}
         open={openSheet === "profile"}
         onOpenChange={(o) => setOpenSheet(o ? "profile" : null)}

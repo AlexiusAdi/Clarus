@@ -61,6 +61,13 @@ export interface SettingsUser {
   planType: PlanType;
 }
 
+export type PlanInfo = {
+  plan: PlanType;
+  planExpiresAt: string | null;
+  name: string | null;
+  email: string | null;
+};
+
 export interface PredefinedAsset {
   identifier: string;
   ticker: string;
