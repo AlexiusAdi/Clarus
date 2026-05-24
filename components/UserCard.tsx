@@ -5,10 +5,11 @@ import { signOut } from "next-auth/react";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Spinner } from "./ui/spinner";
-import { LogOut, User, Mail, Coins } from "lucide-react";
+import { LogOut, User, Mail, Coins, Zap, CreditCard } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { SettingsUser } from "@/app/Types";
+import Link from "next/link";
 
 type Props = {
   user: SettingsUser;
@@ -16,7 +17,7 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-export default function OptionCard({ user, open, onOpenChange }: Props) {
+export default function UserCard({ user, open, onOpenChange }: Props) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const initials = (user.name ?? "?")
@@ -30,6 +31,13 @@ export default function OptionCard({ user, open, onOpenChange }: Props) {
     setIsLoggingOut(true);
     await signOut({ callbackUrl: "/" });
   };
+
+  const planLabel =
+    user.planType === "FREE"
+      ? "Free"
+      : user.planType === "PRO"
+        ? "Pro"
+        : user.planType;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -75,6 +83,39 @@ export default function OptionCard({ user, open, onOpenChange }: Props) {
                   <span className="text-sm text-muted-foreground">
                     {user.email}
                   </span>
+                </div>
+              </div>
+              <div className="flex flex-col px-4 py-3">
+                <div className="grid grid-cols-2">
+                  <div>
+                    <span className="font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                      Plan
+                    </span>
+                    <div className="grid grid-cols-2">
+                      <div className="flex items-center gap-2">
+                        <CreditCard
+                          width={14}
+                          className="text-muted-foreground shrink-0"
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {planLabel}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end">
+                    <Button
+                      asChild
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2.5 text-xs gap-1.5 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-500"
+                    >
+                      <Link href="/upgrade">
+                        <Zap width={11} />
+                        See plans
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col px-4 py-3">

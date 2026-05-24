@@ -30,6 +30,7 @@ const Page = async () => {
     name: session?.user?.name ?? undefined,
     email: session?.user?.email ?? undefined,
     image: session?.user?.image ?? undefined,
+    planType: userPlan ?? PlanType.FREE,
   };
 
   const isPremium = userPlan !== PlanType.FREE;
@@ -86,6 +87,7 @@ const Page = async () => {
                     userNetWorth={netWorth}
                     goals={goals}
                     showGoals={isPremium}
+                    userPlan={userPlan}
                   />
                   {!isPremium && <UpgradeBanner plan={userPlan} />}
                   <div className="hidden @4xl/main:block">

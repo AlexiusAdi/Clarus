@@ -167,7 +167,7 @@ const HomeTabs = ({
               </Button>
             )}
 
-            <div className="overflow-auto max-h-[85dvh] p-4">
+            <div className="overflow-auto max-h-[85dvh]">
               <ScheduledTransactionDrawer
                 open={scheduledOpen}
                 onOpenChange={setScheduledOpen}
