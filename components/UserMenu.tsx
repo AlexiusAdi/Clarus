@@ -7,18 +7,21 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import OptionCard from "./OptionCard";
 import { SettingsUser } from "@/app/Types";
 import SettingsCard from "./SettingsCard";
-import { Settings, User } from "lucide-react";
+import { Settings, Upload, User } from "lucide-react";
+import ImportCard from "./ImportCard";
+import { PlanType } from "@/lib/generated/prisma/enums";
+import UserCard from "./UserCard";
 
 const UserMenu = ({ user }: { user: SettingsUser }) => {
-  const [openSheet, setOpenSheet] = useState<"profile" | "settings" | null>(
-    null,
-  );
+  const [openSheet, setOpenSheet] = useState<
+    "profile" | "settings" | "import" | null
+  >(null);
 
   const initials = (user.name ?? "?")
     .split(" ")
@@ -47,13 +50,19 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
             <DropdownMenuItem onSelect={() => setOpenSheet("profile")}>
               <User width={14} className="mr-2" /> Profile
             </DropdownMenuItem>
+            {user.planType === PlanType.ELITE && (
+              <DropdownMenuItem onSelect={() => setOpenSheet("import")}>
+                <Upload width={14} className="mr-2" /> Import
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => setOpenSheet("settings")}>
               <Settings width={14} className="mr-2" /> Settings
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      <OptionCard
+      <UserCard
         user={user}
         open={openSheet === "profile"}
         onOpenChange={(o) => setOpenSheet(o ? "profile" : null)}
@@ -61,6 +70,11 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
       <SettingsCard
         open={openSheet === "settings"}
         onOpenChange={(o) => setOpenSheet(o ? "settings" : null)}
+      />
+      <ImportCard
+        open={openSheet === "import"}
+        planType={user.planType}
+        onOpenChange={(o) => setOpenSheet(o ? "import" : null)}
       />
     </>
   );

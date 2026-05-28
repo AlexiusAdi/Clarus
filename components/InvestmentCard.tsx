@@ -1,20 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "./ui/card";
 import { Pencil, Trash2, TrendingUp } from "lucide-react";
 import Alert from "./Alert";
 import { cn } from "@/lib/utils";
 import { TYPE_ICON } from "@/constants";
-import { AssetPriceDTO, InvestmentDTO } from "@/lib/data/investments";
+import { InvestmentDTO } from "@/lib/data/investments";
 import { formatCurrency } from "@/lib/helper/formatCurrency";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
 import { AddInvestment } from "./AddInvestment";
 
 type Props = {
-  investment: InvestmentDTO & {
-    assetPrice?: AssetPriceDTO | null;
-  };
+  investment: InvestmentDTO;
 };
 
 const InvestmentCard = ({ investment }: Props) => {
@@ -26,29 +24,13 @@ const InvestmentCard = ({ investment }: Props) => {
 
   const isOther = investment.type === "OTHER";
 
-  const costPerUnit = investment.costPerUnit;
-  const currentPrice = investment.assetPrice?.priceIdr ?? null;
-  const marketPlacePerLot = currentPrice !== null ? currentPrice * 100 : null;
-
-  const currentPriceNormalized = useMemo(() => {
-    if (investment.unit === "lot" && currentPrice) {
-      return currentPrice * 100;
-    }
-    return currentPrice;
-  }, [investment.unit, currentPrice]);
-
-  const invested = investment.totalInvestment;
-  const currentValue =
-    currentPriceNormalized !== null
-      ? investment.quantity * currentPriceNormalized
-      : null;
-
-  const profit = currentValue !== null ? currentValue - invested : null;
-
-  const percent =
-    profit !== null && invested !== 0 ? (profit / invested) * 100 : null;
-
+  const profit = investment.pnlAbs;
+  const percent = investment.pnlPct;
   const isUp = profit !== null ? profit >= 0 : null;
+  const marketPricePerLot =
+    investment.currentPriceIdr !== null
+      ? investment.currentPriceIdr * 100
+      : null;
 
   return (
     <div className="flex flex-col">
@@ -77,7 +59,6 @@ const InvestmentCard = ({ investment }: Props) => {
                   {formatCurrency(investment.totalInvestment)}
                 </span>
 
-                {/* Trend — only for trackable types */}
                 {isOther ? (
                   <span className="text-muted-foreground text-sm">
                     No price tracking
@@ -109,8 +90,8 @@ const InvestmentCard = ({ investment }: Props) => {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <span className="font-semibold">Market Price / LOT</span>
                 <span className="flex justify-end">
-                  {marketPlacePerLot !== null
-                    ? formatCurrency(marketPlacePerLot)
+                  {marketPricePerLot !== null
+                    ? formatCurrency(marketPricePerLot)
                     : "-"}
                 </span>
               </div>
@@ -120,11 +101,18 @@ const InvestmentCard = ({ investment }: Props) => {
             <div className="flex justify-between items-center">
               <div className="flex-1 bg-accent rounded-xl p-1.5 mr-3 text-sm">
                 {isOther ? (
-                  <span>{formatCurrency(invested)} total</span>
+                  <span>
+                    {formatCurrency(investment.totalInvestment)} total
+                  </span>
                 ) : (
                   <span>
-                    {investment.quantity} {investment.unit} —{" "}
-                    {formatCurrency(costPerUnit)} / {investment.unit}
+                    Qty : {investment.quantity} {investment.unit} —{" "}
+                    {formatCurrency(investment.costPerUnit)} /{" "}
+                    {investment.unit === "shares"
+                      ? "share"
+                      : investment.unit === "lots"
+                        ? "lot"
+                        : investment.unit}
                   </span>
                 )}
               </div>

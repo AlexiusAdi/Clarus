@@ -1,5 +1,6 @@
 import {
   InvestmentType,
+  PlanType,
   TransactionType,
 } from "@/lib/generated/prisma/browser";
 
@@ -57,7 +58,15 @@ export interface SettingsUser {
   name?: string | null | undefined;
   email?: string | null | undefined;
   image?: string | Blob | undefined;
+  planType: PlanType;
 }
+
+export type PlanInfo = {
+  plan: PlanType;
+  planExpiresAt: string | null;
+  name: string | null;
+  email: string | null;
+};
 
 export interface PredefinedAsset {
   identifier: string;
@@ -114,4 +123,10 @@ export type GoalInitialValues = {
   targetAmount: number;
   currentAmount: number;
   deadline?: Date | null;
+};
+
+export const IMPORT_LIMITS: Record<PlanType, number> = {
+  FREE: 0,
+  PRO: 1000,
+  ELITE: 3000,
 };

@@ -38,6 +38,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `document.addEventListener('touchstart', function(){}, {passive: true});`,
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

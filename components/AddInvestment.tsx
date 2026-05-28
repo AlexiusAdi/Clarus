@@ -47,7 +47,7 @@ const investmentSchema = z
     name: z.string().min(1, "Asset name is required"),
     assetIdentifier: z.string().optional(),
     date: z.date("Purchase date is required"),
-    quantity: z.string().min(1, "Quantity is required"),
+    quantity: z.string().optional(),
     unit: z.string().min(1, "Unit is required"),
     totalInvestment: z
       .string()
@@ -134,19 +134,27 @@ export const AddInvestment = ({
       : null;
 
   const handleTypeChange = (newType: InvestmentType) => {
-    reset({ type: newType });
-    if (newType === InvestmentType.GOLD) {
-      setValue("unit", "gram");
-      setValue("assetIdentifier", "gold");
-    } else if (newType === InvestmentType.CRYPTO) {
-      setValue("unit", "coin");
-    } else if (newType === InvestmentType.STOCK) {
-      setValue("unit", "shares");
-    } else if (newType === InvestmentType.OTHER) {
-      setValue("unit", "unit");
-    }
+    const unitMap: Record<InvestmentType, string> = {
+      STOCK: "shares",
+      CRYPTO: "coin",
+      GOLD: "gram",
+      OTHER: "unit",
+    };
 
-    setValue("name", "");
+    const extraDefaults =
+      newType === InvestmentType.GOLD
+        ? { assetIdentifier: "gold" }
+        : { assetIdentifier: "" };
+
+    reset({
+      type: newType,
+      name: "",
+      quantity: "",
+      totalInvestment: "",
+      unit: unitMap[newType],
+      date: undefined,
+      ...extraDefaults,
+    });
   };
 
   const onSubmit = async (data: InvestmentForm) => {
