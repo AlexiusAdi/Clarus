@@ -1,21 +1,3 @@
-// app/api/investments/route.ts
-//
-// Returns the current user's investments with P&L computed server-side.
-// The frontend receives ready-to-render data — no price fetching, no useState
-// for prices, no calculations needed on the client.
-//
-// Response shape per item:
-// {
-//   id, name, type, assetIdentifier,
-//   quantity, unit, costPerUnit, date,
-//   amountInvested,       ← quantity × costPerUnit
-//   currentPriceIdr,      ← from AssetPrice (null if not yet fetched)
-//   currentValue,         ← quantity × currentPriceIdr (null if no price)
-//   pnlAbs,               ← currentValue - amountInvested (null if no price)
-//   pnlPct,               ← pnlAbs / amountInvested × 100 (null if no price)
-//   priceUpdatedAt,       ← when the price was last refreshed
-// }
-
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -93,9 +75,39 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ data, total, page, pageSize });
 }
 
-// ── POST — create a new holding ───────────────────────────────────────────────
-// After inserting, immediately triggers a price fetch for the new asset
-// so the card shows P&L without waiting for the next cron run.
+import { z } from "zod";
+import { InvestmentType } from "@/lib/generated/prisma/enums";
+
+const investmentPostSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    type: z.nativeEnum(InvestmentType),
+    assetIdentifier: z.string().optional(),
+    quantity: z.coerce.number().optional(),
+    unit: z.string().min(1, "Unit is required"),
+    totalInvestment: z.coerce
+      .number()
+      .positive("Total investment must be greater than 0"),
+    date: z.string().min(1, "Date is required"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type !== "OTHER") {
+      if (!data.quantity || data.quantity <= 0) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Quantity is required",
+          path: ["quantity"],
+        });
+      }
+      if (!data.assetIdentifier?.trim()) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Asset identifier is required",
+          path: ["assetIdentifier"],
+        });
+      }
+    }
+  });
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -104,29 +116,17 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
+
+  const parsed = investmentPostSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0].message },
+      { status: 400 },
+    );
+  }
+
   const { name, type, assetIdentifier, quantity, unit, totalInvestment, date } =
-    body;
-
-  if (!name || !type || !unit || !totalInvestment || !date) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 },
-    );
-  }
-
-  if (type !== "OTHER" && !quantity) {
-    return NextResponse.json(
-      { error: "Quantity is required" },
-      { status: 400 },
-    );
-  }
-
-  if (type !== "OTHER" && !assetIdentifier) {
-    return NextResponse.json(
-      { error: "Asset identifier is required" },
-      { status: 400 },
-    );
-  }
+    parsed.data;
 
   let normalizedIdentifier = assetIdentifier?.trim() ?? "";
 
@@ -146,9 +146,8 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  const parsedQuantity = quantity ? Number(quantity) : 0;
-  const costPerUnit =
-    parsedQuantity > 0 ? Number(totalInvestment) / parsedQuantity : 0;
+  const parsedQuantity = quantity ?? 0;
+  const costPerUnit = parsedQuantity > 0 ? totalInvestment / parsedQuantity : 0;
 
   const investment = await prisma.investment.create({
     data: {
@@ -158,7 +157,7 @@ export async function POST(req: NextRequest) {
       quantity: parsedQuantity,
       unit,
       costPerUnit,
-      totalInvestment: Number(totalInvestment),
+      totalInvestment,
       date: new Date(date),
       userId: session.user.id,
     },
@@ -167,7 +166,7 @@ export async function POST(req: NextRequest) {
   await prisma.transaction.create({
     data: {
       type: TransactionType.INVESTMENTS,
-      amount: Number(totalInvestment),
+      amount: totalInvestment,
       date: new Date(date),
       user: { connect: { id: session.user.id } },
       investment: { connect: { id: investment.id } },
