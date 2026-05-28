@@ -2,13 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/browser";
+import { z } from "zod";
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }, // ← Promise type
-) {
+const PatchBodySchema = z.object({
+  amount: z.coerce.number().positive("Amount must be positive"),
+  description: z.string().optional().default(""),
+  categoryId: z.string().optional(),
+  date: z.coerce.date(),
+});
+
+type RouteParams = { params: Promise<{ id: string }> };
+
+export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = await params; // ← await it first
+    const { id } = await params;
 
     const session = await auth();
     const userId = session?.user?.id;
@@ -17,9 +24,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const transaction = await prisma.transaction.findUnique({
-      where: { id }, // ← use destructured id
-    });
+    const transaction = await prisma.transaction.findUnique({ where: { id } });
 
     if (!transaction) {
       return NextResponse.json(
@@ -45,9 +50,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.transaction.delete({
-      where: { id },
-    });
+    await prisma.transaction.delete({ where: { id } });
 
     if (transaction.type === TransactionType.SAVINGS && transaction.goalId) {
       const updatedGoal = await prisma.goal.update({
@@ -66,7 +69,7 @@ export async function DELETE(
       }
     }
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE /transaction error:", error);
     return NextResponse.json(
@@ -76,12 +79,10 @@ export async function DELETE(
   }
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+
     const session = await auth();
     const userId = session?.user?.id;
 
@@ -90,7 +91,16 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { amount, description, categoryId, date } = body;
+    const parsed = PatchBodySchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
+    const { amount, description, categoryId, date } = parsed.data;
 
     const transaction = await prisma.transaction.findUnique({ where: { id } });
 
@@ -108,14 +118,14 @@ export async function PATCH(
     const updated = await prisma.transaction.update({
       where: { id },
       data: {
-        amount: Number(amount),
-        description: description || "",
-        date: new Date(date),
+        amount,
+        description,
+        date,
         ...(categoryId && { category: { connect: { id: categoryId } } }),
       },
     });
 
-    return NextResponse.json(updated, { status: 200 });
+    return NextResponse.json(updated);
   } catch (error) {
     console.error("PATCH /transaction error:", error);
     return NextResponse.json(

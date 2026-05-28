@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { TransactionType } from "@/lib/generated/prisma/browser";
+import {
+  TransactionType,
+  AssetType,
+  AcquisitionSource,
+} from "@/lib/generated/prisma/browser";
+import { z } from "zod";
+
+const assetPostSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  type: z.enum(AssetType),
+  value: z.coerce.number().positive("Value must be greater than 0"),
+  acquisitionSource: z.enum(AcquisitionSource).optional(),
+  date: z.string().min(1, "Date is required"),
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,35 +26,31 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, type, value, acquisitionSource, date } = body;
-
-    const parsed = parseFloat(value);
-    if (!value || isNaN(parsed)) {
-      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
-    }
-
-    if (!name || !type || !value || !date) {
+    const parsed = assetPostSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: parsed.error.issues[0].message },
         { status: 400 },
       );
     }
+
+    const { name, type, value, acquisitionSource, date } = parsed.data;
 
     const asset = await prisma.asset.create({
       data: {
         name,
         type,
-        value: parsed,
+        value,
         date: new Date(date),
         userId,
-        acquisitionSource: acquisitionSource,
+        acquisitionSource,
       },
     });
 
     await prisma.transaction.create({
       data: {
         type: TransactionType.ASSETS,
-        amount: parsed,
+        amount: value,
         date: new Date(date),
         user: { connect: { id: userId } },
         assets: { connect: { id: asset.id } },
@@ -71,7 +80,6 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
 
-    // Get pageSize from UserDetail instead of query param
     const userDetail = await prisma.userDetail.upsert({
       where: { userId },
       update: {},

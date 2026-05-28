@@ -81,7 +81,7 @@ import { InvestmentType } from "@/lib/generated/prisma/enums";
 const investmentPostSchema = z
   .object({
     name: z.string().min(1, "Name is required"),
-    type: z.nativeEnum(InvestmentType),
+    type: z.enum(InvestmentType),
     assetIdentifier: z.string().optional(),
     quantity: z.coerce.number().optional(),
     unit: z.string().min(1, "Unit is required"),

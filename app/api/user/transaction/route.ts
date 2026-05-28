@@ -4,6 +4,42 @@ import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/enums";
 import { TransactionDTO } from "@/lib/helper/getOverviewData";
 import { isPro } from "@/lib/helper/plan";
+import { z } from "zod";
+
+const PostBodySchema = z
+  .object({
+    amount: z.coerce.number().positive("Invalid amount"),
+    description: z.string().optional().default(""),
+    categoryId: z.string().optional(),
+    type: z.nativeEnum(TransactionType),
+    date: z.coerce.date(),
+    goalId: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      (data.type === TransactionType.INCOME ||
+        data.type === TransactionType.EXPENSE) &&
+      !data.categoryId
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["categoryId"],
+        message: "Category is required",
+      });
+    }
+
+    if (data.type === TransactionType.SAVINGS && !data.goalId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["goalId"],
+        message: "Goal is required",
+      });
+    }
+  });
+
+const GetQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,29 +51,24 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { amount, description, categoryId, type, date, goalId } = body;
+    const parsed = PostBodySchema.safeParse(body);
 
-    if (!amount || isNaN(amount)) {
-      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
-    }
-
-    if (!type) {
-      return NextResponse.json({ error: "Invalid type" }, { status: 400 });
-    }
-
-    if (
-      (type === TransactionType.INCOME || type === TransactionType.EXPENSE) &&
-      !categoryId
-    ) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Category is required" },
+        { error: parsed.error.flatten().fieldErrors },
         { status: 400 },
       );
     }
 
+    const { amount, description, categoryId, type, date, goalId } = parsed.data;
+
     const GOAL_FREE_LIMIT = 2;
 
-    if (type === "SAVINGS" && goalId && !isPro(session.user.plan)) {
+    if (
+      type === TransactionType.SAVINGS &&
+      goalId &&
+      !isPro(session.user.plan)
+    ) {
       const userGoals = await prisma.goal.findMany({
         where: { userId, isCompleted: false },
         orderBy: { createdAt: "asc" },
@@ -45,17 +76,12 @@ export async function POST(req: NextRequest) {
         take: GOAL_FREE_LIMIT,
       });
 
-      const allowedGoalIds = userGoals.map((g) => g.id);
-      if (!allowedGoalIds.includes(goalId)) {
+      if (!userGoals.map((g) => g.id).includes(goalId)) {
         return NextResponse.json(
           { error: "Upgrade to Pro to contribute to this goal." },
           { status: 403 },
         );
       }
-    }
-
-    if (type === TransactionType.SAVINGS && !goalId) {
-      return NextResponse.json({ error: "Goal is required" }, { status: 400 });
     }
 
     if (
@@ -68,27 +94,16 @@ export async function POST(req: NextRequest) {
         _sum: { amount: true },
       });
 
-      const totalIncome =
-        totals
-          .find((t) => t.type === TransactionType.INCOME)
-          ?._sum.amount?.toNumber() ?? 0;
-      const totalExpense =
-        totals
-          .find((t) => t.type === TransactionType.EXPENSE)
-          ?._sum.amount?.toNumber() ?? 0;
-      const totalSavings =
-        totals
-          .find((t) => t.type === TransactionType.SAVINGS)
-          ?._sum.amount?.toNumber() ?? 0;
-      const totalInvestments =
-        totals
-          .find((t) => t.type === TransactionType.INVESTMENTS)
-          ?._sum.amount?.toNumber() ?? 0;
+      const sum = (t: TransactionType) =>
+        totals.find((r) => r.type === t)?._sum.amount?.toNumber() ?? 0;
 
       const cashBalance =
-        totalIncome - totalExpense - totalSavings - totalInvestments;
+        sum(TransactionType.INCOME) -
+        sum(TransactionType.EXPENSE) -
+        sum(TransactionType.SAVINGS) -
+        sum(TransactionType.INVESTMENTS);
 
-      if (Number(amount) > cashBalance) {
+      if (amount > cashBalance) {
         return NextResponse.json(
           {
             error: `Insufficient cash balance. Available: Rp ${cashBalance.toLocaleString("id-ID")}`,
@@ -111,7 +126,7 @@ export async function POST(req: NextRequest) {
       const remaining =
         goal.targetAmount.toNumber() - goal.currentAmount.toNumber();
 
-      if (Number(amount) > remaining) {
+      if (amount > remaining) {
         return NextResponse.json(
           {
             error: `Amount exceeds remaining goal target. Remaining: Rp ${remaining.toLocaleString("id-ID")}`,
@@ -123,10 +138,10 @@ export async function POST(req: NextRequest) {
 
     const transaction = await prisma.transaction.create({
       data: {
-        amount: Number(amount),
-        description: description || "",
+        amount,
+        description,
         type,
-        date: new Date(date),
+        date,
         user: { connect: { id: userId } },
         ...(categoryId && { category: { connect: { id: categoryId } } }),
         ...(goalId && { goal: { connect: { id: goalId } } }),
@@ -136,9 +151,7 @@ export async function POST(req: NextRequest) {
     if (type === TransactionType.SAVINGS && goalId) {
       const updatedGoal = await prisma.goal.update({
         where: { id: goalId },
-        data: {
-          currentAmount: { increment: Number(amount) },
-        },
+        data: { currentAmount: { increment: amount } },
       });
 
       const current = updatedGoal.currentAmount.toNumber();
@@ -169,8 +182,18 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
+    const parsed = GetQuerySchema.safeParse(
+      Object.fromEntries(new URL(req.url).searchParams),
+    );
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
+    const { page } = parsed.data;
 
     const userDetail = await prisma.userDetail.upsert({
       where: { userId },
@@ -178,7 +201,7 @@ export async function GET(req: NextRequest) {
       create: { userId },
     });
 
-    const pageSize = userDetail.pageSize;
+    const { pageSize } = userDetail;
 
     const [raw, total] = await Promise.all([
       prisma.transaction.findMany({

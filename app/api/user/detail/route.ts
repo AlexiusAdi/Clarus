@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+
+const PatchBodySchema = z.object({
+  pageSize: z.number().int().min(5).max(50).optional(),
+  financialResetDay: z.number().int().min(1).max(28).optional(),
+  emailNotification: z.boolean().optional(),
+  notificationDay: z.number().int().min(1).max(28).optional(),
+});
 
 export async function GET() {
   try {
@@ -37,34 +45,17 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { pageSize, financialResetDay, emailNotification, notificationDay } =
-      body;
+    const parsed = PatchBodySchema.safeParse(body);
 
-    // Validate
-    if (pageSize !== undefined && (pageSize < 5 || pageSize > 50)) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "pageSize must be between 5 and 50" },
+        { error: parsed.error.flatten().fieldErrors },
         { status: 400 },
       );
     }
-    if (
-      financialResetDay !== undefined &&
-      (financialResetDay < 1 || financialResetDay > 28)
-    ) {
-      return NextResponse.json(
-        { error: "financialResetDay must be between 1 and 28" },
-        { status: 400 },
-      );
-    }
-    if (
-      notificationDay !== undefined &&
-      (notificationDay < 1 || notificationDay > 28)
-    ) {
-      return NextResponse.json(
-        { error: "notificationDay must be between 1 and 28" },
-        { status: 400 },
-      );
-    }
+
+    const { pageSize, financialResetDay, emailNotification, notificationDay } =
+      parsed.data;
 
     const detail = await prisma.userDetail.upsert({
       where: { userId },
