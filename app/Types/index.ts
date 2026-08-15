@@ -44,6 +44,12 @@ export type TabsData = {
     category: string;
     amount: number;
   }[];
+  /** Window the spend figures cover — driven by UserDetail.financialResetDay. */
+  period: {
+    start: Date;
+    end: Date;
+    resetDay: number;
+  };
 };
 
 export interface SpendingChartProps {

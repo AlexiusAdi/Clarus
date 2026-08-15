@@ -13,6 +13,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import FloatingNav from "@/components/FloatingNav";
 import GoalsContent from "@/components/GoalsContent";
 import { getOverviewData } from "@/lib/helper/getOverviewData";
+import { getUserDetail } from "@/lib/data/userDetail";
 import { getAssets } from "@/lib/data/assets";
 import { getScheduledTransactions } from "@/lib/helper/getScheduledTransactions";
 import { ScheduledTransactionsProvider } from "@/components/ScheduledTransactionsProvider";
@@ -39,6 +40,10 @@ const Page = async () => {
   const greeting =
     hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
+  // Fetched ahead of the rest: the overview's spend window runs from the user's
+  // financial reset day (salary day), not the calendar 1st.
+  const userDetail = await getUserDetail(userId);
+
   const [
     categories,
     assets,
@@ -51,7 +56,7 @@ const Page = async () => {
     getAssets(userId),
     getGoals(userId),
     getUserNetWorth(userId),
-    getOverviewData(userId),
+    getOverviewData(userId, userDetail.financialResetDay),
     getScheduledTransactions(userId),
   ]);
 
