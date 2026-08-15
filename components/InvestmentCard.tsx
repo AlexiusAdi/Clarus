@@ -34,51 +34,48 @@ const InvestmentCard = ({ investment }: Props) => {
 
   return (
     <div className="flex flex-col">
-      <Card className="w-full">
+      <Card className="w-full rounded-2xl shadow-none">
         <CardContent className="p-4 flex gap-3">
-          <Icon
-            width={32}
-            height={32}
-            className={cn("rounded-md p-2", iconStyle)}
-          />
+          <Icon className={cn("rounded-xl p-2.5 size-10 shrink-0", iconStyle)} />
 
-          <div className="flex flex-col gap-3 w-full">
+          <div className="flex flex-col gap-3 w-full min-w-0">
             {/* Header */}
-            <div className="flex justify-between">
-              <div>
-                <h1 className="font-bold">{investment.name}</h1>
+            <div className="flex justify-between gap-3">
+              <div className="min-w-0">
+                <h1 className="font-semibold truncate">{investment.name}</h1>
                 {!isOther && (
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     {investment.assetIdentifier}
                   </span>
                 )}
               </div>
 
-              <div className="flex flex-col items-end">
-                <span className="text-md font-semibold">
+              <div className="flex flex-col items-end shrink-0">
+                <span className="tabular font-display text-lg">
                   {formatCurrency(investment.totalInvestment)}
                 </span>
 
                 {isOther ? (
-                  <span className="text-muted-foreground text-sm">
+                  <span className="text-muted-foreground text-xs">
                     No price tracking
                   </span>
                 ) : profit !== null ? (
                   <span
                     className={cn(
-                      "flex items-center gap-1 text-sm font-medium",
-                      isUp ? "text-green-500" : "text-red-500",
+                      "tabular flex items-center gap-1 text-xs font-semibold mt-0.5",
+                      isUp ? "text-sage" : "text-clay",
                     )}
                   >
                     <TrendingUp
-                      width={16}
-                      height={16}
-                      className={!isUp ? "rotate-180" : ""}
+                      className={cn("size-3.5", !isUp && "rotate-180")}
                     />
-                    {percent!.toFixed(2)}%<span>{formatCurrency(profit)}</span>
+                    {percent!.toFixed(2)}%
+                    <span className="text-muted-foreground font-medium">
+                      {formatCurrency(profit)}
+                    </span>
                   </span>
                 ) : (
-                  <span className="text-muted-foreground text-sm">
+                  <span className="text-muted-foreground text-xs">
                     No price data
                   </span>
                 )}
@@ -87,9 +84,11 @@ const InvestmentCard = ({ investment }: Props) => {
 
             {/* Market price row — hidden for OTHER */}
             {!isOther && (
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <span className="font-semibold">Market Price / LOT</span>
-                <span className="flex justify-end">
+              <div className="flex justify-between gap-2 text-xs">
+                <span className="text-muted-foreground font-medium">
+                  Market Price / LOT
+                </span>
+                <span className="tabular font-semibold">
                   {marketPricePerLot !== null
                     ? formatCurrency(marketPricePerLot)
                     : "-"}
@@ -98,8 +97,8 @@ const InvestmentCard = ({ investment }: Props) => {
             )}
 
             {/* Bottom */}
-            <div className="flex justify-between items-center">
-              <div className="flex-1 bg-accent rounded-xl p-1.5 mr-3 text-sm">
+            <div className="flex justify-between items-center gap-3">
+              <div className="flex-1 min-w-0 truncate bg-surface-2 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground">
                 {isOther ? (
                   <span>
                     {formatCurrency(investment.totalInvestment)} total
@@ -117,20 +116,20 @@ const InvestmentCard = ({ investment }: Props) => {
                 )}
               </div>
 
-              <div className="flex gap-2">
-                <button onClick={() => setEditOpen(true)}>
-                  <Pencil
-                    width={16}
-                    height={16}
-                    className="text-blue-500 cursor-pointer active:scale-95 transition-transform"
-                  />
+              <div className="flex gap-1 shrink-0">
+                <button
+                  onClick={() => setEditOpen(true)}
+                  aria-label="Edit investment"
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition"
+                >
+                  <Pencil className="size-3.5" />
                 </button>
-                <button onClick={() => setOpen(true)}>
-                  <Trash2
-                    width={16}
-                    height={16}
-                    className="text-red-500 cursor-pointer active:scale-95 transition-transform"
-                  />
+                <button
+                  onClick={() => setOpen(true)}
+                  aria-label="Delete investment"
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition"
+                >
+                  <Trash2 className="size-3.5" />
                 </button>
               </div>
             </div>
@@ -151,7 +150,7 @@ const InvestmentCard = ({ investment }: Props) => {
           <DrawerHeader>
             <DrawerTitle>Edit Investment</DrawerTitle>
           </DrawerHeader>
-          <div className="p-4 overflow-y-auto">
+          <div className="p-4 drawer-safe overflow-y-auto">
             <AddInvestment
               onSuccess={() => setEditOpen(false)}
               investmentInitialValues={{

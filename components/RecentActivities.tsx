@@ -4,6 +4,22 @@ import { useMemo } from "react";
 import { GoalDTO } from "@/lib/data/goals";
 import { Category } from "@/lib/generated/prisma/browser";
 
+/** "Today" / "Yesterday" for the two most recent days, otherwise a short date. */
+const formatDayLabel = (dateKey: string) => {
+  const date = new Date(dateKey);
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86_400_000).toDateString();
+
+  if (dateKey === today) return "Today";
+  if (dateKey === yesterday) return "Yesterday";
+
+  return date.toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+};
+
 type RecentActivitiesProps = {
   isShown: boolean;
   data: TabsData["topSpending"];
@@ -35,9 +51,9 @@ const RecentActivities = ({
   }, [data]);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
       {isShown && (
-        <h2 className="text-lg font-semibold mb-2">Recent Activities</h2>
+        <h2 className="font-display text-xl">Recent activity</h2>
       )}
       {data.length === 0 ? (
         <p className="text-center py-10 text-sm text-muted-foreground">
@@ -46,8 +62,8 @@ const RecentActivities = ({
       ) : (
         groupedByDate.map(({ date, transactions }) => (
           <div key={date} className="flex flex-col gap-2">
-            <span className="text-sm text-muted-foreground font-medium">
-              {date}
+            <span className="text-[10px] uppercase tracking-[0.13em] text-muted-foreground font-bold">
+              {formatDayLabel(date)}
             </span>
             {transactions.map((transaction) => (
               <TransactionCard

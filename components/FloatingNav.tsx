@@ -43,14 +43,15 @@ export default function FloatingNav({
 
   return (
     <>
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden md:flex items-center gap-1 p-2 rounded-2xl bg-background/80 backdrop-blur-md border shadow-lg">
+      {/* bottom-safe: clears iOS Safari's collapsed toolbar (see globals.css) */}
+      <div className="fixed bottom-safe left-1/2 -translate-x-1/2 z-50 hidden md:flex items-center gap-1 p-1.5 rounded-2xl bg-card/85 backdrop-blur-xl border border-border shadow-lg shadow-ink/10">
         {/* Add actions */}
         {DEFAULT_ACTIONS.map((action) => {
           const Icon = action.icon;
           return (
             <div key={action.value} className="relative group">
               {/* Tooltip */}
-              <span className="absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-1 text-xs rounded-lg bg-popover text-popover-foreground border shadow-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <span className="absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 text-xs font-medium rounded-lg bg-ink text-background whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                 {action.label}
               </span>
 
@@ -61,7 +62,7 @@ export default function FloatingNav({
                   setSelectedAction(action.value);
                   setDrawerOpen(true);
                 }}
-                className="rounded-xl w-10 h-10 hover:scale-125 transition-all"
+                className="rounded-xl w-10 h-10 text-muted-foreground hover:text-amber hover:bg-amber-soft transition-colors"
               >
                 <Icon className="w-5 h-5" />
               </Button>
@@ -92,7 +93,7 @@ export default function FloatingNav({
             </DrawerDescription>
           </DrawerHeader>
 
-          <div className="overflow-auto max-h-[85dvh] p-4">
+          <div className="overflow-auto max-h-[85dvh] p-4 drawer-safe">
             {selectedAction === "expense" && (
               <div className="flex items-center justify-center">
                 <AddTransaction

@@ -13,7 +13,14 @@ import {
 
 import { Pie, PieChart } from "recharts";
 
-const COLORS = ["#3b82f6", "#22c55e", "#f97316", "#6366f1", "#a855f7"];
+// Warm editorial palette — mirrors --chart-1..5 in globals.css.
+const COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+];
 
 export default function SpendingChart({ data }: SpendingChartProps) {
   const chartData = data.map((item, index) => ({
@@ -33,9 +40,11 @@ export default function SpendingChart({ data }: SpendingChartProps) {
   ) satisfies ChartConfig;
 
   return (
-    <Card className="shadow-md">
+    <Card className="rounded-2xl shadow-none">
       <CardHeader>
-        <CardTitle>Spending Breakdown</CardTitle>
+        <CardTitle className="font-display text-lg">
+          Spending Breakdown
+        </CardTitle>
       </CardHeader>
       <CardContent className="text-sm text-muted-foreground">
         {chartData.length === 0 ? (
@@ -51,8 +60,11 @@ export default function SpendingChart({ data }: SpendingChartProps) {
                 data={chartData}
                 dataKey="amount"
                 nameKey="category"
-                innerRadius={60}
-                strokeWidth={5}
+                innerRadius={62}
+                paddingAngle={2}
+                cornerRadius={4}
+                stroke="var(--card)"
+                strokeWidth={3}
               />
               <ChartLegend
                 content={<ChartLegendContent nameKey="category" />}

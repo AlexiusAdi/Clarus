@@ -37,12 +37,14 @@ export default function NetWorthCard({
     totalInvestments = 0,
   } = userNetWorth ?? {};
 
-  const cardBg =
+  // Accent wash layered over the ink card — keeps every plan on the same
+  // warm base so only the glow differs, rather than three different cards.
+  const planGlow =
     userPlan === PlanType.ELITE
-      ? "bg-gradient-to-br from-amber-900/80 to-amber-600/60" // or whatever color you want
+      ? "bg-[radial-gradient(circle_at_top_right,var(--sand),transparent_62%)] opacity-25"
       : userPlan === PlanType.PRO
-        ? "bg-gradient-to-br from-violet-900/80 to-violet-600/60"
-        : "bg-obsidian";
+        ? "bg-[radial-gradient(circle_at_top_right,var(--chart-5),transparent_62%)] opacity-25"
+        : "bg-[radial-gradient(circle_at_top_right,var(--amber),transparent_62%)] opacity-15";
 
   const router = useRouter();
 
@@ -75,50 +77,45 @@ export default function NetWorthCard({
 
   return (
     <>
-      <Card className="bg-obsidian text-white @2xs/main:gap-3 shadow-md">
-        <CardHeader className="pb-0">
-          <span className="text-xs font-medium px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 w-fit">
+      <Card className="relative overflow-hidden bg-obsidian text-porcelinwhite border-0 gap-3 shadow-lg shadow-ink/25 rounded-2xl">
+        <div
+          className={cn("pointer-events-none absolute inset-0", planGlow)}
+          aria-hidden
+        />
+        <CardHeader className="relative pb-0">
+          <span className="text-[10px] font-bold tracking-[0.11em] uppercase px-2.5 py-1 rounded-full bg-sand/10 text-sand border border-sand/30 w-fit">
             ✦ {userPlan} plan
           </span>
         </CardHeader>
-        <CardHeader className="flex justify-between items-center">
+        <CardHeader className="relative flex justify-between items-center">
           <div className="flex justify-between items-center w-full">
-            <CardTitle className="text-xl opacity-90">
+            <CardTitle className="text-[11px] font-semibold uppercase tracking-[0.13em] text-porcelinwhite/55">
               Total Net Worth
             </CardTitle>
             {showGoals && (
               <Button
                 onClick={() => router.push("/goals")}
-                className="rounded-full text-xs font-medium transition-colors @md/main:hidden"
-                style={{
-                  background:
-                    activeGoals.length > 0
-                      ? "rgba(74,222,128,0.15)"
-                      : "rgba(255,255,255,0.1)",
-                  border:
-                    activeGoals.length > 0
-                      ? "0.5px solid rgba(74,222,128,0.35)"
-                      : "0.5px solid rgba(255,255,255,0.18)",
-                  color:
-                    activeGoals.length > 0
-                      ? "#4ade80"
-                      : "rgba(255,255,255,0.6)",
-                }}
+                size="sm"
+                className={cn(
+                  "rounded-full h-7 px-3 text-xs font-semibold bg-transparent transition-colors @md/main:hidden",
+                  activeGoals.length > 0
+                    ? "text-sage-soft border border-sage-soft/35 bg-sage-soft/10 hover:bg-sage-soft/20"
+                    : "text-porcelinwhite/60 border border-porcelinwhite/20 bg-porcelinwhite/5 hover:bg-porcelinwhite/10",
+                )}
               >
                 {activeGoals.length > 0 ? (
                   <>
-                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="6.5"
-                        stroke="#4ade80"
-                        strokeWidth="1.5"
-                      />
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <circle cx="8" cy="8" r="6.5" />
                       <path
                         d="M5 8.5l2 2 4-4"
-                        stroke="#4ade80"
-                        strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
@@ -127,20 +124,16 @@ export default function NetWorthCard({
                   </>
                 ) : (
                   <>
-                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="6.5"
-                        stroke="rgba(255,255,255,0.5)"
-                        strokeWidth="1.5"
-                      />
-                      <path
-                        d="M8 5v3l1.5 1.5"
-                        stroke="rgba(255,255,255,0.5)"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                      />
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <circle cx="8" cy="8" r="6.5" />
+                      <path d="M8 5v3l1.5 1.5" strokeLinecap="round" />
                     </svg>
                     Set a goal
                   </>
@@ -150,95 +143,82 @@ export default function NetWorthCard({
           </div>
         </CardHeader>
 
-        <CardContent className="text-3xl flex justify-between">
-          {!hasData || netWorth === 0 ? (
-            <span className="text-base opacity-50">No transactions Yet</span>
-          ) : isVisible ? (
-            <NumericFormat
-              value={netWorth}
-              displayType="text"
-              thousandSeparator="."
-              decimalSeparator=","
-              prefix="Rp "
-            />
-          ) : (
-            "******"
-          )}
+        <CardContent className="relative flex justify-between items-start">
+          <span className="font-display tabular text-4xl @md/main:text-5xl leading-none">
+            {!hasData || netWorth === 0 ? (
+              <span className="font-sans text-base opacity-50">
+                No transactions yet
+              </span>
+            ) : isVisible ? (
+              <NumericFormat
+                value={netWorth}
+                displayType="text"
+                thousandSeparator="."
+                decimalSeparator=","
+                prefix="Rp "
+              />
+            ) : (
+              "••••••"
+            )}
+          </span>
           {hasData && (
             <button
               onClick={toggleVisibility}
               aria-label={isVisible ? "Hide amount" : "Show amount"}
-              className="hover:opacity-70 transition"
+              className="shrink-0 text-porcelinwhite/50 hover:text-porcelinwhite transition-colors"
             >
               {isVisible ? (
-                <Eye className="w-6 h-6" />
+                <Eye className="w-5 h-5" />
               ) : (
-                <EyeOff className="w-6 h-6" />
+                <EyeOff className="w-5 h-5" />
               )}
             </button>
           )}
         </CardContent>
 
-        <CardContent className="flex justify-center gap-2 w-full">
-          <Card className="flex-1 @xs/main:gap-0 bg-stellyIce border-stellyIce text-white/70">
-            <CardHeader className="text-bold @2xs/main:text-md @2xs/main:px-3 @md/main:px-6">
-              <CardTitle>Cash Balance</CardTitle>
-            </CardHeader>
-            <CardContent className="@2xs/main:px-3 @md/main:px-6 font-semibold @2xs/main:text-md @md/main:text-lg">
-              {!hasData || cashBalance === 0 ? (
-                <span className="text-base opacity-50">No transactions</span>
-              ) : isVisible ? (
-                <NumericFormat
-                  value={cashBalance}
-                  displayType="text"
-                  thousandSeparator="."
-                  decimalSeparator=","
-                  prefix="Rp "
-                />
-              ) : (
-                "*******"
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="flex-1 @xs/main:gap-0 bg-stellyIce border-stellyIce text-white/70">
-            <CardHeader className="text-bold @2xs/main:text-md @2xs/main:px-3 @md/main:px-6">
-              <CardTitle>Investments</CardTitle>
-            </CardHeader>
-            <CardContent className="@2xs/main:px-3 @md/main:px-6 font-semibold @2xs/main:text-md @md/main:text-lg">
-              {!hasData || totalInvestments === 0 ? (
-                <span className="text-base opacity-50">No transactions</span>
-              ) : isVisible ? (
-                <NumericFormat
-                  value={totalInvestments}
-                  displayType="text"
-                  thousandSeparator="."
-                  decimalSeparator=","
-                  prefix="Rp "
-                />
-              ) : (
-                "*******"
-              )}
-            </CardContent>
-          </Card>
+        <CardContent className="relative grid grid-cols-2 gap-2 w-full">
+          {[
+            { label: "Cash Balance", value: cashBalance },
+            { label: "Investments", value: totalInvestments },
+          ].map(({ label, value }) => (
+            <div
+              key={label}
+              className="rounded-xl bg-porcelinwhite/[0.06] border border-porcelinwhite/10 px-3 py-2.5 @md/main:px-4"
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-porcelinwhite/50">
+                {label}
+              </p>
+              <p className="tabular font-semibold text-base @md/main:text-lg mt-1">
+                {!hasData || value === 0 ? (
+                  <span className="text-sm font-normal opacity-50">—</span>
+                ) : isVisible ? (
+                  <NumericFormat
+                    value={value}
+                    displayType="text"
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    prefix="Rp "
+                  />
+                ) : (
+                  "••••••"
+                )}
+              </p>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
-      <div className="flex gap-2 py-3">
+      <div className="grid grid-cols-2 gap-2 py-3">
         <SmallCard
           header="Income"
           amount={totalIncome}
-          icon={
-            <ArrowRight className="inline-block mr-2 text-green-500 -rotate-45 shadow-accent" />
-          }
+          icon={<ArrowRight className="w-4 h-4 text-sage -rotate-45" />}
           isVisible={isVisible}
         />
         <SmallCard
           header="Expenses"
           amount={totalExpense}
-          icon={
-            <ArrowRight className="inline-block mr-2 text-red-500 rotate-45 shadow-accent" />
-          }
+          icon={<ArrowRight className="w-4 h-4 text-clay rotate-45" />}
           isVisible={isVisible}
         />
       </div>

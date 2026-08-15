@@ -613,19 +613,19 @@ export const PREDEFINED_CRYPTO_ASSETS: PredefinedAsset[] = [
 export const TYPE_ICON = {
   STOCK: {
     icon: TrendingUp,
-    className: "text-blue-500 bg-blue-100",
+    className: "text-chart-5 bg-chart-5/12",
   },
   CRYPTO: {
     icon: Bitcoin,
-    className: "text-orange-500 bg-orange-100",
+    className: "text-amber bg-amber-soft",
   },
   GOLD: {
     icon: Coins,
-    className: "text-yellow-500 bg-amber-200",
+    className: "text-sand bg-sand/12",
   },
   OTHER: {
     icon: CircleDollarSign,
-    className: "text-gray-500 bg-gray-100",
+    className: "text-muted-foreground bg-surface-2",
   },
 } as const;
 
