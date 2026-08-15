@@ -9,7 +9,7 @@ const SpendingCategories = ({
   return (
     <Card className="w-full rounded-2xl shadow-none gap-0">
       <CardHeader className="pb-1">
-        <CardTitle className="font-display text-lg">By category</CardTitle>
+        <CardTitle className="headline text-lg">By category</CardTitle>
       </CardHeader>
       {data.length === 0 ? (
         <CardContent className="text-sm text-muted-foreground">

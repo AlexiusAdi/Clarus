@@ -58,7 +58,7 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
                     {asset.type.toLowerCase()}
                   </span>
                 </div>
-                <span className="tabular font-display text-lg shrink-0">
+                <span className="tabular headline text-lg shrink-0">
                   {formatCurrency(asset.value)}
                 </span>
               </div>

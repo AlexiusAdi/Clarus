@@ -30,12 +30,12 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-display text-xl">Goals</h2>
+      <h2 className="headline text-xl">Goals</h2>
       {/* Summary */}
       <div className="grid grid-cols-3 gap-2">
         <Card className="bg-obsidian text-porcelinwhite border-0 rounded-xl shadow-none">
           <CardContent className="p-3 text-center">
-            <p className="font-display tabular text-2xl">
+            <p className="headline tabular text-2xl">
               {activeGoals.length}
             </p>
             <p className="text-[10px] uppercase tracking-[0.08em] font-semibold text-porcelinwhite/60 mt-1">
@@ -45,7 +45,7 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
         </Card>
         <Card className="rounded-xl shadow-none">
           <CardContent className="p-3 text-center">
-            <p className="font-display tabular text-2xl">
+            <p className="headline tabular text-2xl">
               {completedGoals.length}
             </p>
             <p className="text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground mt-1">
@@ -55,7 +55,7 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
         </Card>
         <Card className="rounded-xl shadow-none">
           <CardContent className="p-3 text-center">
-            <p className="font-display tabular text-2xl">
+            <p className="headline tabular text-2xl">
               {avgProgress.toFixed(0)}%
             </p>
             <p className="text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground mt-1">

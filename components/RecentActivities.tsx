@@ -53,7 +53,7 @@ const RecentActivities = ({
   return (
     <div className="flex flex-col gap-4">
       {isShown && (
-        <h2 className="font-display text-xl">Recent activity</h2>
+        <h2 className="headline text-xl">Recent activity</h2>
       )}
       {data.length === 0 ? (
         <p className="text-center py-10 text-sm text-muted-foreground">

@@ -71,7 +71,7 @@ const Page = async () => {
                     month: "long",
                   }).format(new Date())}
                 </p>
-                <h1 className="font-display text-2xl @md/main:text-3xl truncate mt-1">
+                <h1 className="headline text-2xl @md/main:text-3xl truncate mt-1">
                   {greeting}, {session?.user?.name?.split(" ")[0]}
                 </h1>
               </div>

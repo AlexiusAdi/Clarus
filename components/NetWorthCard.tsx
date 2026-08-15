@@ -144,7 +144,7 @@ export default function NetWorthCard({
         </CardHeader>
 
         <CardContent className="relative flex justify-between items-start">
-          <span className="font-display tabular text-4xl @md/main:text-5xl leading-none">
+          <span className="headline tabular text-4xl @md/main:text-5xl leading-none">
             {!hasData || netWorth === 0 ? (
               <span className="font-sans text-base opacity-50">
                 No transactions yet

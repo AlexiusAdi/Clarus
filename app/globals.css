@@ -64,9 +64,6 @@
   --color-clay-soft: var(--clay-soft);
   --color-surface-2: var(--surface-2);
 
-  /* generates the `font-display` utility (Tailwind derives font-* from --font-*) */
-  --font-display: var(--font-instrument-serif), "Iowan Old Style", Palatino,
-    Georgia, serif;
 }
 
 :root {
@@ -217,10 +214,40 @@
   bottom: calc(1.5rem + env(safe-area-inset-bottom));
 }
 
-/* aligned figures for money columns */
+/* ---------------------------------------------------------------
+   Headline type: net worth, goal names, card titles.
+
+   ONE SWITCH for the whole app — comment out block A, uncomment B,
+   and every headline in the app follows.
+
+   Weight travels with the family deliberately: Instrument Serif ships
+   400 only (anything heavier synthesises a fake bold), while Geist
+   needs 600 to carry a large figure.
+
+   Named `headline` rather than `font-display` on purpose — a custom
+   utility inside Tailwind's `font-*` namespace is silently dropped
+   and never reaches the stylesheet.
+   --------------------------------------------------------------- */
+
+/* -- A: original sans (active) -- */
+@utility headline {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* -- B: editorial serif --
+@utility headline {
+  font-family: var(--font-instrument-serif), "Iowan Old Style", Palatino, Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+*/
+
+/* Aligned figures for money columns. Deliberately does NOT set tracking —
+   it composes with `headline`, and a letter-spacing here would override it. */
 @utility tabular {
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
 }
 
 [vaul-drawer-wrapper] {

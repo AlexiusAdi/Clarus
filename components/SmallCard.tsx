@@ -19,7 +19,7 @@ export const SmallCard = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="px-4 pt-1.5 pb-3.5">
-        <span className="font-display tabular text-xl @md/main:text-2xl">
+        <span className="headline tabular text-xl @md/main:text-2xl">
           {amount === 0 ? (
             <span className="font-sans text-sm opacity-50">—</span>
           ) : isVisible ? (

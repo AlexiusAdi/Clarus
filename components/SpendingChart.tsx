@@ -42,7 +42,7 @@ export default function SpendingChart({ data }: SpendingChartProps) {
   return (
     <Card className="rounded-2xl shadow-none">
       <CardHeader>
-        <CardTitle className="font-display text-lg">
+        <CardTitle className="headline text-lg">
           Spending Breakdown
         </CardTitle>
       </CardHeader>

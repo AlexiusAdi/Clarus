@@ -83,7 +83,7 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
           {/* Header */}
           <div className="flex items-center gap-3 mb-4">
             <div className="flex-1 min-w-0">
-              <h3 className="font-display text-lg truncate">{goal.name}</h3>
+              <h3 className="headline text-lg truncate">{goal.name}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {goal.isCompleted
                   ? `Completed ${goal.deadline ? format(goal.deadline, "MMM yyyy") : ""}`
@@ -104,7 +104,7 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
 
           {/* Progress amounts */}
           <div className="flex justify-between items-baseline mb-2">
-            <span className="tabular font-display text-xl">
+            <span className="tabular headline text-xl">
               {formatCurrency(goal.currentAmount)}
             </span>
             <span className="tabular text-xs text-muted-foreground">

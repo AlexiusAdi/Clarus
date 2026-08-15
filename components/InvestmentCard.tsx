@@ -51,7 +51,7 @@ const InvestmentCard = ({ investment }: Props) => {
               </div>
 
               <div className="flex flex-col items-end shrink-0">
-                <span className="tabular font-display text-lg">
+                <span className="tabular headline text-lg">
                   {formatCurrency(investment.totalInvestment)}
                 </span>
 
