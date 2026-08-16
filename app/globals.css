@@ -51,75 +51,119 @@
   --color-sunsetamber: oklch(0.7845 0.1484 57.23);
   --color-porcelinwhite: oklch(0.9691 0.0068 67.74);
   --container-2sm: 26rem;
+
+  /* --- warm editorial system --- */
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-sand: var(--sand);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-sage: var(--sage);
+  --color-sage-soft: var(--sage-soft);
+  --color-clay: var(--clay);
+  --color-clay-soft: var(--clay-soft);
+  --color-surface-2: var(--surface-2);
+
 }
 
 :root {
-  --radius: 0.625rem;
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(0.9887 0.008 114.22);
-  --foreground: oklch(0.145 0 0);
+  --radius: 0.875rem;
+
+  /* warm editorial — light */
+  --background: oklch(0.977 0.009 95);
+  --foreground: oklch(0.243 0.005 95);
+  --card: oklch(0.992 0.005 95);
+  --card-foreground: oklch(0.243 0.005 95);
+  --popover: oklch(0.992 0.005 95);
+  --popover-foreground: oklch(0.243 0.005 95);
+  --primary: oklch(0.243 0.005 95);
+  --primary-foreground: oklch(0.977 0.009 95);
+  --secondary: oklch(0.966 0.012 95);
+  --secondary-foreground: oklch(0.243 0.005 95);
+  --muted: oklch(0.966 0.012 95);
+  --muted-foreground: oklch(0.61 0.013 95);
+  --accent: oklch(0.966 0.012 95);
+  --accent-foreground: oklch(0.243 0.005 95);
+  --destructive: oklch(0.513 0.121 32);
+  --border: oklch(0.906 0.018 92);
+  --input: oklch(0.906 0.018 92);
+  --ring: oklch(0.727 0.133 55);
+
+  /* semantic palette */
+  --ink: oklch(0.243 0.005 95);
+  --ink-soft: oklch(0.435 0.01 95);
+  --surface-2: oklch(0.966 0.012 95);
+  --sand: oklch(0.845 0.145 88);
+  --amber: oklch(0.727 0.133 55);
+  --amber-soft: oklch(0.949 0.032 72);
+  --sage: oklch(0.507 0.07 152);
+  --sage-soft: oklch(0.943 0.021 152);
+  --clay: oklch(0.513 0.121 32);
+  --clay-soft: oklch(0.941 0.024 32);
+
+  /* charts follow the warm palette */
+  --chart-1: oklch(0.727 0.133 55);
+  --chart-2: oklch(0.845 0.145 88);
+  --chart-3: oklch(0.507 0.07 152);
+  --chart-4: oklch(0.513 0.121 32);
+  --chart-5: oklch(0.55 0.09 265);
+
+  --sidebar: oklch(0.949 0.014 95);
+  --sidebar-foreground: oklch(0.435 0.01 95);
+  --sidebar-primary: oklch(0.243 0.005 95);
+  --sidebar-primary-foreground: oklch(0.977 0.009 95);
+  --sidebar-accent: oklch(0.992 0.005 95);
+  --sidebar-accent-foreground: oklch(0.243 0.005 95);
+  --sidebar-border: oklch(0.906 0.018 92);
+  --sidebar-ring: oklch(0.727 0.133 55);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* warm editorial — dark (same hue family, inverted lightness) */
+  --background: oklch(0.19 0.007 95);
+  --foreground: oklch(0.945 0.011 95);
+  --card: oklch(0.238 0.009 95);
+  --card-foreground: oklch(0.945 0.011 95);
+  --popover: oklch(0.238 0.009 95);
+  --popover-foreground: oklch(0.945 0.011 95);
+  --primary: oklch(0.945 0.011 95);
+  --primary-foreground: oklch(0.19 0.007 95);
+  --secondary: oklch(0.288 0.011 95);
+  --secondary-foreground: oklch(0.945 0.011 95);
+  --muted: oklch(0.288 0.011 95);
+  --muted-foreground: oklch(0.7 0.014 95);
+  --accent: oklch(0.288 0.011 95);
+  --accent-foreground: oklch(0.945 0.011 95);
+  --destructive: oklch(0.65 0.13 32);
+  --border: oklch(0.945 0.011 95 / 12%);
+  --input: oklch(0.945 0.011 95 / 16%);
+  --ring: oklch(0.727 0.133 55);
+
+  --ink: oklch(0.945 0.011 95);
+  --ink-soft: oklch(0.7 0.014 95);
+  --surface-2: oklch(0.288 0.011 95);
+  --sand: oklch(0.86 0.14 88);
+  --amber: oklch(0.76 0.13 55);
+  --amber-soft: oklch(0.33 0.045 60);
+  --sage: oklch(0.7 0.09 152);
+  --sage-soft: oklch(0.31 0.035 152);
+  --clay: oklch(0.68 0.13 32);
+  --clay-soft: oklch(0.32 0.045 32);
+
+  --chart-1: oklch(0.76 0.13 55);
+  --chart-2: oklch(0.86 0.14 88);
+  --chart-3: oklch(0.7 0.09 152);
+  --chart-4: oklch(0.68 0.13 32);
+  --chart-5: oklch(0.68 0.1 265);
+
+  --sidebar: oklch(0.223 0.008 95);
+  --sidebar-foreground: oklch(0.7 0.014 95);
+  --sidebar-primary: oklch(0.945 0.011 95);
+  --sidebar-primary-foreground: oklch(0.19 0.007 95);
+  --sidebar-accent: oklch(0.288 0.011 95);
+  --sidebar-accent-foreground: oklch(0.945 0.011 95);
+  --sidebar-border: oklch(0.945 0.011 95 / 12%);
+  --sidebar-ring: oklch(0.727 0.133 55);
 }
 
 @layer base {
@@ -135,6 +179,75 @@
   .hero-container {
     @apply w-full max-w-480;
   }
+}
+
+/* ---------------------------------------------------------------
+   iOS safe-area utilities.
+
+   Safari's bottom toolbar is not a fixed-size obstruction: expanded,
+   it shrinks the visual viewport and the inset is 0; once it collapses
+   to the slim pill it overlays the page and the inset grows to ~34px.
+   Only env() tracks that transition, so fixed offsets (bottom-6) are
+   wrong in one of the two states. These require viewportFit: "cover"
+   in app/layout.tsx — without it every inset reports 0.
+   --------------------------------------------------------------- */
+@utility pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+@utility pt-safe {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+
+/* bottom padding for scroll containers so the last row clears a fixed bar */
+@utility scroll-safe {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
+/* drawer footers: keep the submit button above the toolbar */
+@utility drawer-safe {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+/* floating pills that sit off the edge rather than flush to it */
+@utility bottom-safe {
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+}
+
+/* ---------------------------------------------------------------
+   Headline type: net worth, goal names, card titles.
+
+   ONE SWITCH for the whole app — comment out block A, uncomment B,
+   and every headline in the app follows.
+
+   Weight travels with the family deliberately: Instrument Serif ships
+   400 only (anything heavier synthesises a fake bold), while Geist
+   needs 600 to carry a large figure.
+
+   Named `headline` rather than `font-display` on purpose — a custom
+   utility inside Tailwind's `font-*` namespace is silently dropped
+   and never reaches the stylesheet.
+   --------------------------------------------------------------- */
+
+/* -- A: original sans (active) -- */
+@utility headline {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* -- B: editorial serif --
+@utility headline {
+  font-family: var(--font-instrument-serif), "Iowan Old Style", Palatino, Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+*/
+
+/* Aligned figures for money columns. Deliberately does NOT set tracking —
+   it composes with `headline`, and a letter-spacing here would override it. */
+@utility tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 [vaul-drawer-wrapper] {

@@ -19,18 +19,18 @@ const STATUS_CONFIG: Record<
 > = {
   "on-track": {
     label: "On Track",
-    className: "bg-green-50 text-green-700",
-    barColor: "bg-green-500",
+    className: "bg-sage-soft text-sage border border-sage/20",
+    barColor: "bg-sage",
   },
   behind: {
     label: "Behind",
-    className: "bg-red-50 text-red-700",
-    barColor: "bg-orange-400",
+    className: "bg-clay-soft text-clay border border-clay/20",
+    barColor: "bg-clay",
   },
   completed: {
     label: "✓ Done",
-    className: "bg-blue-50 text-blue-700",
-    barColor: "bg-blue-400",
+    className: "bg-amber-soft text-amber border border-amber/25",
+    barColor: "bg-gradient-to-r from-sand to-amber",
   },
 };
 
@@ -78,13 +78,13 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
 
   return (
     <>
-      <Card className="w-full shadow-md">
+      <Card className="w-full rounded-2xl shadow-none">
         <CardContent className="p-4">
           {/* Header */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1">
-              <h3 className="font-bold text-lg">{goal.name}</h3>
-              <p className="text-sm text-muted-foreground">
+            <div className="flex-1 min-w-0">
+              <h3 className="headline text-lg truncate">{goal.name}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {goal.isCompleted
                   ? `Completed ${goal.deadline ? format(goal.deadline, "MMM yyyy") : ""}`
                   : goal.deadline
@@ -94,7 +94,7 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
             </div>
             <span
               className={cn(
-                "text-xs font-semibold px-2.5 py-1 rounded-full",
+                "shrink-0 text-[10px] font-bold uppercase tracking-[0.07em] px-2.5 py-1 rounded-full",
                 status.className,
               )}
             >
@@ -103,17 +103,17 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
           </div>
 
           {/* Progress amounts */}
-          <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-sm font-bold">
+          <div className="flex justify-between items-baseline mb-2">
+            <span className="tabular headline text-xl">
               {formatCurrency(goal.currentAmount)}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="tabular text-xs text-muted-foreground">
               of {formatCurrency(goal.targetAmount)}
             </span>
           </div>
 
           {/* Progress bar */}
-          <div className="h-2 bg-accent rounded-full overflow-hidden mb-2">
+          <div className="h-1.5 bg-surface-2 rounded-full overflow-hidden mb-2">
             <div
               className={cn(
                 "h-full rounded-full transition-all",
@@ -124,11 +124,11 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
           </div>
 
           {/* Meta */}
-          <div className="flex justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
+          <div className="flex justify-between items-center">
+            <span className="tabular text-xs font-semibold text-muted-foreground">
               {percent.toFixed(1)}% saved
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="tabular text-xs text-muted-foreground">
               {goal.isCompleted
                 ? "Goal reached!"
                 : monthlyNeeded
@@ -137,23 +137,21 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
             </span>
           </div>
 
-          <div className="flex justify-end pt-4">
-            <div className="flex gap-2">
-              <button onClick={() => setEditOpen(true)}>
-                <Pencil
-                  width={16}
-                  height={16}
-                  className="text-blue-500 cursor-pointer active:scale-95 transition-transform"
-                />
-              </button>
-              <button onClick={() => setAlertOpen(true)}>
-                <Trash2
-                  width={16}
-                  height={16}
-                  className="text-red-500 cursor-pointer active:scale-95 transition-transform"
-                />
-              </button>
-            </div>
+          <div className="flex justify-end gap-1 pt-3">
+            <button
+              onClick={() => setEditOpen(true)}
+              aria-label="Edit goal"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition"
+            >
+              <Pencil className="size-3.5" />
+            </button>
+            <button
+              onClick={() => setAlertOpen(true)}
+              aria-label="Delete goal"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition"
+            >
+              <Trash2 className="size-3.5" />
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -171,7 +169,7 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
           <DrawerHeader>
             <DrawerTitle>Edit Goal</DrawerTitle>
           </DrawerHeader>
-          <div className="p-4 overflow-y-auto">
+          <div className="p-4 drawer-safe overflow-y-auto">
             <AddGoal
               onSuccess={() => setEditOpen(false)}
               goalInitialValues={{

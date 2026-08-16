@@ -13,14 +13,15 @@ import {
 import { useState } from "react";
 import { SettingsUser } from "@/app/Types";
 import SettingsCard from "./SettingsCard";
-import { Settings, Upload, User } from "lucide-react";
+import { Download, Settings, Upload, User } from "lucide-react";
 import ImportCard from "./ImportCard";
+import ExportCard from "./ExportCard";
 import { PlanType } from "@/lib/generated/prisma/enums";
 import UserCard from "./UserCard";
 
 const UserMenu = ({ user }: { user: SettingsUser }) => {
   const [openSheet, setOpenSheet] = useState<
-    "profile" | "settings" | "import" | null
+    "profile" | "settings" | "import" | "export" | null
   >(null);
 
   const initials = (user.name ?? "?")
@@ -51,9 +52,14 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
               <User width={14} className="mr-2" /> Profile
             </DropdownMenuItem>
             {user.planType === PlanType.ELITE && (
-              <DropdownMenuItem onSelect={() => setOpenSheet("import")}>
-                <Upload width={14} className="mr-2" /> Import
-              </DropdownMenuItem>
+              <>
+                <DropdownMenuItem onSelect={() => setOpenSheet("import")}>
+                  <Upload width={14} className="mr-2" /> Import
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setOpenSheet("export")}>
+                  <Download width={14} className="mr-2" /> Export
+                </DropdownMenuItem>
+              </>
             )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => setOpenSheet("settings")}>
@@ -75,6 +81,11 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
         open={openSheet === "import"}
         planType={user.planType}
         onOpenChange={(o) => setOpenSheet(o ? "import" : null)}
+      />
+      <ExportCard
+        open={openSheet === "export"}
+        planType={user.planType}
+        onOpenChange={(o) => setOpenSheet(o ? "export" : null)}
       />
     </>
   );

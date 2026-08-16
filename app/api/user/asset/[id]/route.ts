@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { z } from "zod";
+import { AssetType, AcquisitionSource } from "@/lib/generated/prisma/browser";
+
+const assetPatchSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  type: z.enum(AssetType),
+  value: z.coerce.number().positive("Value must be greater than 0"),
+  acquisitionSource: z.enum(AcquisitionSource).optional(),
+  date: z.string().min(1, "Date is required"),
+});
 
 export async function DELETE(
   req: NextRequest,
@@ -56,19 +66,15 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, type, value, acquisitionSource, date } = body;
-
-    const parsed = parseFloat(value);
-    if (!value || isNaN(parsed)) {
-      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
-    }
-
-    if (!name || !type || !date) {
+    const parsed = assetPatchSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: parsed.error.issues[0].message },
         { status: 400 },
       );
     }
+
+    const { name, type, value, acquisitionSource, date } = parsed.data;
 
     const asset = await prisma.asset.findUnique({ where: { id } });
 
@@ -85,16 +91,15 @@ export async function PATCH(
       data: {
         name,
         type,
-        value: parsed,
+        value,
         acquisitionSource,
         date: new Date(date),
       },
     });
 
-    // update linked transaction
     await prisma.transaction.updateMany({
       where: { assetId: id },
-      data: { amount: parsed, date: new Date(date) },
+      data: { amount: value, date: new Date(date) },
     });
 
     return NextResponse.json(updated, { status: 200 });

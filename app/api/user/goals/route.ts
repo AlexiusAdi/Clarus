@@ -3,6 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/browser";
 import { isPro } from "@/lib/helper/plan";
+import { z } from "zod";
+
+const PostBodySchema = z.object({
+  name: z.string().min(1, "Goal name is required"),
+  targetAmount: z.coerce.number().positive("Target amount must be positive"),
+  currentAmount: z.coerce.number().min(0).optional(),
+  deadline: z.coerce.date().optional().nullable(),
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,21 +22,16 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, targetAmount, currentAmount, deadline } = body;
+    const parsed = PostBodySchema.safeParse(body);
 
-    if (!name) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Goal name is required" },
+        { error: parsed.error.flatten().fieldErrors },
         { status: 400 },
       );
     }
 
-    if (!targetAmount || isNaN(targetAmount) || Number(targetAmount) <= 0) {
-      return NextResponse.json(
-        { error: "Invalid target amount" },
-        { status: 400 },
-      );
-    }
+    const { name, targetAmount, currentAmount, deadline } = parsed.data;
 
     const GOAL_FREE_LIMIT = 2;
 
@@ -51,21 +54,19 @@ export async function POST(req: NextRequest) {
     const goal = await prisma.goal.create({
       data: {
         name,
-        targetAmount: Number(targetAmount),
-        currentAmount: currentAmount ? Number(currentAmount) : 0,
-        deadline: deadline ? new Date(deadline) : null,
-        isCompleted: currentAmount
-          ? Number(currentAmount) >= Number(targetAmount)
-          : false,
+        targetAmount,
+        currentAmount: currentAmount ?? 0,
+        deadline: deadline ?? null,
+        isCompleted: currentAmount ? currentAmount >= targetAmount : false,
         user: { connect: { id: userId } },
       },
     });
 
-    if (currentAmount && Number(currentAmount) > 0) {
+    if (currentAmount && currentAmount > 0) {
       await prisma.transaction.create({
         data: {
           type: TransactionType.SAVINGS,
-          amount: Number(currentAmount),
+          amount: currentAmount,
           date: new Date(),
           goal: { connect: { id: goal.id } },
           user: { connect: { id: userId } },

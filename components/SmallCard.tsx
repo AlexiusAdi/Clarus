@@ -11,25 +11,18 @@ export const SmallCard = ({
   isVisible,
 }: IncomeCardProps) => {
   return (
-    <Card className="flex-1 p-3 gap-0 shadow-md">
-      <CardHeader className="px-2 pb-1 gap-1">
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            {icon}
-            {header}
-          </div>
+    <Card className="flex-1 p-0 gap-0 rounded-xl shadow-none">
+      <CardHeader className="px-4 pt-3.5 pb-0 gap-0">
+        <CardTitle className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.09em] text-muted-foreground">
+          {icon}
+          Monthly {header}
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-3 font-semibold">
-        <div>
-          <span className="text-xs sm:text-sm text-gray-400 whitespace-nowrap">
-            Monthly {header}
-          </span>
-        </div>
-        {amount === 0 ? (
-          <span className="text-base opacity-50">No transactions</span>
-        ) : isVisible ? (
-          <>
+      <CardContent className="px-4 pt-1.5 pb-3.5">
+        <span className="headline tabular text-xl @md/main:text-2xl">
+          {amount === 0 ? (
+            <span className="font-sans text-sm opacity-50">—</span>
+          ) : isVisible ? (
             <NumericFormat
               value={amount}
               displayType="text"
@@ -37,10 +30,10 @@ export const SmallCard = ({
               decimalSeparator=","
               prefix="Rp "
             />
-          </>
-        ) : (
-          "*******"
-        )}
+          ) : (
+            "••••••"
+          )}
+        </span>
       </CardContent>
     </Card>
   );

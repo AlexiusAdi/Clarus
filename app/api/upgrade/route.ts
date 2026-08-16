@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
   }
 
   const planExpiresAt = new Date();
-  planExpiresAt.setDate(planExpiresAt.getDate() + 30);
+  planExpiresAt.setFullYear(planExpiresAt.getFullYear() + 1);
 
   const [updatedUser] = await prisma.$transaction([
     prisma.user.update({

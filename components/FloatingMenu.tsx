@@ -40,7 +40,8 @@ export default function FloatingMenu({
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 flex flex-col items-end gap-4 z-50">
+      {/* bottom-safe: clears iOS Safari's collapsed toolbar (see globals.css) */}
+      <div className="fixed bottom-safe right-6 flex flex-col items-end gap-4 z-50">
         {/* Menu Items */}
         <AnimatePresence>
           {fabOpen &&
@@ -55,13 +56,13 @@ export default function FloatingMenu({
                   transition={{ delay: index * 0.05 }}
                   className="flex items-center gap-2"
                 >
-                  <span className="bg-background border px-3 py-1 rounded-md shadow text-sm">
+                  <span className="bg-card border border-border px-3 py-1 rounded-lg text-sm font-medium shadow-sm">
                     {action.label}
                   </span>
 
                   <Button
                     size="icon"
-                    className="rounded-full"
+                    className="rounded-full shadow-sm"
                     onClick={() => {
                       if (action.value === "goals") {
                         router.push("/goals");
@@ -83,7 +84,7 @@ export default function FloatingMenu({
         {/* Main FAB */}
         <Button
           size="icon"
-          className="rounded-xl w-12 h-12 shadow-lg"
+          className="rounded-full w-14 h-14 shadow-lg shadow-ink/25"
           onClick={() => setFabOpen((prev) => !prev)}
         >
           <motion.div
@@ -106,7 +107,7 @@ export default function FloatingMenu({
             </DrawerTitle>
           </DrawerHeader>
 
-          <div className="overflow-auto max-h-[85dvh] p-4">
+          <div className="overflow-auto max-h-[85dvh] p-4 drawer-safe">
             {selectedAction === "expense" && (
               <div className="flex items-center justify-center">
                 <AddTransaction

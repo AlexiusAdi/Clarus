@@ -13,6 +13,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import FloatingNav from "@/components/FloatingNav";
 import GoalsContent from "@/components/GoalsContent";
 import { getOverviewData } from "@/lib/helper/getOverviewData";
+import { getUserDetail } from "@/lib/data/userDetail";
 import { getAssets } from "@/lib/data/assets";
 import { getScheduledTransactions } from "@/lib/helper/getScheduledTransactions";
 import { ScheduledTransactionsProvider } from "@/components/ScheduledTransactionsProvider";
@@ -35,6 +36,14 @@ const Page = async () => {
 
   const isPremium = userPlan !== PlanType.FREE;
 
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+  // Fetched ahead of the rest: the overview's spend window runs from the user's
+  // financial reset day (salary day), not the calendar 1st.
+  const userDetail = await getUserDetail(userId);
+
   const [
     categories,
     assets,
@@ -47,7 +56,7 @@ const Page = async () => {
     getAssets(userId),
     getGoals(userId),
     getUserNetWorth(userId),
-    getOverviewData(userId),
+    getOverviewData(userId, userDetail.financialResetDay),
     getScheduledTransactions(userId),
   ]);
 
@@ -56,18 +65,30 @@ const Page = async () => {
       <AppSidebar user={settinguser} />
       <SidebarInset>
         <div className="@container/main p-4 md:px-10">
-          <div className="flex justify-between pb-4">
-            <div className="flex items-center justify-center px-4">
-              <SidebarTrigger className=" active:scale-125 hidden @2sm/main:block" />
-              <ThemeToggle />
+          <div className="flex items-end justify-between gap-4 pb-5">
+            <div className="flex items-center gap-1 min-w-0">
+              <SidebarTrigger className="active:scale-110 hidden @2sm/main:flex shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-muted-foreground">
+                  {new Intl.DateTimeFormat("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                  }).format(new Date())}
+                </p>
+                <h1 className="headline text-2xl @md/main:text-3xl truncate mt-1">
+                  {greeting}, {session?.user?.name?.split(" ")[0]}
+                </h1>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-medium">Hello, {session?.user?.name}</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <ThemeToggle />
               <UserMenu user={settinguser} />
             </div>
           </div>
           <ScheduledTransactionsProvider initial={scheduledTransactions}>
-            <div className="@3xl/main:flex @3xl/main:flex-row @3xl/main:gap-4 @3xs/main:pb-20 @3xl/main:pb-0">
+            {/* scroll-safe: clears the FAB + iOS Safari toolbar (see globals.css) */}
+            <div className="@3xl/main:flex @3xl/main:flex-row @3xl/main:gap-4 scroll-safe @3xl/main:pb-0">
               <div className="w-full @3xl/main:w-300 flex flex-col pb-4">
                 <FloatingNav
                   categories={categories}

@@ -2,11 +2,24 @@ import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/browser";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { InvestmentType } from "@/lib/generated/prisma/browser";
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+const PatchBodySchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  type: z.enum(InvestmentType),
+  assetIdentifier: z.string().optional().default(""),
+  quantity: z.coerce.number().positive("Quantity must be positive"),
+  unit: z.string().min(1, "Unit is required"),
+  totalInvestment: z.coerce
+    .number()
+    .positive("Total investment must be positive"),
+  date: z.coerce.date(),
+});
+
+type RouteParams = { params: Promise<{ id: string }> };
+
+export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
@@ -17,9 +30,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const investment = await prisma.investment.findUnique({
-      where: { id },
-    });
+    const investment = await prisma.investment.findUnique({ where: { id } });
 
     if (!investment) {
       return NextResponse.json(
@@ -32,11 +43,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await prisma.investment.delete({
-      where: { id },
-    });
+    await prisma.investment.delete({ where: { id } });
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE /investment error:", error);
     return NextResponse.json(
@@ -46,18 +55,27 @@ export async function DELETE(
   }
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
+    const parsed = PatchBodySchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
     const {
       name,
       type,
@@ -66,31 +84,9 @@ export async function PATCH(
       unit,
       totalInvestment,
       date,
-    } = body;
+    } = parsed.data;
 
-    if (!name || !type || !quantity || !unit || !totalInvestment || !date) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      );
-    }
-
-    const parsedQuantity = Number(quantity);
-    const parsedTotal = Number(totalInvestment);
-
-    if (
-      isNaN(parsedQuantity) ||
-      parsedQuantity <= 0 ||
-      isNaN(parsedTotal) ||
-      parsedTotal <= 0
-    ) {
-      return NextResponse.json(
-        { error: "Invalid quantity or totalInvestment" },
-        { status: 400 },
-      );
-    }
-
-    let normalizedIdentifier = (assetIdentifier ?? "").trim();
+    let normalizedIdentifier = assetIdentifier.trim();
     if (type === "STOCK" && !normalizedIdentifier.endsWith(".JK")) {
       normalizedIdentifier = `${normalizedIdentifier}.JK`;
     }
@@ -104,30 +100,27 @@ export async function PATCH(
       create: { identifier: normalizedIdentifier, type, priceIdr: 0 },
     });
 
-    const costPerUnit = parsedTotal / parsedQuantity;
-
     const investment = await prisma.investment.update({
-      where: { id, userId: session.user.id },
+      where: { id, userId },
       data: {
         name,
         type,
         assetIdentifier: normalizedIdentifier,
-        quantity: parsedQuantity,
+        quantity,
         unit,
-        costPerUnit,
-        totalInvestment: parsedTotal,
-        date: new Date(date),
+        costPerUnit: totalInvestment / quantity,
+        totalInvestment,
+        date,
       },
     });
 
-    // update the linked transaction amount
     await prisma.transaction.updateMany({
       where: {
-        userId: session.user.id,
+        userId,
         type: TransactionType.INVESTMENTS,
         date: investment.date,
       },
-      data: { amount: parsedTotal },
+      data: { amount: totalInvestment },
     });
 
     return NextResponse.json(investment);

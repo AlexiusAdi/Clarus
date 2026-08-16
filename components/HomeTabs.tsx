@@ -5,6 +5,7 @@ import SpendingCategories from "./SpendingCategories";
 import RecentActivities from "./RecentActivities";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { OverviewDataDTO } from "@/lib/helper/getOverviewData";
+import { formatFinancialPeriod } from "@/lib/helper/financialPeriod";
 import { Category } from "@/lib/generated/prisma/browser";
 import { GoalDTO } from "@/lib/data/goals";
 import { useTabsContext } from "./TabsProvider";
@@ -34,7 +35,8 @@ const HomeTabs = ({
   categories: Category[];
   goals: GoalDTO[];
 }) => {
-  const { currentMonthTotal, topSpending, spendingByCategory } = overviewData;
+  const { currentMonthTotal, topSpending, spendingByCategory, period } =
+    overviewData;
   const { activeTab, setActiveTab, settingsVersion } = useTabsContext();
   const { refetchActive, setRefetchActive } = useTabsContext();
   const [scheduledOpen, setScheduledOpen] = useState(false);
@@ -128,6 +130,9 @@ const HomeTabs = ({
             </p>
           ) : (
             <>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-muted-foreground">
+                Spending · {formatFinancialPeriod(period)}
+              </p>
               <SpendingChart data={spendingByCategory} />
               <SpendingCategories
                 data={spendingByCategory}

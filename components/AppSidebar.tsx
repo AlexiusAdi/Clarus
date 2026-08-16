@@ -16,12 +16,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  SidebarGroupLabel,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { SettingsUser } from "@/app/Types";
 import { useTabsContext } from "./TabsProvider";
 import Image from "next/image";
 import icon from "../app/icon.png";
+import { usePathname } from "next/navigation";
 
 const navMain = [
   { tab: "overview", label: "Overview", icon: LayoutDashboard },
@@ -34,6 +36,7 @@ const navPlanning = [{ href: "/goals", label: "Goals", icon: Target }];
 
 export function AppSidebar({ user }: { user: SettingsUser }) {
   const { activeTab, setActiveTab } = useTabsContext();
+  const pathname = usePathname();
 
   return (
     <Sidebar collapsible="icon">
@@ -53,6 +56,9 @@ export function AppSidebar({ user }: { user: SettingsUser }) {
 
       <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.13em]">
+            Overview
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navMain.map(({ tab, label, icon: Icon }) => (
@@ -64,6 +70,30 @@ export function AppSidebar({ user }: { user: SettingsUser }) {
                   >
                     <Icon />
                     <span>{label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.13em]">
+            Planning
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navPlanning.map(({ href, label, icon: Icon }) => (
+                <SidebarMenuItem key={href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === href}
+                    tooltip={label}
+                  >
+                    <Link href={href}>
+                      <Icon />
+                      <span>{label}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
