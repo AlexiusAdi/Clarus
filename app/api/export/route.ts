@@ -1,12 +1,14 @@
 // app/api/export/route.ts
 import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/enums";
+import { EXPORT_RANGES, resolveDateFilter } from "@/lib/helper/exportRange";
 import { canExportData } from "@/lib/helper/plan";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const exportQuerySchema = z.object({
+  range: z.enum(EXPORT_RANGES).optional(),
   from: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "must be YYYY-MM-DD")
@@ -61,7 +63,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const { from, to } = parsed.data;
+    const date = await resolveDateFilter(session.user.id, parsed.data);
 
     const transactions = await prisma.transaction.findMany({
       where: {
@@ -70,14 +72,7 @@ export async function GET(req: NextRequest) {
         // or holding. Exporting them would let a re-import double-count money
         // the app already tracks, and /api/import rejects those types anyway.
         type: { in: [TransactionType.INCOME, TransactionType.EXPENSE] },
-        ...(from || to
-          ? {
-              date: {
-                ...(from ? { gte: new Date(`${from}T00:00:00.000Z`) } : {}),
-                ...(to ? { lte: new Date(`${to}T23:59:59.999Z`) } : {}),
-              },
-            }
-          : {}),
+        ...(date ? { date } : {}),
       },
       select: {
         date: true,

@@ -14,35 +14,23 @@ type Props = {
   planType: PlanType;
 };
 
-type Range = "all" | "year" | "12m";
+type Range = "month" | "year" | "12m" | "all";
 
 const RANGES: { value: Range; label: string }[] = [
-  { value: "all", label: "All time" },
+  { value: "month", label: "This month" },
   { value: "year", label: "This year" },
   { value: "12m", label: "Last 12 months" },
+  { value: "all", label: "All time" },
 ];
 
-/** Range → the `from` query param, in the Jakarta calendar day the user means. */
-function rangeStart(range: Range): string | null {
-  const now = new Date();
-  if (range === "year") return `${now.getFullYear()}-01-01`;
-  if (range === "12m") {
-    const start = new Date(now);
-    start.setFullYear(start.getFullYear() - 1);
-    return start.toISOString().slice(0, 10);
-  }
-  return null;
-}
-
 export default function ExportCard({ open, onOpenChange, planType }: Props) {
-  const [range, setRange] = useState<Range>("all");
+  const [range, setRange] = useState<Range>("month");
   const [exporting, setExporting] = useState(false);
 
   const handleExport = async () => {
     setExporting(true);
     try {
-      const from = rangeStart(range);
-      const res = await fetch(`/api/export${from ? `?from=${from}` : ""}`);
+      const res = await fetch(`/api/export?range=${range}`);
 
       if (!res.ok) {
         const json = await res.json().catch(() => null);
@@ -55,9 +43,8 @@ export default function ExportCard({ open, onOpenChange, planType }: Props) {
       const a = document.createElement("a");
       a.href = url;
       a.download =
-        res.headers
-          .get("content-disposition")
-          ?.match(/filename="(.+)"/)?.[1] ?? "clarus-transactions.csv";
+        res.headers.get("content-disposition")?.match(/filename="(.+)"/)?.[1] ??
+        "clarus-transactions.csv";
       a.click();
       URL.revokeObjectURL(url);
 
@@ -79,7 +66,7 @@ export default function ExportCard({ open, onOpenChange, planType }: Props) {
           <SheetTitle>Export transactions</SheetTitle>
         </SheetHeader>
 
-        <div className="w-full max-w-md mx-auto pb-24 px-4 flex flex-col gap-4">
+        <div className="w-full h-175 mx-auto pb-24 px-4 flex flex-col gap-4 overflow-y-auto">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             Range
           </p>
