@@ -3,6 +3,10 @@ import { Frequency, TransactionType } from "@/lib/generated/prisma/browser";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import {
+  canAddScheduledTransaction,
+  FREE_SCHEDULED_TRANSACTION_LIMIT,
+} from "@/lib/helper/plan";
 
 const createSchema = z.object({
   amount: z.string().refine((v) => parseFloat(v) > 0),
@@ -29,11 +33,10 @@ export async function POST(req: Request) {
       where: { userId: session.user.id },
     });
 
-    if (session.user.plan === "FREE" && userScheduledCount > 5) {
+    if (!canAddScheduledTransaction(session.user.plan, userScheduledCount)) {
       return NextResponse.json(
         {
-          error:
-            "Free plan users can only have up to 5 scheduled transactions. Please upgrade to add more.",
+          error: `Free plan users can only have up to ${FREE_SCHEDULED_TRANSACTION_LIMIT} scheduled transactions. Please upgrade to add more.`,
         },
         { status: 403 },
       );

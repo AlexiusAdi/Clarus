@@ -684,9 +684,10 @@ Clarus adalah aplikasi pencatatan keuangan pribadi yang membantu pengguna melaca
 
 4. LANGGANAN DAN PEMBAYARAN
 - Layanan Free tersedia tanpa biaya dengan fitur terbatas.
-- Layanan Pro dan Elite memerlukan pembayaran berlangganan bulanan.
+- Layanan Pro dan Elite memerlukan pembayaran berlangganan tahunan.
+- Biaya berlangganan Pro adalah Rp 299.000 per tahun dan Elite Rp 349.000 per tahun.
 - Pembayaran diproses melalui Midtrans, gateway pembayaran yang telah berlisensi di Indonesia.
-- Berlangganan aktif selama 30 hari sejak tanggal pembayaran.
+- Berlangganan aktif selama 1 (satu) tahun sejak tanggal pembayaran.
 - Tidak ada pengembalian dana (refund) untuk periode berlangganan yang sudah berjalan.
 - Perusahaan berhak mengubah harga langganan dengan pemberitahuan 30 hari sebelumnya.
 

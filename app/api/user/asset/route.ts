@@ -7,6 +7,7 @@ import {
   AcquisitionSource,
 } from "@/lib/generated/prisma/browser";
 import { z } from "zod";
+import { canAddAsset, FREE_ASSET_LIMIT, isPro } from "@/lib/helper/plan";
 
 const assetPostSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -35,6 +36,19 @@ export async function POST(req: NextRequest) {
     }
 
     const { name, type, value, acquisitionSource, date } = parsed.data;
+
+    if (!isPro(session.user.plan)) {
+      const assetCount = await prisma.asset.count({ where: { userId } });
+
+      if (!canAddAsset(session.user.plan, assetCount)) {
+        return NextResponse.json(
+          {
+            error: `Free plan is limited to ${FREE_ASSET_LIMIT} assets. Upgrade to Pro for unlimited.`,
+          },
+          { status: 403 },
+        );
+      }
+    }
 
     const asset = await prisma.asset.create({
       data: {
