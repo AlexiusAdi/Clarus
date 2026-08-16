@@ -73,3 +73,4 @@ There is no balance column. Cash = `INCOME − EXPENSE − SAVINGS − INVESTMEN
 - Add shadcn components with `pnpm dlx shadcn@latest add <name>` — they land in `components/ui/` and should not be edited casually; app-specific components sit flat in `components/`.
 - Toasts are `sonner`; currency formatting goes through [lib/helper/formatCurrency.ts](lib/helper/formatCurrency.ts).
 - Work happens on `development`; PRs target `main`.
+- Do not add a `Co-Authored-By: Claude ...` trailer to commit messages.
