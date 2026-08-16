@@ -235,7 +235,7 @@ export function ScheduledTransactionDrawer({
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="overflow-auto max-h-[85dvh] w-full p-4 max-w-md mx-auto">
+        <div className="overflow-auto max-h-[85dvh] w-full p-4 drawer-safe max-w-md mx-auto">
           {loading ? (
             <div className="flex justify-center py-8">
               <Spinner />

@@ -30,25 +30,37 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-center text-xl font-bold">Goals</h2>
+      <h2 className="headline text-xl">Goals</h2>
       {/* Summary */}
       <div className="grid grid-cols-3 gap-2">
-        <Card className="bg-foreground text-background shadow-md">
+        <Card className="bg-obsidian text-porcelinwhite border-0 rounded-xl shadow-none">
           <CardContent className="p-3 text-center">
-            <p className="text-xl font-bold">{activeGoals.length}</p>
-            <p className="text-xs mt-0.5">Active</p>
+            <p className="headline tabular text-2xl">
+              {activeGoals.length}
+            </p>
+            <p className="text-[10px] uppercase tracking-[0.08em] font-semibold text-porcelinwhite/60 mt-1">
+              Active
+            </p>
           </CardContent>
         </Card>
-        <Card className="shadow-md">
+        <Card className="rounded-xl shadow-none">
           <CardContent className="p-3 text-center">
-            <p className="text-xl font-bold">{completedGoals.length}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Completed</p>
+            <p className="headline tabular text-2xl">
+              {completedGoals.length}
+            </p>
+            <p className="text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground mt-1">
+              Completed
+            </p>
           </CardContent>
         </Card>
-        <Card className="shadow-md">
+        <Card className="rounded-xl shadow-none">
           <CardContent className="p-3 text-center">
-            <p className="text-xl font-bold">{avgProgress.toFixed(0)}%</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Avg Progress</p>
+            <p className="headline tabular text-2xl">
+              {avgProgress.toFixed(0)}%
+            </p>
+            <p className="text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground mt-1">
+              Avg Progress
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -56,7 +68,7 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
       {/* Active Goals */}
       {activeGoals.length > 0 && (
         <>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.13em]">
             Active Goals
           </p>
           <div className="px-12">
@@ -78,7 +90,7 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
       {/* Completed Goals */}
       {completedGoals.length > 0 && (
         <>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.13em]">
             Completed
           </p>
           <div className="px-12">

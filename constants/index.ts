@@ -613,19 +613,19 @@ export const PREDEFINED_CRYPTO_ASSETS: PredefinedAsset[] = [
 export const TYPE_ICON = {
   STOCK: {
     icon: TrendingUp,
-    className: "text-blue-500 bg-blue-100",
+    className: "text-chart-5 bg-chart-5/12",
   },
   CRYPTO: {
     icon: Bitcoin,
-    className: "text-orange-500 bg-orange-100",
+    className: "text-amber bg-amber-soft",
   },
   GOLD: {
     icon: Coins,
-    className: "text-yellow-500 bg-amber-200",
+    className: "text-sand bg-sand/12",
   },
   OTHER: {
     icon: CircleDollarSign,
-    className: "text-gray-500 bg-gray-100",
+    className: "text-muted-foreground bg-surface-2",
   },
 } as const;
 
@@ -684,9 +684,10 @@ Clarus adalah aplikasi pencatatan keuangan pribadi yang membantu pengguna melaca
 
 4. LANGGANAN DAN PEMBAYARAN
 - Layanan Free tersedia tanpa biaya dengan fitur terbatas.
-- Layanan Pro dan Elite memerlukan pembayaran berlangganan bulanan.
+- Layanan Pro dan Elite memerlukan pembayaran berlangganan tahunan.
+- Biaya berlangganan Pro adalah Rp 299.000 per tahun dan Elite Rp 349.000 per tahun.
 - Pembayaran diproses melalui Midtrans, gateway pembayaran yang telah berlisensi di Indonesia.
-- Berlangganan aktif selama 30 hari sejak tanggal pembayaran.
+- Berlangganan aktif selama 1 (satu) tahun sejak tanggal pembayaran.
 - Tidak ada pengembalian dana (refund) untuk periode berlangganan yang sudah berjalan.
 - Perusahaan berhak mengubah harga langganan dengan pemberitahuan 30 hari sebelumnya.
 

@@ -11,6 +11,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
 import { AddTransaction } from "./AddTransaction";
 import { GoalDTO } from "@/lib/data/goals";
 import { Category } from "@/lib/generated/prisma/browser";
+import { cn } from "@/lib/utils";
 
 const TransactionCard = ({
   transaction,
@@ -49,21 +50,29 @@ const TransactionCard = ({
 
   return (
     <>
-      <Card className="p-1 w-full shadow-md">
+      <Card className="p-0 w-full rounded-xl shadow-none hover:border-border/80 transition-colors">
         <CardHeader className="p-3">
-          <div className="flex w-full gap-1 min-w-0">
-            <div className="flex items-center">
-              {isPositive(transaction.type) ? (
-                <ArrowRight className="inline-block mr-2 text-green-500 -rotate-45" />
-              ) : (
-                <ArrowRight className="inline-block mr-2 text-red-500 rotate-45" />
+          <div className="flex w-full items-center gap-3 min-w-0">
+            <div
+              className={cn(
+                "grid place-items-center size-9 rounded-xl shrink-0",
+                isPositive(transaction.type)
+                  ? "bg-sage-soft text-sage"
+                  : "bg-clay-soft text-clay",
               )}
+            >
+              <ArrowRight
+                className={cn(
+                  "size-4",
+                  isPositive(transaction.type) ? "-rotate-45" : "rotate-45",
+                )}
+              />
             </div>
             <div className="flex-1 min-w-0 overflow-hidden">
-              <CardTitle className="truncate">
+              <CardTitle className="truncate text-sm">
                 {getLabel(transaction)}
               </CardTitle>
-              <CardDescription className="line-clamp-2 text-xs wrap-break-word">
+              <CardDescription className="line-clamp-2 text-xs wrap-break-word mt-0.5">
                 {transaction.type === TransactionType.SAVINGS
                   ? `Saved to goal`
                   : transaction.type === TransactionType.INVESTMENTS
@@ -74,35 +83,33 @@ const TransactionCard = ({
               </CardDescription>
             </div>
             <div className="flex flex-col items-end gap-1 shrink-0">
-              <span className="text-md font-bold">
+              <span
+                className={cn(
+                  "tabular text-sm font-semibold",
+                  isPositive(transaction.type) ? "text-sage" : "text-foreground",
+                )}
+              >
+                {isPositive(transaction.type) ? "+" : "−"}{" "}
                 {formatCurrency(transaction.amount)}
               </span>
-              <div className="flex gap-2">
-                {isActionable && (
+              {isActionable && (
+                <div className="flex gap-1">
                   <button
                     onClick={() => setEditOpen(true)}
-                    className="active:scale-95 transition-transform"
+                    aria-label="Edit transaction"
+                    className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition"
                   >
-                    <Pencil
-                      width={16}
-                      height={16}
-                      className="text-blue-500 cursor-pointer"
-                    />
+                    <Pencil className="size-3.5" />
                   </button>
-                )}
-                {isActionable && (
                   <button
                     onClick={() => setOpen(true)}
-                    className="active:scale-95 transition-transform"
+                    aria-label="Delete transaction"
+                    className="p-1 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition"
                   >
-                    <Trash2
-                      width={16}
-                      height={16}
-                      className="text-red-500 cursor-pointer"
-                    />
+                    <Trash2 className="size-3.5" />
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -121,7 +128,7 @@ const TransactionCard = ({
           <DrawerHeader>
             <DrawerTitle>Edit Transaction</DrawerTitle>
           </DrawerHeader>
-          <div className="p-4 overflow-y-auto">
+          <div className="p-4 drawer-safe overflow-y-auto">
             <AddTransaction
               categories={categories}
               goals={goals}

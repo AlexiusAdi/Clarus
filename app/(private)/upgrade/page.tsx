@@ -85,10 +85,13 @@ const UpgradePage = () => {
             <p className="text-sm font-medium text-foreground mb-1">Pro</p>
             <div className="flex items-baseline gap-1">
               <span className="text-3xl font-semibold text-foreground">
-                Rp 19k
+                Rp 299k
               </span>
-              <span className="text-sm text-muted-foreground">/ mo</span>
+              <span className="text-sm text-muted-foreground">/ yr</span>
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              About Rp 25k a month, billed yearly
+            </p>
           </div>
 
           <div className="h-px bg-border mb-4" />
@@ -139,10 +142,13 @@ const UpgradePage = () => {
             <p className="text-sm font-medium text-foreground mb-1">Elite</p>
             <div className="flex items-baseline gap-1">
               <span className="text-3xl font-semibold text-violet-600 dark:text-violet-400">
-                Rp 39k
+                Rp 349k
               </span>
-              <span className="text-sm text-muted-foreground">/ mo</span>
+              <span className="text-sm text-muted-foreground">/ yr</span>
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              About Rp 29k a month, billed yearly
+            </p>
           </div>
 
           <div className="h-px bg-border mb-4" />
@@ -191,7 +197,7 @@ const UpgradePage = () => {
 
       {/* Fine print */}
       <p className="mt-5 text-xs text-muted-foreground text-center">
-        Cancel anytime · No hidden fees · IDR billing
+        Billed yearly · Cancel anytime · No hidden fees · IDR billing
       </p>
 
       {/* Back link */}

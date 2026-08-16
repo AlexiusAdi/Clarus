@@ -77,6 +77,12 @@ export async function GET(req: NextRequest) {
 
 import { z } from "zod";
 import { InvestmentType } from "@/lib/generated/prisma/enums";
+import {
+  canAddInvestment,
+  FREE_INVESTMENT_LIMIT,
+  isPro,
+} from "@/lib/helper/plan";
+import { fetchAndCacheAssetPrices } from "@/lib/helper/fetchAndCacheAssetPrices";
 
 const investmentPostSchema = z
   .object({
@@ -128,6 +134,23 @@ export async function POST(req: NextRequest) {
   const { name, type, assetIdentifier, quantity, unit, totalInvestment, date } =
     parsed.data;
 
+  if (!isPro(session.user.plan)) {
+    // Watch-list rows (trackOnly) hold no money and don't reach net worth, so
+    // they don't consume a slot — the cap is on actual holdings.
+    const investmentCount = await prisma.investment.count({
+      where: { userId: session.user.id, trackOnly: false },
+    });
+
+    if (!canAddInvestment(session.user.plan, investmentCount)) {
+      return NextResponse.json(
+        {
+          error: `Free plan is limited to ${FREE_INVESTMENT_LIMIT} investments. Upgrade to Pro for unlimited.`,
+        },
+        { status: 403 },
+      );
+    }
+  }
+
   let normalizedIdentifier = assetIdentifier?.trim() ?? "";
 
   if (type === "OTHER") {
@@ -174,11 +197,14 @@ export async function POST(req: NextRequest) {
   });
 
   if (type !== "OTHER") {
-    fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/cron/fetch-prices`, {
-      headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
-    }).catch((err) =>
-      console.error("[investments POST] Price seed failed:", err),
-    );
+    // Seed just this asset's price in-process. The old version called the cron
+    // route over HTTP, which refreshed every tracked asset and often never
+    // finished — the lambda froze once this response was sent.
+    try {
+      await fetchAndCacheAssetPrices([normalizedIdentifier]);
+    } catch (err) {
+      console.error("[investments POST] Price seed failed:", err);
+    }
   }
 
   return NextResponse.json(investment, { status: 201 });

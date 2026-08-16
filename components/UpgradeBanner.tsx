@@ -11,9 +11,9 @@ const UpgradeBanner = ({ plan }: UpgradeBannerProps) => {
   if (plan === "PRO") return null; // pro upsell lives in UserMenu dropdown instead
 
   return (
-    <div className="mx-1 mt-3 mb-1 flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/50 px-4 py-3 animate-in fade-in slide-in-from-top-2 duration-500">
+    <div className="mt-3 mb-1 flex items-center justify-between gap-3 rounded-xl border border-amber/20 bg-amber-soft px-4 py-3 animate-in fade-in slide-in-from-top-2 duration-500">
       <div className="flex flex-col">
-        <span className="text-sm font-medium text-foreground">
+        <span className="text-sm font-semibold text-foreground">
           ✦ You&apos;re on Free
         </span>
         <span className="text-xs text-muted-foreground">
@@ -22,7 +22,7 @@ const UpgradeBanner = ({ plan }: UpgradeBannerProps) => {
       </div>
       <Link
         href="/upgrade"
-        className="shrink-0 text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors active:scale-95"
+        className="shrink-0 rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-background hover:opacity-90 transition active:scale-95"
       >
         See plans →
       </Link>
