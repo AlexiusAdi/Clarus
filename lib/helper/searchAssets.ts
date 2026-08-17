@@ -1,5 +1,5 @@
 import { PredefinedAsset } from "@/app/Types";
-import { PREDEFINED_ASSETS } from "@/constants";
+import { PREDEFINED_ASSETS } from "@/constants/assets";
 
 export function searchAssets(query: string): PredefinedAsset[] {
   const q = query.toLowerCase().trim();

@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 import { useScheduledTransactions } from "@/hooks/useScheduledTransactions";
-import { ScheduledTransactionDTO } from "@/lib/helper/getScheduledTransactions";
+import { ScheduledTransactionDTO } from "@/lib/data/getScheduledTransactions";
 
 type ContextType = ReturnType<typeof useScheduledTransactions>;
 

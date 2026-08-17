@@ -4,14 +4,6 @@ import {
   TransactionType,
 } from "@/lib/generated/prisma/browser";
 
-export type IncomeCardProps = {
-  header: string;
-  amount: number;
-  className?: string;
-  icon?: React.ReactNode;
-  isVisible: boolean;
-};
-
 export interface UserNetWorth {
   totalIncome: number;
   totalExpense: number;
@@ -52,13 +44,6 @@ export type TabsData = {
   };
 };
 
-export interface SpendingChartProps {
-  data: {
-    category: string;
-    amount: number;
-  }[];
-}
-
 export interface SettingsUser {
   id?: string | null | undefined;
   name?: string | null | undefined;
@@ -86,6 +71,7 @@ export interface PredefinedAsset {
 export type TopSpendingList = TabsData["topSpending"];
 export type TopSpendingItem = TabsData["topSpending"][number];
 
+/** Shared by SpendingChart and SpendingCategories, which render the same slice. */
 export interface SpendingChartProps {
   data: {
     category: string;
@@ -131,8 +117,3 @@ export type GoalInitialValues = {
   deadline?: Date | null;
 };
 
-export const IMPORT_LIMITS: Record<PlanType, number> = {
-  FREE: 0,
-  PRO: 1000,
-  ELITE: 3000,
-};

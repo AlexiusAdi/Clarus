@@ -16,11 +16,11 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "./ui/spinner";
 import { NumericFormat } from "react-number-format";
 import { InvestmentType } from "@/lib/generated/prisma/enums";
+import { DEFAULT_INVESTMENT_TYPES } from "@/constants";
 import {
-  DEFAULT_INVESTMENT_TYPES,
   PREDEFINED_CRYPTO_ASSETS,
   PREDEFINED_STOCKS_ASSETS,
-} from "@/constants";
+} from "@/constants/assets";
 import {
   Select,
   SelectContent,

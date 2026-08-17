@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Circle, ChevronRight, ArrowLeft } from "lucide-react";
-import { PRIVACY_CONTENT, TNC_CONTENT } from "@/constants";
+import { PRIVACY_CONTENT, TNC_CONTENT } from "@/constants/legal";
 import {
   motion,
   AnimatePresence,

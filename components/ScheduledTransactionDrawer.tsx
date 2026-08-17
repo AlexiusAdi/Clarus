@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { NumericFormat } from "react-number-format";
 import { Input } from "@/components/ui/input";
-import { ScheduledTransactionDTO } from "@/lib/helper/getScheduledTransactions";
+import { ScheduledTransactionDTO } from "@/lib/data/getScheduledTransactions";
 import { useScheduledTransactions } from "@/hooks/useScheduledTransactions";
 
 type ScheduledTransaction = ScheduledTransactionDTO;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Check, Minus, Sparkles, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { ELITE_FEATURES, FREE_LIMITS, PRO_FEATURES } from "@/constants";
+import { ELITE_FEATURES, FREE_LIMITS, PRO_FEATURES } from "@/constants/plans";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { PlanType } from "@/lib/generated/prisma/browser";

@@ -4,7 +4,7 @@ import {
   DEFAULT_RESET_DAY,
   FinancialPeriod,
   getFinancialPeriod,
-} from "./financialPeriod";
+} from "@/lib/helper/financialPeriod";
 
 export type TransactionDTO = {
   id: string;

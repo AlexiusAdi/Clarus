@@ -4,7 +4,7 @@ import { GoalCard } from "@/components/GoalCard";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import GoalsAddButton from "@/components/GoalsAddButton";
-import { getGoalsSummary } from "@/lib/helper/getGoalsSummary";
+import { getGoalsSummary } from "@/lib/data/getGoalsSummary";
 
 export default async function Goal() {
   const session = await auth();

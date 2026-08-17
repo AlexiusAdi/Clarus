@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { Upload, FileSpreadsheet, Info, Download } from "lucide-react";
 import { PlanType } from "@/lib/generated/prisma/browser";
-import { IMPORT_LIMITS } from "@/app/Types";
+import { IMPORT_LIMITS } from "@/constants/plans";
 import {
   AlertDialog,
   AlertDialogAction,

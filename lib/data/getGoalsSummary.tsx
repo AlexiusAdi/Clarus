@@ -1,4 +1,4 @@
-// lib/helper/getGoalsSummary.ts
+// lib/data/getGoalsSummary.tsx
 import { GoalDTO } from "@/lib/data/goals";
 
 function getGoalProgress(goal: GoalDTO): number {

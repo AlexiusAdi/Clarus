@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Spinner } from "./ui/spinner";
-import { ACQUISITION_SOURCES, DEFAULT_ASSETS } from "@/constants";
+import { ACQUISITION_SOURCES, DEFAULT_ASSETS } from "@/constants/assets";
 import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "./ui/calendar";
 import { Button } from "./ui/button";
