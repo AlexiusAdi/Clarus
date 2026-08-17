@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { ScheduledTransactionDTO } from "@/lib/helper/getScheduledTransactions";
+import { ScheduledTransactionDTO } from "@/lib/data/getScheduledTransactions";
 
 export const useScheduledTransactions = (
   initial: ScheduledTransactionDTO[] = [],

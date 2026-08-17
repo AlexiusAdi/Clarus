@@ -34,13 +34,13 @@ Clarus is a personal-finance tracker (IDR): transactions, assets, investments wi
 
 ### Route protection lives in proxy.ts, not middleware.ts
 
-[proxy.ts](proxy.ts) at the repo root is the Next 16 proxy/middleware entry and holds all the gating logic, in order: public routes (`/`, `/login`) → logged-in redirect to `/home`; unauthenticated → `/login`; no `UserDetail` row → forced to `/onboarding`; `plan === FREE` visiting `/goals` → `/upgrade`. Its matcher excludes `api`, `_next`, `favicon.ico`. ([app/middleware.ts](app/middleware.ts) is a vestigial one-line re-export and is not the active gate.)
+[proxy.ts](proxy.ts) at the repo root is the Next 16 proxy/middleware entry and holds all the gating logic, in order: public routes (`/`, `/login`) → logged-in redirect to `/home`; unauthenticated → `/login`; no `UserDetail` row → forced to `/onboarding`; `plan === FREE` visiting `/goals` → `/upgrade`. Its matcher excludes `api`, `_next`, `favicon.ico`.
 
 Routes are split by `app/(public)` and `app/(private)`; `(private)/layout.tsx` re-checks `auth()` and wraps children in `SessionProvider` + `Toaster`.
 
 ### Data flow: server pages fetch, client tabs paginate
 
-Server components (e.g. [app/(private)/home/page.tsx](<app/(private)/home/page.tsx>)) call the loaders in `lib/data/*` and `lib/helper/*` in a single `Promise.all` and pass plain DTOs down. Client components then re-fetch paginated slices from `/api/user/*` via [hooks/useTabData.ts](hooks/useTabData.ts), which returns `{ data, total, page, pageSize, totalPages, refetch, ... }` and expects every list endpoint to answer `?page=N` with exactly that shape. Page size is per-user (`UserDetail.pageSize`), not a constant.
+Server components (e.g. [app/(private)/home/page.tsx](<app/(private)/home/page.tsx>)) call the loaders in `lib/data/*` in a single `Promise.all` and pass plain DTOs down. Client components then re-fetch paginated slices from `/api/user/*` via [hooks/useTabData.ts](hooks/useTabData.ts), which returns `{ data, total, page, pageSize, totalPages, refetch, ... }` and expects every list endpoint to answer `?page=N` with exactly that shape. Page size is per-user (`UserDetail.pageSize`), not a constant.
 
 ### Decimal → number at the boundary
 
@@ -52,7 +52,7 @@ Every handler under `app/api/user/*` follows the same shape: `auth()` → 401 if
 
 ### Cash balance is derived, not stored
 
-There is no balance column. Cash = `INCOME − EXPENSE − SAVINGS − INVESTMENTS` summed over transactions, computed in [lib/helper/getUserNetWorth.ts](lib/helper/getUserNetWorth.ts) and re-derived in the transaction POST to reject overspending. Net worth adds `Investment.totalInvestment` and `Asset.value`. Any new transaction type must be accounted for in both places.
+There is no balance column. Cash = `INCOME − EXPENSE − SAVINGS − INVESTMENTS` summed over transactions, computed in [lib/data/getUserNetWorth.ts](lib/data/getUserNetWorth.ts) and re-derived in the transaction POST to reject overspending. Net worth adds `Investment.totalInvestment` and `Asset.value`. Any new transaction type must be accounted for in both places.
 
 ### Plans
 
@@ -60,11 +60,11 @@ There is no balance column. Cash = `INCOME − EXPENSE − SAVINGS − INVESTMEN
 
 ### Cron jobs
 
-[vercel.json](vercel.json) schedules `GET /api/cron/daily` at 00:00 UTC. It authenticates on `Authorization: Bearer ${CRON_SECRET}` and runs two jobs: refresh `AssetPrice` rows (Yahoo Finance for stocks/gold, CoinGecko for crypto — see [lib/helper/fetchAndCacheAssetPrices.ts](lib/helper/fetchAndCacheAssetPrices.ts), note the hardcoded `IDR_PER_USD`), then materialize due `ScheduledTransaction`s into real transactions and advance `nextRunDate` via `computeNextRunDate`.
+[vercel.json](vercel.json) schedules `GET /api/cron/daily` at 00:00 UTC. It authenticates on `Authorization: Bearer ${CRON_SECRET}` and runs two jobs: refresh `AssetPrice` rows (Yahoo Finance for stocks/gold, CoinGecko for crypto — see [lib/helper/fetchAndCacheAssetPrices.ts](lib/helper/fetchAndCacheAssetPrices.ts), which looks up USD/IDR live once per run and falls back to `IDR_PER_USD_FALLBACK`), then materialize due `ScheduledTransaction`s into real transactions and advance `nextRunDate` via `computeNextRunDate`.
 
 ### Investments and predefined assets
 
-`Investment.assetIdentifier` is a soft FK into `AssetPrice.identifier`; the known universe of tickers lives in `constants/` (`PREDEFINED_ASSETS`) and is resolved by [lib/helper/getAssetByIdentifier.ts](lib/helper/getAssetByIdentifier.ts). `trackOnly` investments are watch-list entries. Default categories/assets/investment types also live in [constants/index.ts](constants/index.ts) and are the seed source.
+`Investment.assetIdentifier` is a soft FK into `AssetPrice.identifier`; the known universe of tickers lives in [constants/assets.ts](constants/assets.ts) (`PREDEFINED_ASSETS`) and is resolved by [lib/helper/getAssetByIdentifier.ts](lib/helper/getAssetByIdentifier.ts). `trackOnly` investments are watch-list entries. Default categories/assets/investment types also live in `constants/` and are the seed source.
 
 ## Conventions
 

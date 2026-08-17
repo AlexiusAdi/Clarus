@@ -1,8 +1,15 @@
 "use client";
 
-import { IncomeCardProps } from "@/app/Types";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { NumericFormat } from "react-number-format";
+
+type IncomeCardProps = {
+  header: string;
+  amount: number;
+  className?: string;
+  icon?: React.ReactNode;
+  isVisible: boolean;
+};
 
 export const SmallCard = ({
   header,

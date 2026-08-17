@@ -9,7 +9,7 @@ import { NumericFormat } from "react-number-format";
 import { Button } from "./ui/button";
 import { GoalDTO } from "@/lib/data/goals";
 import { useRouter } from "next/navigation";
-import { getGoalsSummary } from "@/lib/helper/getGoalsSummary";
+import { getGoalsSummary } from "@/lib/data/getGoalsSummary";
 import { PlanType } from "@/lib/generated/prisma/browser";
 import { cn } from "@/lib/utils";
 

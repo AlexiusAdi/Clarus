@@ -1,5 +1,5 @@
 // app/api/import/route.ts
-import { IMPORT_LIMITS } from "@/app/Types";
+import { IMPORT_LIMITS } from "@/constants/plans";
 import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/browser";
 import { prisma } from "@/lib/prisma";

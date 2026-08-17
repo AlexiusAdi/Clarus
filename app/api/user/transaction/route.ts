@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/enums";
-import { TransactionDTO } from "@/lib/helper/getOverviewData";
+import { TransactionDTO } from "@/lib/data/getOverviewData";
 import { isPro } from "@/lib/helper/plan";
 import { z } from "zod";
 
