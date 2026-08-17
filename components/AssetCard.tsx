@@ -91,6 +91,7 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
       <Alert
         open={open}
         onOpenChange={setOpen}
+        itemId={asset.id}
         apiUrl={`/api/user/asset/${asset.id}`}
         successMessage="Asset deleted"
         description="This action cannot be undone. This will permanently delete this asset."

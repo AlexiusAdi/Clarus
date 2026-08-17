@@ -140,6 +140,7 @@ const InvestmentCard = ({ investment }: Props) => {
       <Alert
         open={open}
         onOpenChange={setOpen}
+        itemId={investment.id}
         apiUrl={`/api/user/investment/${investment.id}`}
         successMessage="Investment deleted"
         description="This action cannot be undone."

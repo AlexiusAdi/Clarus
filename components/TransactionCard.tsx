@@ -118,6 +118,7 @@ const TransactionCard = ({
       <Alert
         open={open}
         onOpenChange={setOpen}
+        itemId={transaction.id}
         apiUrl={`/api/user/transaction/${transaction.id}`}
         successMessage="Transaction deleted"
         description="This action cannot be undone. This will permanently delete this transaction."

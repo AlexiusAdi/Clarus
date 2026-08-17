@@ -8,8 +8,11 @@ type TabsContextType = {
   setActiveTab: (tab: string) => void;
   settingsVersion: number;
   bumpSettingsVersion: () => void;
-  refetchActive: () => void; // ← add
-  setRefetchActive: (fn: () => void) => void; // ← add
+  refetchActive: () => void;
+  setRefetchActive: (fn: () => void) => void;
+  /** Drops a row from the active tab's list immediately, before the server call. */
+  removeActiveItem: (id: string) => void;
+  setRemoveActiveItem: (fn: (id: string) => void) => void;
 };
 
 const TabsContext = createContext<TabsContextType>({
@@ -19,6 +22,8 @@ const TabsContext = createContext<TabsContextType>({
   bumpSettingsVersion: () => {},
   refetchActive: () => {},
   setRefetchActive: () => {},
+  removeActiveItem: () => {},
+  setRemoveActiveItem: () => {},
 });
 
 export const TabsProvider = ({ children }: { children: React.ReactNode }) => {
@@ -26,6 +31,9 @@ export const TabsProvider = ({ children }: { children: React.ReactNode }) => {
   const [settingsVersion, setSettingsVersion] = useState(0);
   const bumpSettingsVersion = () => setSettingsVersion((v) => v + 1);
   const [refetchActive, setRefetchActive] = useState<() => void>(() => {});
+  const [removeActiveItem, setRemoveActiveItem] = useState<(id: string) => void>(
+    () => () => {},
+  );
 
   return (
     <TabsContext.Provider
@@ -36,6 +44,8 @@ export const TabsProvider = ({ children }: { children: React.ReactNode }) => {
         bumpSettingsVersion,
         refetchActive,
         setRefetchActive,
+        removeActiveItem,
+        setRemoveActiveItem,
       }}
     >
       {children}

@@ -38,7 +38,7 @@ const HomeTabs = ({
   const { currentMonthTotal, topSpending, spendingByCategory, period } =
     overviewData;
   const { activeTab, setActiveTab, settingsVersion } = useTabsContext();
-  const { refetchActive, setRefetchActive } = useTabsContext();
+  const { setRefetchActive, setRemoveActiveItem } = useTabsContext();
   const [scheduledOpen, setScheduledOpen] = useState(false);
 
   const { items: scheduledTransactions, setItems: setScheduledTransactions } =
@@ -53,6 +53,7 @@ const HomeTabs = ({
     visible,
     handlePageChange,
     refetch: refetchTransactions,
+    removeItem: removeTransaction,
   } = useTabData<TransactionDTO>(
     "Transactions",
     activeTab,
@@ -69,6 +70,7 @@ const HomeTabs = ({
     visible: assetVisible,
     handlePageChange: handleAssetPageChange,
     refetch: refetchAssets,
+    removeItem: removeAsset,
   } = useTabData<AssetDTO>(
     "Assets",
     activeTab,
@@ -85,6 +87,7 @@ const HomeTabs = ({
     visible: investmentVisible,
     handlePageChange: handleInvestmentPageChange,
     refetch: refetchInvestments,
+    removeItem: removeInvestment,
   } = useTabData<InvestmentDTO>(
     "Investments",
     activeTab,
@@ -97,12 +100,19 @@ const HomeTabs = ({
   };
 
   useEffect(() => {
-    if (activeTab === "Transactions")
-      setRefetchActive(() => refetchTransactions);
-    if (activeTab === "Assets") setRefetchActive(() => refetchAssets);
-    if (activeTab === "Investments") setRefetchActive(() => refetchInvestments);
-    else if (activeTab === "overview") {
-      setRefetchActive(() => refetchTransactions);
+    switch (activeTab) {
+      case "Assets":
+        setRefetchActive(() => refetchAssets);
+        setRemoveActiveItem(() => removeAsset);
+        break;
+      case "Investments":
+        setRefetchActive(() => refetchInvestments);
+        setRemoveActiveItem(() => removeInvestment);
+        break;
+      // Overview shows recent transactions, so it shares their list handlers.
+      default:
+        setRefetchActive(() => refetchTransactions);
+        setRemoveActiveItem(() => removeTransaction);
     }
   }, [activeTab]);
 
