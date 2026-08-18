@@ -84,8 +84,9 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
                   <CarouselItem key={goal.id} className="basis-1/1">
                     <GoalCard
                       goal={goal}
-                      onDeleted={() =>
-                        setDeletedIds((ids) => [...ids, goal.id])
+                      onDeleted={() => setDeletedIds((ids) => [...ids, goal.id])}
+                      onDeleteFailed={() =>
+                        setDeletedIds((ids) => ids.filter((i) => i !== goal.id))
                       }
                     />
                   </CarouselItem>
@@ -111,8 +112,9 @@ export default function GoalsContent({ goals }: { goals: GoalDTO[] }) {
                   <CarouselItem key={goal.id} className="basis-1/1">
                     <GoalCard
                       goal={goal}
-                      onDeleted={() =>
-                        setDeletedIds((ids) => [...ids, goal.id])
+                      onDeleted={() => setDeletedIds((ids) => [...ids, goal.id])}
+                      onDeleteFailed={() =>
+                        setDeletedIds((ids) => ids.filter((i) => i !== goal.id))
                       }
                     />
                   </CarouselItem>

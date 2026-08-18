@@ -24,6 +24,8 @@ interface AlertProps {
   itemId?: string;
   /** Overrides the tab-context removal for lists that hold their own state. */
   onOptimisticRemove?: () => void;
+  /** Undoes onOptimisticRemove when the server rejects the delete. */
+  onRemoveFailed?: () => void;
 }
 
 const Alert = ({
@@ -34,6 +36,7 @@ const Alert = ({
   description = "This action cannot be undone. This will permanently delete this item.",
   itemId,
   onOptimisticRemove,
+  onRemoveFailed,
 }: AlertProps) => {
   const router = useRouter();
   const { refetchActive, removeActiveItem } = useTabsContext();
@@ -58,12 +61,15 @@ const Alert = ({
       }
 
       toast.success(successMessage, { position: "top-center" });
-      // Header totals (net worth, spend) are server-rendered, so they still
-      // need this — but nothing on screen is waiting for it now.
+      // Both still run, but nothing on screen is waiting for them: refetch
+      // pulls up the row that shifted in from the next page, and refresh
+      // updates the server-rendered header totals.
+      refetchActive();
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to delete");
       // Put the row back by re-reading the server rather than guessing.
+      onRemoveFailed?.();
       refetchActive();
       router.refresh();
     }
