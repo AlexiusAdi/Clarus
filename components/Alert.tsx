@@ -56,6 +56,10 @@ const Alert = ({
     if (onOptimisticRemove) onOptimisticRemove();
     else if (itemId) removeActiveItem(itemId);
 
+    // Fire the toast now rather than after the round trip. The row is already
+    // gone from the screen, so confirming it a second later reads as lag.
+    const toastId = toast.success(successMessage, { position: "top-center" });
+
     try {
       const res = await fetch(apiUrl, { method: "DELETE" });
       const result = await res.json().catch(() => ({}));
@@ -64,13 +68,12 @@ const Alert = ({
         throw new Error(result.error || "Something went wrong");
       }
 
-      toast.success(successMessage, { position: "top-center" });
-      // Both still run, but nothing on screen is waiting for them: refetch
-      // pulls up the row that shifted in from the next page, and refresh
-      // updates the server-rendered header totals.
+      // Pulls up the row that shifted in from the next page.
       refetchActive();
+      // Server-rendered header totals (net worth, spend) still need this.
       router.refresh();
     } catch (error) {
+      toast.dismiss(toastId);
       toast.error(error instanceof Error ? error.message : "Failed to delete");
       // Put the row back by re-reading the server rather than guessing.
       onRemoveFailed?.();

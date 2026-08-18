@@ -203,7 +203,6 @@ export const AddTransaction = ({
         onScheduled?.(); // notify parent a scheduled tx was created
       }
       onSuccess();
-      router.refresh();
       refetchActive();
     } catch (error) {
       toast.error((error as Error).message || "Failed to add transaction", {
