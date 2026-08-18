@@ -45,7 +45,14 @@ const getStatus = (goal: GoalDTO): GoalStatus => {
   return monthlyNeeded > (goal.targetAmount / 12) * 1.5 ? "behind" : "on-track";
 };
 
-export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
+export const GoalCard = ({
+  goal,
+  onDeleted,
+}: {
+  goal: GoalDTO;
+  /** Lets the list hide this card immediately, before the DELETE returns. */
+  onDeleted?: () => void;
+}) => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
@@ -159,6 +166,7 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
       <Alert
         open={alertOpen}
         onOpenChange={setAlertOpen}
+        onOptimisticRemove={onDeleted}
         apiUrl={`/api/user/goals/${goal.id}`}
         successMessage="Goal deleted"
         description="This action cannot be undone."

@@ -24,6 +24,16 @@ export function useTabData<T>(
   const [refreshKey, setRefreshKey] = useState(0);
   const refetch = () => setRefreshKey((k) => k + 1);
 
+  /**
+   * Drop a row locally so a delete feels instant. The server call still runs;
+   * if it fails the caller refetches, which restores the row from the source of
+   * truth rather than us trying to rebuild it here.
+   */
+  const removeItem = (id: string) => {
+    setData((prev) => prev.filter((item) => (item as { id?: string }).id !== id));
+    setTotal((t) => Math.max(0, t - 1));
+  };
+
   useEffect(() => {
     if (activeTab !== tab) return;
 
@@ -36,12 +46,6 @@ export function useTabData<T>(
       try {
         const res = await fetch(`${apiPath}?page=${page}`);
         const json: PaginatedResult<T> = await res.json();
-        console.log(
-          tab,
-          json.total,
-          json.pageSize,
-          Math.ceil(json.total / json.pageSize),
-        );
         setData(json.data);
         setTotal(json.total);
         setPageSize(json.pageSize);
@@ -74,5 +78,6 @@ export function useTabData<T>(
     visible,
     handlePageChange,
     refetch,
+    removeItem,
   };
 }
