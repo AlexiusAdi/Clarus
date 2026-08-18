@@ -23,6 +23,7 @@ const TransactionCard = ({
   goals: GoalDTO[];
 }) => {
   const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   const getLabel = (transaction: TopSpendingItem) => {
@@ -96,15 +97,17 @@ const TransactionCard = ({
                 <div className="flex gap-1">
                   <button
                     onClick={() => setEditOpen(true)}
+                    disabled={deleting}
                     aria-label="Edit transaction"
-                    className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition"
+                    className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
                   >
                     <Pencil className="size-3.5" />
                   </button>
                   <button
                     onClick={() => setOpen(true)}
+                    disabled={deleting}
                     aria-label="Delete transaction"
-                    className="p-1 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition"
+                    className="p-1 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
                   >
                     <Trash2 className="size-3.5" />
                   </button>
@@ -118,6 +121,8 @@ const TransactionCard = ({
       <Alert
         open={open}
         onOpenChange={setOpen}
+        onDeleteStart={() => setDeleting(true)}
+        onRemoveFailed={() => setDeleting(false)}
         itemId={transaction.id}
         apiUrl={`/api/user/transaction/${transaction.id}`}
         successMessage="Transaction deleted"

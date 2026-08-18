@@ -40,6 +40,9 @@ const HomeTabs = ({
   const { activeTab, setActiveTab, settingsVersion } = useTabsContext();
   const { setRefetchActive, setRemoveActiveItem } = useTabsContext();
   const [scheduledOpen, setScheduledOpen] = useState(false);
+  // Overview renders server-side `topSpending`, not the client list, so an
+  // optimistic delete needs its own filter here or nothing moves on screen.
+  const [removedOverviewIds, setRemovedOverviewIds] = useState<string[]>([]);
 
   const { items: scheduledTransactions, setItems: setScheduledTransactions } =
     useScheduledTransactionsContext();
@@ -95,6 +98,10 @@ const HomeTabs = ({
     settingsVersion,
   );
 
+  const visibleTopSpending = topSpending.filter(
+    (t) => !removedOverviewIds.includes(t.id),
+  );
+
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
@@ -109,10 +116,17 @@ const HomeTabs = ({
         setRefetchActive(() => refetchInvestments);
         setRemoveActiveItem(() => removeInvestment);
         break;
-      // Overview shows recent transactions, so it shares their list handlers.
-      default:
+      case "Transactions":
         setRefetchActive(() => refetchTransactions);
         setRemoveActiveItem(() => removeTransaction);
+        break;
+      // Overview's cards come from server props, so hide them locally too.
+      default:
+        setRefetchActive(() => refetchTransactions);
+        setRemoveActiveItem(() => (id: string) => {
+          setRemovedOverviewIds((ids) => [...ids, id]);
+          removeTransaction(id);
+        });
     }
   }, [activeTab]);
 
@@ -134,7 +148,7 @@ const HomeTabs = ({
       {/* Overview */}
       <TabsContent value="overview" className="w-full">
         <div className="flex flex-col gap-3">
-          {topSpending.length === 0 ? (
+          {visibleTopSpending.length === 0 ? (
             <p className="text-center py-10 text-sm text-muted-foreground">
               No recent transactions available.
             </p>
@@ -149,7 +163,7 @@ const HomeTabs = ({
                 totalExpense={currentMonthTotal}
               />
               <RecentActivities
-                data={topSpending}
+                data={visibleTopSpending}
                 isShown={true}
                 categories={categories}
                 goals={goals}

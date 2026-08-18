@@ -28,17 +28,16 @@ export function useTabData<T>(
   const refetch = () => setRefreshKey((k) => k + 1);
 
   /**
-   * Drop a row locally so a delete feels instant. The server call still runs;
-   * the caller refetches afterwards either way — on success to pull up the row
-   * that shifted in from the next page, on failure to put this one back.
+   * Drop a row locally so a delete feels instant.
+   *
+   * Functional updaters only, deliberately: HomeTabs registers this function in
+   * context from an effect keyed on the active tab, so the copy that gets stored
+   * closes over whatever `data` held at that moment. Reading `data` directly
+   * here meant filtering a stale (usually empty) array and blanking the list.
    */
   const removeItem = (id: string) => {
-    const next = data.filter((item) => (item as { id?: string }).id !== id);
-    setData(next);
+    setData((prev) => prev.filter((item) => (item as { id?: string }).id !== id));
     setTotal((t) => Math.max(0, t - 1));
-
-    // Emptying the last page would otherwise strand the user on a blank one.
-    if (next.length === 0 && page > 1) setPage((p) => p - 1);
   };
 
   useEffect(() => {
