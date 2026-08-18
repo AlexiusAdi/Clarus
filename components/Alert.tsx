@@ -24,8 +24,10 @@ interface AlertProps {
   itemId?: string;
   /** Overrides the tab-context removal for lists that hold their own state. */
   onOptimisticRemove?: () => void;
-  /** Undoes onOptimisticRemove when the server rejects the delete. */
+  /** Undoes onOptimisticRemove and re-enables the card when the delete fails. */
   onRemoveFailed?: () => void;
+  /** Fired the instant delete is confirmed, so the card can disable its actions. */
+  onDeleteStart?: () => void;
 }
 
 const Alert = ({
@@ -37,6 +39,7 @@ const Alert = ({
   itemId,
   onOptimisticRemove,
   onRemoveFailed,
+  onDeleteStart,
 }: AlertProps) => {
   const router = useRouter();
   const { refetchActive, removeActiveItem } = useTabsContext();
@@ -48,6 +51,7 @@ const Alert = ({
    */
   const handleDelete = async () => {
     onOpenChange(false);
+    onDeleteStart?.();
 
     if (onOptimisticRemove) onOptimisticRemove();
     else if (itemId) removeActiveItem(itemId);

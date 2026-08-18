@@ -57,6 +57,7 @@ export const GoalCard = ({
   onDeleteFailed?: () => void;
 }) => {
   const [alertOpen, setAlertOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   const { status, monthlyNeeded, percent } = useMemo(() => {
@@ -150,15 +151,17 @@ export const GoalCard = ({
           <div className="flex justify-end gap-1 pt-3">
             <button
               onClick={() => setEditOpen(true)}
+              disabled={deleting}
               aria-label="Edit goal"
-              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
             >
               <Pencil className="size-3.5" />
             </button>
             <button
               onClick={() => setAlertOpen(true)}
+              disabled={deleting}
               aria-label="Delete goal"
-              className="p-1.5 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
             >
               <Trash2 className="size-3.5" />
             </button>
@@ -169,8 +172,12 @@ export const GoalCard = ({
       <Alert
         open={alertOpen}
         onOpenChange={setAlertOpen}
+        onDeleteStart={() => setDeleting(true)}
         onOptimisticRemove={onDeleted}
-        onRemoveFailed={onDeleteFailed}
+        onRemoveFailed={() => {
+          setDeleting(false);
+          onDeleteFailed?.();
+        }}
         apiUrl={`/api/user/goals/${goal.id}`}
         successMessage="Goal deleted"
         description="This action cannot be undone."
