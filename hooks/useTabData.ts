@@ -17,8 +17,11 @@ export function useTabData<T>(
   const [data, setData] = useState<T[]>([]);
   const [total, setTotal] = useState(0);
   const [pageSize, setPageSize] = useState(10); // default until API responds
-  const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
+
+  // Derived, not stored: an optimistic removal changes `total`, and a separate
+  // totalPages state would keep offering a page that no longer exists.
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const [initialLoading, setInitialLoading] = useState(true);
   const [visible, setVisible] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -26,12 +29,16 @@ export function useTabData<T>(
 
   /**
    * Drop a row locally so a delete feels instant. The server call still runs;
-   * if it fails the caller refetches, which restores the row from the source of
-   * truth rather than us trying to rebuild it here.
+   * the caller refetches afterwards either way — on success to pull up the row
+   * that shifted in from the next page, on failure to put this one back.
    */
   const removeItem = (id: string) => {
-    setData((prev) => prev.filter((item) => (item as { id?: string }).id !== id));
+    const next = data.filter((item) => (item as { id?: string }).id !== id);
+    setData(next);
     setTotal((t) => Math.max(0, t - 1));
+
+    // Emptying the last page would otherwise strand the user on a blank one.
+    if (next.length === 0 && page > 1) setPage((p) => p - 1);
   };
 
   useEffect(() => {
@@ -49,7 +56,6 @@ export function useTabData<T>(
         setData(json.data);
         setTotal(json.total);
         setPageSize(json.pageSize);
-        setTotalPages(Math.ceil(json.total / json.pageSize));
       } catch {
         toast.error(`Failed to load ${tab.toLowerCase()}`);
       } finally {

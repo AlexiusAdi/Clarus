@@ -48,10 +48,13 @@ const getStatus = (goal: GoalDTO): GoalStatus => {
 export const GoalCard = ({
   goal,
   onDeleted,
+  onDeleteFailed,
 }: {
   goal: GoalDTO;
   /** Lets the list hide this card immediately, before the DELETE returns. */
   onDeleted?: () => void;
+  /** Brings it back if the server rejects the delete. */
+  onDeleteFailed?: () => void;
 }) => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -167,6 +170,7 @@ export const GoalCard = ({
         open={alertOpen}
         onOpenChange={setAlertOpen}
         onOptimisticRemove={onDeleted}
+        onRemoveFailed={onDeleteFailed}
         apiUrl={`/api/user/goals/${goal.id}`}
         successMessage="Goal deleted"
         description="This action cannot be undone."
