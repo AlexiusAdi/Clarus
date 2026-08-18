@@ -24,17 +24,18 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const transaction = await prisma.transaction.findUnique({ where: { id } });
+    // Scope the read to the owner so ownership and existence resolve in one
+    // query instead of findUnique-then-check-then-delete.
+    const transaction = await prisma.transaction.findFirst({
+      where: { id, userId },
+      select: { id: true, type: true, goalId: true, amount: true },
+    });
 
     if (!transaction) {
       return NextResponse.json(
         { error: "Transaction not found" },
         { status: 404 },
       );
-    }
-
-    if (transaction.userId !== userId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     if (
