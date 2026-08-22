@@ -114,7 +114,7 @@ export default function SettingsCard({ open, onOpenChange }: Props) {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {[5, 10, 15, 20, 25].map((n) => (
+                        {[5, 10, 15, 20, 25, 50, 100].map((n) => (
                           <SelectItem key={n} value={String(n)}>
                             {n}
                           </SelectItem>

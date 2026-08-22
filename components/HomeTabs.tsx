@@ -25,6 +25,7 @@ import { ScheduledTransactionDrawer } from "./ScheduledTransactionDrawer";
 import { RepeatIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { useScheduledTransactionsContext } from "./ScheduledTransactionsProvider";
+import { DateRangeFilter, DateRange } from "./DateRangeFilter";
 
 const HomeTabs = ({
   overviewData,
@@ -40,6 +41,13 @@ const HomeTabs = ({
   const { activeTab, setActiveTab, settingsVersion } = useTabsContext();
   const { refetchActive, setRefetchActive } = useTabsContext();
   const [scheduledOpen, setScheduledOpen] = useState(false);
+
+  const [transactionDateRange, setTransactionDateRange] =
+    useState<DateRange>({});
+  const [assetDateRange, setAssetDateRange] = useState<DateRange>({});
+  const [investmentDateRange, setInvestmentDateRange] = useState<DateRange>(
+    {},
+  );
 
   const { items: scheduledTransactions, setItems: setScheduledTransactions } =
     useScheduledTransactionsContext();
@@ -58,6 +66,7 @@ const HomeTabs = ({
     activeTab,
     "/api/user/transaction",
     settingsVersion,
+    transactionDateRange,
   );
 
   const {
@@ -74,6 +83,7 @@ const HomeTabs = ({
     activeTab,
     "/api/user/asset",
     settingsVersion,
+    assetDateRange,
   );
 
   const {
@@ -90,6 +100,7 @@ const HomeTabs = ({
     activeTab,
     "/api/user/investment",
     settingsVersion,
+    investmentDateRange,
   );
 
   const handleTabChange = (value: string) => {
@@ -161,16 +172,24 @@ const HomeTabs = ({
           <div
             className={`transition-all duration-150 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
           >
-            {scheduledTransactions.length > 0 && (
-              <Button
-                onClick={() => setScheduledOpen(true)}
-                variant="ghost"
-                className=" active:scale-90"
-              >
-                <RepeatIcon size={14} />
-                Scheduled
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {scheduledTransactions.length > 0 && (
+                <Button
+                  onClick={() => setScheduledOpen(true)}
+                  variant="ghost"
+                  className=" active:scale-90"
+                >
+                  <RepeatIcon size={14} />
+                  Scheduled
+                </Button>
+              )}
+              <div className="ml-auto">
+                <DateRangeFilter
+                  value={transactionDateRange}
+                  onChange={setTransactionDateRange}
+                />
+              </div>
+            </div>
 
             <div className="overflow-auto max-h-[85dvh]">
               <ScheduledTransactionDrawer
@@ -212,6 +231,12 @@ const HomeTabs = ({
                 : "opacity-0 translate-y-2"
             }`}
           >
+            <div className="flex justify-end">
+              <DateRangeFilter
+                value={investmentDateRange}
+                onChange={setInvestmentDateRange}
+              />
+            </div>
             {investments.length === 0 ? (
               <p className="text-center py-10 text-sm text-muted-foreground">
                 No investments available.
@@ -250,6 +275,12 @@ const HomeTabs = ({
                 : "opacity-0 translate-y-2"
             }`}
           >
+            <div className="flex justify-end">
+              <DateRangeFilter
+                value={assetDateRange}
+                onChange={setAssetDateRange}
+              />
+            </div>
             {assets.length === 0 ? (
               <p className="text-center py-10 text-sm text-muted-foreground">
                 No assets available.

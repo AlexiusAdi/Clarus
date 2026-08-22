@@ -93,6 +93,8 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
+    const from = searchParams.get("from") ?? undefined;
+    const to = searchParams.get("to") ?? undefined;
 
     // Read-only: onboarding guarantees this row exists before a user can
     // reach any private route, so there's no need to upsert on every page load.
@@ -103,14 +105,24 @@ export async function GET(req: NextRequest) {
 
     const pageSize = userDetail?.pageSize ?? 10;
 
+    const where = {
+      userId,
+      ...((from || to) && {
+        date: {
+          ...(from && { gte: new Date(from) }),
+          ...(to && { lte: new Date(`${to}T23:59:59.999`) }),
+        },
+      }),
+    };
+
     const [raw, total] = await Promise.all([
       prisma.asset.findMany({
-        where: { userId },
+        where,
         orderBy: { date: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
-      prisma.asset.count({ where: { userId } }),
+      prisma.asset.count({ where }),
     ]);
 
     const data = raw.map((a) => ({

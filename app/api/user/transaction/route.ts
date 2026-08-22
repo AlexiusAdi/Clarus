@@ -39,6 +39,8 @@ const PostBodySchema = z
 
 const GetQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
+  from: z.string().optional(),
+  to: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -193,7 +195,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const { page } = parsed.data;
+    const { page, from, to } = parsed.data;
 
     // Read-only: onboarding guarantees this row exists before a user can
     // reach any private route, so there's no need to upsert on every page load.
@@ -204,9 +206,19 @@ export async function GET(req: NextRequest) {
 
     const pageSize = userDetail?.pageSize ?? 10;
 
+    const where = {
+      userId,
+      ...((from || to) && {
+        date: {
+          ...(from && { gte: new Date(from) }),
+          ...(to && { lte: new Date(`${to}T23:59:59.999`) }),
+        },
+      }),
+    };
+
     const [raw, total] = await Promise.all([
       prisma.transaction.findMany({
-        where: { userId },
+        where,
         orderBy: { date: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -221,7 +233,7 @@ export async function GET(req: NextRequest) {
           goal: { select: { name: true, id: true } },
         },
       }),
-      prisma.transaction.count({ where: { userId } }),
+      prisma.transaction.count({ where }),
     ]);
 
     const data: TransactionDTO[] = raw.map((t) => ({
