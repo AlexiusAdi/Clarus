@@ -26,16 +26,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const asset = await prisma.asset.findUnique({
-      where: { id },
+    const asset = await prisma.asset.findFirst({
+      where: { id, userId },
+      select: { id: true },
     });
 
     if (!asset) {
       return NextResponse.json({ error: "Asset not found" }, { status: 404 });
-    }
-
-    if (asset.userId !== userId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     await prisma.asset.delete({
@@ -76,14 +73,13 @@ export async function PATCH(
 
     const { name, type, value, acquisitionSource, date } = parsed.data;
 
-    const asset = await prisma.asset.findUnique({ where: { id } });
+    const asset = await prisma.asset.findFirst({
+      where: { id, userId },
+      select: { id: true },
+    });
 
     if (!asset) {
       return NextResponse.json({ error: "Asset not found" }, { status: 404 });
-    }
-
-    if (asset.userId !== userId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const updated = await prisma.asset.update({

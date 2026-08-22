@@ -39,6 +39,7 @@ interface AssetCardProps {
 export const AssetCard = ({ asset }: AssetCardProps) => {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   return (
     <>
@@ -47,7 +48,12 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
           No recent transactions available.
         </p>
       ) : (
-        <Card className="w-full rounded-2xl shadow-none">
+        <Card
+          className={cn(
+            "w-full rounded-2xl shadow-none",
+            deleting && "opacity-50 pointer-events-none",
+          )}
+        >
           <CardContent className="p-4 flex gap-3">
             <div className="shrink-0">{ASSET_ICONS[asset.type]}</div>
             <div className="flex flex-col gap-3 w-full min-w-0">
@@ -70,15 +76,17 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
                 <div className="flex gap-1 shrink-0">
                   <button
                     onClick={() => setEditOpen(true)}
+                    disabled={deleting}
                     aria-label="Edit asset"
-                    className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition"
+                    className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
                   >
                     <Pencil className="size-3.5" />
                   </button>
                   <button
                     onClick={() => setOpen(true)}
+                    disabled={deleting}
                     aria-label="Delete asset"
-                    className="p-1.5 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition"
+                    className="p-1.5 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
                   >
                     <Trash2 className="size-3.5" />
                   </button>
@@ -91,6 +99,7 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
       <Alert
         open={open}
         onOpenChange={setOpen}
+        onPendingChange={setDeleting}
         apiUrl={`/api/user/asset/${asset.id}`}
         successMessage="Asset deleted"
         description="This action cannot be undone. This will permanently delete this asset."

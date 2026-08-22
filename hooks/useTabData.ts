@@ -36,12 +36,6 @@ export function useTabData<T>(
       try {
         const res = await fetch(`${apiPath}?page=${page}`);
         const json: PaginatedResult<T> = await res.json();
-        console.log(
-          tab,
-          json.total,
-          json.pageSize,
-          Math.ceil(json.total / json.pageSize),
-        );
         setData(json.data);
         setTotal(json.total);
         setPageSize(json.pageSize);

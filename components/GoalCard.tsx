@@ -48,6 +48,7 @@ const getStatus = (goal: GoalDTO): GoalStatus => {
 export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const { status, monthlyNeeded, percent } = useMemo(() => {
     const now = Date.now();
@@ -78,7 +79,12 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
 
   return (
     <>
-      <Card className="w-full rounded-2xl shadow-none">
+      <Card
+        className={cn(
+          "w-full rounded-2xl shadow-none",
+          deleting && "opacity-50 pointer-events-none",
+        )}
+      >
         <CardContent className="p-4">
           {/* Header */}
           <div className="flex items-center gap-3 mb-4">
@@ -140,15 +146,17 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
           <div className="flex justify-end gap-1 pt-3">
             <button
               onClick={() => setEditOpen(true)}
+              disabled={deleting}
               aria-label="Edit goal"
-              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
             >
               <Pencil className="size-3.5" />
             </button>
             <button
               onClick={() => setAlertOpen(true)}
+              disabled={deleting}
               aria-label="Delete goal"
-              className="p-1.5 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
             >
               <Trash2 className="size-3.5" />
             </button>
@@ -159,6 +167,7 @@ export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
       <Alert
         open={alertOpen}
         onOpenChange={setAlertOpen}
+        onPendingChange={setDeleting}
         apiUrl={`/api/user/goals/${goal.id}`}
         successMessage="Goal deleted"
         description="This action cannot be undone."

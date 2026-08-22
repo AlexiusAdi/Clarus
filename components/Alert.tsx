@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -11,7 +10,6 @@ import {
   AlertDialogTitle,
   AlertDialogAction,
 } from "./ui/alert-dialog";
-import { Spinner } from "./ui/spinner";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTabsContext } from "./TabsProvider";
@@ -22,6 +20,10 @@ interface AlertProps {
   apiUrl: string;
   successMessage?: string;
   description?: string;
+  /** Fired the instant delete is confirmed, and again once the request
+   *  settles, so the triggering card can disable its own icons without the
+   *  dialog having to stay open for the round trip. */
+  onPendingChange?: (pending: boolean) => void;
 }
 
 const Alert = ({
@@ -30,17 +32,20 @@ const Alert = ({
   apiUrl,
   successMessage = "Deleted successfully",
   description = "This action cannot be undone. This will permanently delete this item.",
+  onPendingChange,
 }: AlertProps) => {
-  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const { refetchActive } = useTabsContext();
 
+  // Close the dialog immediately instead of holding it open with a spinner
+  // for the whole request — the card shows its own pending state instead.
   const handleDelete = async () => {
-    try {
-      setIsDeleting(true);
+    onOpenChange(false);
+    onPendingChange?.(true);
 
+    try {
       const res = await fetch(apiUrl, { method: "DELETE" });
-      const result = await res.json();
+      const result = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         throw new Error(result.error || "Something went wrong");
@@ -52,8 +57,7 @@ const Alert = ({
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to delete");
     } finally {
-      setIsDeleting(false);
-      onOpenChange(false);
+      onPendingChange?.(false);
     }
   };
 
@@ -70,10 +74,9 @@ const Alert = ({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            disabled={isDeleting}
             className="active:scale-95 transition-transform"
           >
-            {isDeleting ? <Spinner /> : "Delete"}
+            Delete
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

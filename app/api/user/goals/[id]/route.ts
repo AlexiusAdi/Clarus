@@ -23,14 +23,13 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const goal = await prisma.goal.findUnique({ where: { id } });
+    const goal = await prisma.goal.findFirst({
+      where: { id, userId },
+      select: { id: true },
+    });
 
     if (!goal) {
       return NextResponse.json({ error: "Goal not found" }, { status: 404 });
-    }
-
-    if (goal.userId !== userId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     await prisma.transaction.deleteMany({ where: { goalId: id } });
@@ -69,14 +68,13 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     const { name, targetAmount, currentAmount, deadline } = parsed.data;
 
-    const goal = await prisma.goal.findUnique({ where: { id } });
+    const goal = await prisma.goal.findFirst({
+      where: { id, userId },
+      select: { currentAmount: true },
+    });
 
     if (!goal) {
       return NextResponse.json({ error: "Goal not found" }, { status: 404 });
-    }
-
-    if (goal.userId !== userId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const resolvedCurrent = currentAmount ?? goal.currentAmount.toNumber();

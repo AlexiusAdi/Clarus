@@ -18,6 +18,7 @@ type Props = {
 const InvestmentCard = ({ investment }: Props) => {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const Icon = TYPE_ICON[investment.type].icon;
   const iconStyle = TYPE_ICON[investment.type].className;
@@ -34,7 +35,12 @@ const InvestmentCard = ({ investment }: Props) => {
 
   return (
     <div className="flex flex-col">
-      <Card className="w-full rounded-2xl shadow-none">
+      <Card
+        className={cn(
+          "w-full rounded-2xl shadow-none",
+          deleting && "opacity-50 pointer-events-none",
+        )}
+      >
         <CardContent className="p-4 flex gap-3">
           <Icon className={cn("rounded-xl p-2.5 size-10 shrink-0", iconStyle)} />
 
@@ -119,15 +125,17 @@ const InvestmentCard = ({ investment }: Props) => {
               <div className="flex gap-1 shrink-0">
                 <button
                   onClick={() => setEditOpen(true)}
+                  disabled={deleting}
                   aria-label="Edit investment"
-                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition"
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
                 >
                   <Pencil className="size-3.5" />
                 </button>
                 <button
                   onClick={() => setOpen(true)}
+                  disabled={deleting}
                   aria-label="Delete investment"
-                  className="p-1.5 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition"
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
                 >
                   <Trash2 className="size-3.5" />
                 </button>
@@ -140,6 +148,7 @@ const InvestmentCard = ({ investment }: Props) => {
       <Alert
         open={open}
         onOpenChange={setOpen}
+        onPendingChange={setDeleting}
         apiUrl={`/api/user/investment/${investment.id}`}
         successMessage="Investment deleted"
         description="This action cannot be undone."

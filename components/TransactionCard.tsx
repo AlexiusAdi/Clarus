@@ -24,6 +24,7 @@ const TransactionCard = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const getLabel = (transaction: TopSpendingItem) => {
     if (transaction.category?.name) return transaction.category.name;
@@ -50,7 +51,12 @@ const TransactionCard = ({
 
   return (
     <>
-      <Card className="p-0 w-full rounded-xl shadow-none hover:border-border/80 transition-colors">
+      <Card
+        className={cn(
+          "p-0 w-full rounded-xl shadow-none hover:border-border/80 transition-colors",
+          deleting && "opacity-50 pointer-events-none",
+        )}
+      >
         <CardHeader className="p-3">
           <div className="flex w-full items-center gap-3 min-w-0">
             <div
@@ -96,15 +102,17 @@ const TransactionCard = ({
                 <div className="flex gap-1">
                   <button
                     onClick={() => setEditOpen(true)}
+                    disabled={deleting}
                     aria-label="Edit transaction"
-                    className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition"
+                    className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
                   >
                     <Pencil className="size-3.5" />
                   </button>
                   <button
                     onClick={() => setOpen(true)}
+                    disabled={deleting}
                     aria-label="Delete transaction"
-                    className="p-1 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition"
+                    className="p-1 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
                   >
                     <Trash2 className="size-3.5" />
                   </button>
@@ -118,6 +126,7 @@ const TransactionCard = ({
       <Alert
         open={open}
         onOpenChange={setOpen}
+        onPendingChange={setDeleting}
         apiUrl={`/api/user/transaction/${transaction.id}`}
         successMessage="Transaction deleted"
         description="This action cannot be undone. This will permanently delete this transaction."

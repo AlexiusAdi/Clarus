@@ -24,17 +24,18 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const transaction = await prisma.transaction.findUnique({ where: { id } });
+    // Scope the lookup to the owner so existence and ownership resolve in a
+    // single query instead of findUnique-then-check.
+    const transaction = await prisma.transaction.findFirst({
+      where: { id, userId },
+      select: { id: true, type: true, goalId: true, amount: true },
+    });
 
     if (!transaction) {
       return NextResponse.json(
         { error: "Transaction not found" },
         { status: 404 },
       );
-    }
-
-    if (transaction.userId !== userId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     if (
@@ -102,17 +103,16 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     const { amount, description, categoryId, date } = parsed.data;
 
-    const transaction = await prisma.transaction.findUnique({ where: { id } });
+    const transaction = await prisma.transaction.findFirst({
+      where: { id, userId },
+      select: { id: true },
+    });
 
     if (!transaction) {
       return NextResponse.json(
         { error: "Transaction not found" },
         { status: 404 },
       );
-    }
-
-    if (transaction.userId !== userId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const updated = await prisma.transaction.update({

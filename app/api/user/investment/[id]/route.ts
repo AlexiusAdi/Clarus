@@ -30,17 +30,16 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const investment = await prisma.investment.findUnique({ where: { id } });
+    const investment = await prisma.investment.findFirst({
+      where: { id, userId },
+      select: { id: true },
+    });
 
     if (!investment) {
       return NextResponse.json(
         { error: "Investment not found" },
         { status: 404 },
       );
-    }
-
-    if (investment.userId !== userId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     await prisma.investment.delete({ where: { id } });
