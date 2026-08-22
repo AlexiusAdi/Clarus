@@ -17,6 +17,7 @@ const formatDayLabel = (dateKey: string) => {
     weekday: "short",
     day: "numeric",
     month: "short",
+    year: "numeric",
   });
 };
 
