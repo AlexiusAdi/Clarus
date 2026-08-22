@@ -195,13 +195,14 @@ export async function GET(req: NextRequest) {
 
     const { page } = parsed.data;
 
-    const userDetail = await prisma.userDetail.upsert({
+    // Read-only: onboarding guarantees this row exists before a user can
+    // reach any private route, so there's no need to upsert on every page load.
+    const userDetail = await prisma.userDetail.findUnique({
       where: { userId },
-      update: {},
-      create: { userId },
+      select: { pageSize: true },
     });
 
-    const { pageSize } = userDetail;
+    const pageSize = userDetail?.pageSize ?? 10;
 
     const [raw, total] = await Promise.all([
       prisma.transaction.findMany({
