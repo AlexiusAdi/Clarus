@@ -145,7 +145,10 @@ export default function NetWorthCard({
                 className={cn(
                   "rounded-full h-7 px-3 text-xs font-semibold bg-transparent transition-colors",
                   activeGoals.length > 0
-                    ? "text-sage-soft border border-sage-soft/35 bg-sage-soft/10 hover:bg-sage-soft/20"
+                    ? // This card stays dark regardless of app theme, but sage-soft
+                      // is a theme-aware token that flips dark in dark mode — pin
+                      // it to the light-mode value so it's always legible here.
+                      "text-[oklch(0.943_0.021_152)] border border-[oklch(0.943_0.021_152)]/35 bg-[oklch(0.943_0.021_152)]/10 hover:bg-[oklch(0.943_0.021_152)]/20"
                     : "text-porcelinwhite/60 border border-porcelinwhite/20 bg-porcelinwhite/5 hover:bg-porcelinwhite/10",
                 )}
               >

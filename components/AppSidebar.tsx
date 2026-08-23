@@ -18,6 +18,7 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarGroupLabel,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { SettingsUser } from "@/app/Types";
@@ -41,6 +42,15 @@ const navPlanning = [
 export function AppSidebar({ user }: { user: SettingsUser }) {
   const { activeTab, setActiveTab } = useTabsContext();
   const pathname = usePathname();
+  // SidebarMenuButton's `tooltip` wraps the item in a Radix Tooltip, whose
+  // content is only ever shown when the sidebar is icon-collapsed on desktop
+  // (see ui/sidebar.tsx's `hidden={state !== "collapsed" || isMobile}`). But
+  // Radix still applies its touch semantics regardless — a first tap opens
+  // the (invisible) tooltip instead of clicking through, so every item needs
+  // two taps on touch devices while the sidebar is expanded. Only pass the
+  // prop in the one state where the tooltip actually renders.
+  const { state, isMobile } = useSidebar();
+  const showTooltips = state === "collapsed" && !isMobile;
 
   return (
     <Sidebar collapsible="icon">
@@ -69,7 +79,7 @@ export function AppSidebar({ user }: { user: SettingsUser }) {
                 <SidebarMenuItem key={tab}>
                   <SidebarMenuButton
                     isActive={activeTab === tab}
-                    tooltip={label}
+                    tooltip={showTooltips ? label : undefined}
                     onClick={() => setActiveTab(tab)}
                   >
                     <Icon />
@@ -92,7 +102,7 @@ export function AppSidebar({ user }: { user: SettingsUser }) {
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === href}
-                    tooltip={label}
+                    tooltip={showTooltips ? label : undefined}
                   >
                     <Link href={href} className="justify-between">
                       <span className="flex items-center gap-2">
