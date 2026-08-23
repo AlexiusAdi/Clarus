@@ -222,8 +222,14 @@ export function ScheduledTransactionDrawer({
     }
   };
 
+  // repositionInputs={false}: the iOS numeric keypad desyncs vaul's internal
+  // keyboardIsOpen flag and throws the drawer off-screen — see FloatingNav.
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer
+      open={open}
+      onOpenChange={onOpenChange}
+      repositionInputs={false}
+    >
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle className="flex items-center justify-center gap-2">
