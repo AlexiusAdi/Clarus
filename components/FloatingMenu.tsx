@@ -95,9 +95,18 @@ export default function FloatingMenu({
           </motion.div>
         </Button>
       </div>
+      {/* repositionInputs={false}: vaul toggles its internal keyboardIsOpen flag on
+          every visualViewport change over 60px instead of deriving it. The iOS numeric
+          keypad fires two such changes (keypad, then the prev/next accessory bar), so the
+          flag ends up false while the keyboard is open — vaul then restores the drawer to
+          full height while still offsetting bottom by the keyboard height, pushing the form
+          off the top of the screen. Only the amount field opens a numeric keypad. */}
 
-      {/* ✅ Drawer INSIDE component */}
-      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+      <Drawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        repositionInputs={false}
+      >
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>
