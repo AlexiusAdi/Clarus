@@ -7,11 +7,9 @@ import { ELITE_FEATURES, FREE_LIMITS, PRO_FEATURES } from "@/constants/plans";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { PlanType } from "@/lib/generated/prisma/browser";
-import { useRouter } from "next/navigation";
 import { PlanInfo } from "@/app/Types";
 
 const UpgradePage = () => {
-  const router = useRouter();
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState<PlanType | null>(null);
@@ -35,18 +33,16 @@ const UpgradePage = () => {
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.message ?? "Upgrade failed");
+        setUpgrading(null);
         return;
       }
-      toast.success(data.message);
-      setPlanInfo((prev) =>
-        prev
-          ? { ...prev, plan: data.plan, planExpiresAt: data.planExpiresAt }
-          : prev,
-      );
-      router.refresh();
+
+      // The plan is granted by the Midtrans webhook once payment clears, not
+      // here — so this hands off to the payment page and leaves the button in
+      // its loading state until the browser navigates away.
+      window.location.href = data.redirectUrl;
     } catch {
       toast.error("Something went wrong");
-    } finally {
       setUpgrading(null);
     }
   };
