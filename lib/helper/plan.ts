@@ -36,7 +36,7 @@ export function canUseScheduledTransactions(plan: PlanType) {
 }
 
 export function canUseGroupExpenses(plan: PlanType) {
-  return isPro(plan);
+  return isElite(plan);
 }
 
 /** ELITE-only, as advertised by ELITE_FEATURES in constants/index.ts. */

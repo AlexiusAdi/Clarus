@@ -28,6 +28,7 @@ model User {
   scheduledTransactions ScheduledTransaction[]
   planHistory           PlanHistory[]
   paymentOrders         PaymentOrder[]
+  groups                Group[]
 }
 
 enum PaymentStatus {
@@ -173,12 +174,65 @@ model Transaction {
   investment   Investment?     @relation(fields: [investmentId], references: [id], onDelete: Cascade)
   assetId      String?
   assets       Asset?          @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  groupId      String?
+  group        Group?          @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  groupMemberId String?
+  groupMember  GroupMember?    @relation(fields: [groupMemberId], references: [id], onDelete: SetNull)
 
   @@index([userId, date])
   @@index([categoryId])
   @@index([goalId])
   @@index([investmentId])
   @@index([assetId])
+  @@index([groupId])
+  @@index([groupMemberId])
+}
+
+enum GroupMode {
+  POOLED
+  PER_MEMBER
+}
+
+enum GroupStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+/// A spend-down budget for a shared occasion (a trip, an event) — the mirror
+/// image of a Goal. One user (the organizer, who physically holds the pooled
+/// cash) owns and manages it; other participants are GroupMember labels, not
+/// real Clarus accounts, so there is no invite/permission system to build.
+/// `mode` is fixed at creation — POOLED spends against a single totalBudget,
+/// PER_MEMBER spends against each member's own budgetAmount — since the two
+/// modes account money differently and switching later would be ambiguous
+/// once transactions exist.
+model Group {
+  id          String        @id @default(uuid())
+  name        String
+  mode        GroupMode
+  totalBudget Decimal?      @db.Decimal(18, 2)
+  status      GroupStatus   @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+model GroupMember {
+  id           String        @id @default(uuid())
+  name         String
+  budgetAmount Decimal?      @db.Decimal(18, 2)
+  isOwner      Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  groupId      String
+  group        Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([groupId])
 }
 
 model Asset {

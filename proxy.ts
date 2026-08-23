@@ -48,6 +48,10 @@ export default auth(async (req) => {
     if (user?.plan === "FREE" && pathname.startsWith("/goals")) {
       return NextResponse.redirect(new URL("/upgrade", nextUrl));
     }
+
+    if (user?.plan !== "ELITE" && pathname.startsWith("/groups")) {
+      return NextResponse.redirect(new URL("/upgrade", nextUrl));
+    }
   }
 
   return NextResponse.next();

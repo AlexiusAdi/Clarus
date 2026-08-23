@@ -55,7 +55,10 @@ const transactionSchema = z
       .refine((val) => val.replace(/\D/g, "").length <= 12, {
         message: "Amount must be at most 12 digits",
       }),
-    description: z.string().optional(),
+    description: z
+      .string()
+      .max(150, "Keep it under 150 characters")
+      .optional(),
     goalId: z.string().optional(),
 
     // recurring fields — only validated when isRecurring is true
@@ -449,6 +452,7 @@ export const AddTransaction = ({
           <Input
             type="text"
             placeholder="Enter description"
+            maxLength={150}
             {...register("description")}
           />
         </div>

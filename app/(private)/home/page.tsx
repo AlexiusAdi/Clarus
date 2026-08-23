@@ -19,6 +19,8 @@ import { getScheduledTransactions } from "@/lib/data/getScheduledTransactions";
 import { ScheduledTransactionsProvider } from "@/components/ScheduledTransactionsProvider";
 import UpgradeBanner from "@/components/UpgradeBanner";
 import { PlanType } from "@/lib/generated/prisma/enums";
+import { getGroups } from "@/lib/data/groups";
+import { canUseGroupExpenses } from "@/lib/helper/plan";
 
 const Page = async () => {
   const session = await auth();
@@ -51,6 +53,7 @@ const Page = async () => {
     netWorth,
     overviewData,
     scheduledTransactions,
+    groups,
   ] = await Promise.all([
     getCategories(userId),
     getAssets(userId),
@@ -58,6 +61,7 @@ const Page = async () => {
     getUserNetWorth(userId),
     getOverviewData(userId, userDetail.financialResetDay),
     getScheduledTransactions(userId),
+    canUseGroupExpenses(userPlan ?? PlanType.FREE) ? getGroups(userId) : [],
   ]);
 
   return (
@@ -108,6 +112,8 @@ const Page = async () => {
                     userNetWorth={netWorth}
                     goals={goals}
                     showGoals={isPremium}
+                    groups={groups}
+                    showGroups={canUseGroupExpenses(userPlan ?? PlanType.FREE)}
                     userPlan={userPlan}
                   />
                   {!isPremium && <UpgradeBanner plan={userPlan} />}

@@ -6,6 +6,7 @@ import {
   TrendingUp,
   Landmark,
   Target,
+  Users,
 } from "lucide-react";
 import {
   Sidebar,
@@ -32,7 +33,10 @@ const navMain = [
   { tab: "Assets", label: "Assets", icon: Landmark },
 ];
 
-const navPlanning = [{ href: "/goals", label: "Goals", icon: Target }];
+const navPlanning = [
+  { href: "/goals", label: "Goals", icon: Target },
+  { href: "/groups", label: "Groups", icon: Users, badge: "Elite" },
+];
 
 export function AppSidebar({ user }: { user: SettingsUser }) {
   const { activeTab, setActiveTab } = useTabsContext();
@@ -83,16 +87,23 @@ export function AppSidebar({ user }: { user: SettingsUser }) {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navPlanning.map(({ href, label, icon: Icon }) => (
+              {navPlanning.map(({ href, label, icon: Icon, badge }) => (
                 <SidebarMenuItem key={href}>
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === href}
                     tooltip={label}
                   >
-                    <Link href={href}>
-                      <Icon />
-                      <span>{label}</span>
+                    <Link href={href} className="justify-between">
+                      <span className="flex items-center gap-2">
+                        <Icon />
+                        <span>{label}</span>
+                      </span>
+                      {badge && (
+                        <span className="text-[9px] font-bold uppercase tracking-[0.04em] bg-amber-soft text-amber border border-amber/25 px-1.5 py-0.5 rounded-full">
+                          {badge}
+                        </span>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

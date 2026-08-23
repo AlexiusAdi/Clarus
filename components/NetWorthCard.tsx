@@ -8,10 +8,12 @@ import { UserNetWorth } from "@/app/Types";
 import { NumericFormat } from "react-number-format";
 import { Button } from "./ui/button";
 import { GoalDTO } from "@/lib/data/goals";
+import { GroupDTO } from "@/lib/data/groups";
 import { useRouter } from "next/navigation";
 import { getGoalsSummary } from "@/lib/data/getGoalsSummary";
-import { PlanType } from "@/lib/generated/prisma/browser";
+import { PlanType, GroupStatus } from "@/lib/generated/prisma/browser";
 import { cn } from "@/lib/utils";
+import { Users2 } from "lucide-react";
 
 const VISIBILITY_KEY = "clarus_networth_visible";
 
@@ -19,11 +21,15 @@ export default function NetWorthCard({
   userNetWorth,
   goals,
   showGoals = false,
+  groups = [],
+  showGroups = false,
   userPlan,
 }: {
   userNetWorth: UserNetWorth;
   goals: GoalDTO[];
   showGoals?: boolean;
+  groups?: GroupDTO[];
+  showGroups?: boolean;
   userPlan: string;
 }) {
   const [mounted, setMounted] = useState(false);
@@ -74,6 +80,8 @@ export default function NetWorthCard({
   };
 
   const { activeGoals, onTrackGoals } = getGoalsSummary(goals);
+  const activeGroups = groups.filter((g) => g.status === GroupStatus.ACTIVE);
+  const withinBudgetGroups = activeGroups.filter((g) => g.remaining >= 0);
 
   return (
     <>
@@ -92,12 +100,50 @@ export default function NetWorthCard({
             <CardTitle className="text-[11px] font-semibold uppercase tracking-[0.13em] text-porcelinwhite/55">
               Total Net Worth
             </CardTitle>
+          </div>
+        </CardHeader>
+
+        <CardContent className="relative flex justify-between items-start">
+          <span className="headline tabular text-4xl @md/main:text-5xl leading-none">
+            {!hasData || netWorth === 0 ? (
+              <span className="font-sans text-base opacity-50">
+                No transactions yet
+              </span>
+            ) : isVisible ? (
+              <NumericFormat
+                value={netWorth}
+                displayType="text"
+                thousandSeparator="."
+                decimalSeparator=","
+                prefix="Rp "
+              />
+            ) : (
+              "••••••"
+            )}
+          </span>
+          {hasData && (
+            <button
+              onClick={toggleVisibility}
+              aria-label={isVisible ? "Hide amount" : "Show amount"}
+              className="shrink-0 text-porcelinwhite/50 hover:text-porcelinwhite transition-colors"
+            >
+              {isVisible ? (
+                <Eye className="w-5 h-5" />
+              ) : (
+                <EyeOff className="w-5 h-5" />
+              )}
+            </button>
+          )}
+        </CardContent>
+
+        <CardContent>
+          <div className="flex justify-between items-center gap-1.5 @md/main:hidden">
             {showGoals && (
               <Button
                 onClick={() => router.push("/goals")}
                 size="sm"
                 className={cn(
-                  "rounded-full h-7 px-3 text-xs font-semibold bg-transparent transition-colors @md/main:hidden",
+                  "rounded-full h-7 px-3 text-xs font-semibold bg-transparent transition-colors",
                   activeGoals.length > 0
                     ? "text-sage-soft border border-sage-soft/35 bg-sage-soft/10 hover:bg-sage-soft/20"
                     : "text-porcelinwhite/60 border border-porcelinwhite/20 bg-porcelinwhite/5 hover:bg-porcelinwhite/10",
@@ -140,40 +186,24 @@ export default function NetWorthCard({
                 )}
               </Button>
             )}
-          </div>
-        </CardHeader>
-
-        <CardContent className="relative flex justify-between items-start">
-          <span className="headline tabular text-4xl @md/main:text-5xl leading-none">
-            {!hasData || netWorth === 0 ? (
-              <span className="font-sans text-base opacity-50">
-                No transactions yet
-              </span>
-            ) : isVisible ? (
-              <NumericFormat
-                value={netWorth}
-                displayType="text"
-                thousandSeparator="."
-                decimalSeparator=","
-                prefix="Rp "
-              />
-            ) : (
-              "••••••"
+            {showGroups && (
+              <Button
+                onClick={() => router.push("/groups")}
+                size="sm"
+                className={cn(
+                  "rounded-full h-7 px-3 text-xs font-semibold bg-transparent transition-colors",
+                  activeGroups.length > 0
+                    ? "text-sand border border-sand/35 bg-sand/10 hover:bg-sand/20"
+                    : "text-porcelinwhite/60 border border-porcelinwhite/20 bg-porcelinwhite/5 hover:bg-porcelinwhite/10",
+                )}
+              >
+                <Users2 className="w-3 h-3" />
+                {activeGroups.length > 0
+                  ? `${withinBudgetGroups.length} of ${activeGroups.length} on budget`
+                  : "Start a group"}
+              </Button>
             )}
-          </span>
-          {hasData && (
-            <button
-              onClick={toggleVisibility}
-              aria-label={isVisible ? "Hide amount" : "Show amount"}
-              className="shrink-0 text-porcelinwhite/50 hover:text-porcelinwhite transition-colors"
-            >
-              {isVisible ? (
-                <Eye className="w-5 h-5" />
-              ) : (
-                <EyeOff className="w-5 h-5" />
-              )}
-            </button>
-          )}
+          </div>
         </CardContent>
 
         <CardContent className="relative grid grid-cols-2 gap-2 w-full">
@@ -183,7 +213,7 @@ export default function NetWorthCard({
           ].map(({ label, value }) => (
             <div
               key={label}
-              className="rounded-xl bg-porcelinwhite/[0.06] border border-porcelinwhite/10 px-3 py-2.5 @md/main:px-4"
+              className="rounded-xl bg-porcelinwhite/6 border border-porcelinwhite/10 px-3 py-2.5 @md/main:px-4"
             >
               <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-porcelinwhite/50">
                 {label}

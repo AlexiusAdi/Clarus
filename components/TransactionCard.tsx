@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { ArrowRight, Pencil, Trash2 } from "lucide-react";
+import { ArrowRight, Pencil, Trash2, Users } from "lucide-react";
 import { TransactionType } from "@/lib/generated/prisma/enums";
 import Alert from "./Alert";
 import { TopSpendingItem } from "@/app/Types";
@@ -78,14 +79,26 @@ const TransactionCard = ({
               <CardTitle className="truncate text-sm">
                 {getLabel(transaction)}
               </CardTitle>
-              <CardDescription className="line-clamp-2 text-xs wrap-break-word mt-0.5">
-                {transaction.type === TransactionType.SAVINGS
-                  ? `Saved to goal`
-                  : transaction.type === TransactionType.INVESTMENTS
-                    ? `Investment`
-                    : transaction.type === TransactionType.ASSETS
-                      ? `Asset`
-                      : transaction.description}
+              <CardDescription className="flex items-baseline gap-1.5 text-xs mt-0.5 min-w-0">
+                <span className="truncate min-w-0">
+                  {transaction.type === TransactionType.SAVINGS
+                    ? `Saved to goal`
+                    : transaction.type === TransactionType.INVESTMENTS
+                      ? `Investment`
+                      : transaction.type === TransactionType.ASSETS
+                        ? `Asset`
+                        : transaction.description}
+                </span>
+                {transaction.group && (
+                  <Link
+                    href={`/groups/${transaction.group.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="shrink-0 inline-flex items-center gap-1 font-semibold text-amber hover:underline"
+                  >
+                    <Users className="size-2.5" />
+                    {transaction.group.name}
+                  </Link>
+                )}
               </CardDescription>
             </div>
             <div className="flex flex-col items-end gap-1 shrink-0">

@@ -15,6 +15,7 @@ export type TransactionDTO = {
   description: string | null;
   category: { name: string; id: string } | null;
   goal: { name: string; id: string } | null;
+  group: { name: string; id: string } | null;
 };
 
 export type OverviewDataDTO = {
@@ -70,6 +71,7 @@ export async function getOverviewData(
         createdAt: true,
         category: { select: { name: true, id: true } },
         goal: { select: { name: true, id: true } },
+        group: { select: { name: true, id: true } },
         description: true,
       },
     }),
@@ -99,6 +101,7 @@ export async function getOverviewData(
     description: t.description,
     category: t.category,
     goal: t.goal,
+    group: t.group,
   }));
 
   return { currentMonthTotal, topSpending, spendingByCategory, period };

@@ -6,7 +6,11 @@ import { z } from "zod";
 
 const PatchBodySchema = z.object({
   amount: z.coerce.number().positive("Amount must be positive"),
-  description: z.string().optional().default(""),
+  description: z
+    .string()
+    .max(150, "Description must be at most 150 characters")
+    .optional()
+    .default(""),
   categoryId: z.string().optional(),
   date: z.coerce.date(),
 });

@@ -3,23 +3,32 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { TransactionType } from "@/lib/generated/prisma/enums";
 import { TransactionDTO } from "@/lib/data/getOverviewData";
-import { isPro } from "@/lib/helper/plan";
+import { isPro, canUseGroupExpenses } from "@/lib/helper/plan";
 import { z } from "zod";
 
 const PostBodySchema = z
   .object({
     amount: z.coerce.number().positive("Invalid amount"),
-    description: z.string().optional().default(""),
+    description: z
+      .string()
+      .max(150, "Description must be at most 150 characters")
+      .optional()
+      .default(""),
     categoryId: z.string().optional(),
     type: z.nativeEnum(TransactionType),
     date: z.coerce.date(),
     goalId: z.string().optional(),
+    groupId: z.string().optional(),
+    groupMemberId: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (
       (data.type === TransactionType.INCOME ||
         data.type === TransactionType.EXPENSE) &&
-      !data.categoryId
+      !data.categoryId &&
+      // Group expenses fall back to the "Other" category server-side so the
+      // running-split entry flow can stay to just an amount and a person.
+      !data.groupId
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -33,6 +42,14 @@ const PostBodySchema = z
         code: z.ZodIssueCode.custom,
         path: ["goalId"],
         message: "Goal is required",
+      });
+    }
+
+    if (data.groupId && data.type !== TransactionType.EXPENSE) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["groupId"],
+        message: "Group expenses must be of type EXPENSE",
       });
     }
   });
@@ -62,7 +79,56 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { amount, description, categoryId, type, date, goalId } = parsed.data;
+    const { amount, description, categoryId, type, date, goalId, groupId, groupMemberId } =
+      parsed.data;
+
+    if (groupId) {
+      if (!canUseGroupExpenses(session.user.plan)) {
+        return NextResponse.json(
+          { error: "Upgrade to Elite to use group transactions." },
+          { status: 403 },
+        );
+      }
+
+      const group = await prisma.group.findFirst({
+        where: { id: groupId, userId },
+        select: { mode: true },
+      });
+
+      if (!group) {
+        return NextResponse.json({ error: "Group not found" }, { status: 404 });
+      }
+
+      if (group.mode === "PER_MEMBER" && !groupMemberId) {
+        return NextResponse.json(
+          { error: "Pick who this expense is charged to" },
+          { status: 400 },
+        );
+      }
+
+      if (groupMemberId) {
+        const member = await prisma.groupMember.findFirst({
+          where: { id: groupMemberId, groupId },
+          select: { id: true },
+        });
+
+        if (!member) {
+          return NextResponse.json(
+            { error: "Person not found in this group" },
+            { status: 404 },
+          );
+        }
+      }
+    }
+
+    let resolvedCategoryId = categoryId;
+    if (!resolvedCategoryId && groupId && type === TransactionType.EXPENSE) {
+      const fallbackCategory = await prisma.category.findFirst({
+        where: { name: "Other", type: TransactionType.EXPENSE, userId: null },
+        select: { id: true },
+      });
+      resolvedCategoryId = fallbackCategory?.id;
+    }
 
     const GOAL_FREE_LIMIT = 2;
 
@@ -145,8 +211,14 @@ export async function POST(req: NextRequest) {
         type,
         date,
         user: { connect: { id: userId } },
-        ...(categoryId && { category: { connect: { id: categoryId } } }),
+        ...(resolvedCategoryId && {
+          category: { connect: { id: resolvedCategoryId } },
+        }),
         ...(goalId && { goal: { connect: { id: goalId } } }),
+        ...(groupId && { group: { connect: { id: groupId } } }),
+        ...(groupMemberId && {
+          groupMember: { connect: { id: groupMemberId } },
+        }),
       },
     });
 
@@ -231,6 +303,7 @@ export async function GET(req: NextRequest) {
           description: true,
           category: { select: { name: true, id: true } },
           goal: { select: { name: true, id: true } },
+          group: { select: { name: true, id: true } },
         },
       }),
       prisma.transaction.count({ where }),
@@ -245,6 +318,7 @@ export async function GET(req: NextRequest) {
       description: t.description,
       category: t.category,
       goal: t.goal,
+      group: t.group,
     }));
 
     return NextResponse.json({ data, total, page, pageSize });

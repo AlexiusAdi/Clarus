@@ -20,6 +20,7 @@ export type TabsData = {
     date: Date;
     category: { name: string; id: string } | null;
     goal: { name: string; id: string } | null;
+    group: { name: string; id: string } | null;
     description: string | null;
   }[];
   currentMonthTotal: number;
@@ -30,6 +31,7 @@ export type TabsData = {
     date: Date;
     category: { name: string; id: string } | null;
     goal: { name: string; id: string } | null;
+    group: { name: string; id: string } | null;
     description: string | null;
   }[];
   spendingByCategory: {

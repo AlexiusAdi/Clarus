@@ -12,7 +12,7 @@ export default async function Goal() {
   const { activeGoals, completedGoals, avgProgress } = getGoalsSummary(goals);
 
   return (
-    <div className="w-screen min-h-screen mb-20 p-4 max-w-md mx-auto">
+    <div className="w-full min-h-dvh p-4 max-w-md mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between pb-4">
         <a href="/home">
