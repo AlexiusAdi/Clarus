@@ -2,17 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Circle, ChevronRight, ArrowLeft } from "lucide-react";
 import { PRIVACY_CONTENT, TNC_CONTENT } from "@/constants/legal";
-import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,17 +19,16 @@ function StepDots({ current, total }: { current: number; total: number }) {
       {Array.from({ length: total }).map((_, i) => (
         <motion.div
           key={i}
-          animate={{
-            width: i + 1 === current ? 24 : 6,
-            backgroundColor:
-              i + 1 < current
-                ? "#10b981"
-                : i + 1 === current
-                  ? "#000"
-                  : "#d1d5db",
-          }}
+          animate={{ width: i + 1 === current ? 24 : 6 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          className="h-[6px] rounded-full"
+          className={cn(
+            "h-[6px] rounded-full transition-colors",
+            i + 1 < current
+              ? "bg-sage"
+              : i + 1 === current
+                ? "bg-foreground"
+                : "bg-surface-2",
+          )}
         />
       ))}
     </div>
@@ -81,21 +73,19 @@ function LegalStep({
   return (
     <div className="flex flex-col gap-5 w-full flex-1 min-h-0">
       <div>
-        <p className="text-xs font-semibold tracking-widest uppercase text-emerald-500 mb-1">
-          Dokumen
+        <p className="text-xs font-semibold tracking-widest uppercase text-amber mb-1">
+          Document
         </p>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-          {title}
-        </h1>
-        <p className="text-sm text-gray-400 mt-1">
-          Gulir hingga bawah untuk melanjutkan
+        <h1 className="headline text-3xl text-foreground">{title}</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Scroll to the bottom to continue
         </p>
       </div>
 
       {/* Scroll progress bar */}
-      <div className="h-[2px] w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+      <div className="h-[2px] w-full bg-surface-2 rounded-full overflow-hidden">
         <motion.div
-          className="h-full bg-emerald-500 rounded-full origin-left"
+          className="h-full bg-sage rounded-full origin-left"
           animate={{ scaleX: scrollProgress }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           style={{ transformOrigin: "left" }}
@@ -107,7 +97,7 @@ function LegalStep({
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="h-full overflow-y-auto rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-5 text-sm text-gray-500 dark:text-gray-400 leading-relaxed whitespace-pre-line"
+          className="h-full overflow-y-auto rounded-2xl border border-border bg-surface-2 p-5 text-sm text-muted-foreground leading-relaxed whitespace-pre-line"
           style={{ scrollbarWidth: "none" }}
         >
           {content.trim()}
@@ -121,11 +111,7 @@ function LegalStep({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute bottom-0 left-0 right-0 h-20 rounded-b-2xl pointer-events-none"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(249,250,251,1) 0%, transparent 100%)",
-              }}
+              className="absolute bottom-0 left-0 right-0 h-20 rounded-b-2xl pointer-events-none bg-gradient-to-t from-background to-transparent"
             />
           )}
         </AnimatePresence>
@@ -140,9 +126,9 @@ function LegalStep({
           "flex items-center gap-3 p-4 rounded-2xl border-2 transition-colors text-left",
           scrolledToBottom
             ? checked
-              ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10"
-              : "border-gray-200 dark:border-gray-700 hover:border-emerald-300"
-            : "border-gray-100 dark:border-gray-800 opacity-40 cursor-not-allowed",
+              ? "border-sage bg-sage-soft"
+              : "border-border hover:border-sage/50"
+            : "border-border opacity-40 cursor-not-allowed",
         )}
       >
         <motion.div
@@ -152,12 +138,12 @@ function LegalStep({
           transition={{ duration: 0.3 }}
         >
           {checked ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-sage shrink-0" />
           ) : (
-            <Circle className="w-5 h-5 text-gray-300 shrink-0" />
+            <Circle className="w-5 h-5 text-muted-foreground shrink-0" />
           )}
         </motion.div>
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <span className="text-sm font-medium text-foreground">
           {checkLabel}
         </span>
       </motion.button>
@@ -177,14 +163,14 @@ function ResetDayStep({
   return (
     <div className="flex flex-col gap-6 w-full flex-1 min-h-0">
       <div>
-        <p className="text-xs font-semibold tracking-widest uppercase text-emerald-500 mb-1">
-          Langkah terakhir
+        <p className="text-xs font-semibold tracking-widest uppercase text-amber mb-1">
+          Last step
         </p>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-          Tanggal reset bulanan
+        <h1 className="headline text-3xl text-foreground">
+          Monthly reset date
         </h1>
-        <p className="text-sm text-gray-400 mt-2 leading-relaxed">
-          Pilih tanggal gajian atau awal siklus budgeting kamu setiap bulan.
+        <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+          Pick your payday or the start of your monthly budgeting cycle.
         </p>
       </div>
 
@@ -205,8 +191,8 @@ function ResetDayStep({
             className={cn(
               "aspect-square rounded-xl flex items-center justify-center text-sm font-semibold transition-colors",
               selectedDay === day
-                ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
-                : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700",
+                ? "bg-foreground text-background"
+                : "bg-surface-2 text-muted-foreground hover:bg-accent",
             )}
           >
             {day}
@@ -220,12 +206,12 @@ function ResetDayStep({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border-2 border-emerald-500"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-sage-soft border-2 border-sage"
           >
-            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-              Reset setiap tanggal{" "}
-              <span className="font-bold">{selectedDay}</span> setiap bulan
+            <CheckCircle2 className="w-5 h-5 text-sage shrink-0" />
+            <p className="text-sm font-medium text-sage">
+              Resets on day <span className="font-bold">{selectedDay}</span>{" "}
+              of every month
             </p>
           </motion.div>
         )}
@@ -300,7 +286,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-white dark:bg-gray-950 overflow-hidden">
+    <div className="fixed inset-0 flex flex-col bg-background text-foreground overflow-hidden">
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-14 pb-4 shrink-0">
         <AnimatePresence mode="wait">
@@ -311,7 +297,7 @@ export default function OnboardingPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
               onClick={goBack}
-              className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-surface-2 text-ink-soft"
             >
               <ArrowLeft className="w-4 h-4" />
             </motion.button>
@@ -341,20 +327,20 @@ export default function OnboardingPage() {
           >
             {step === 1 && (
               <LegalStep
-                title="Syarat & Ketentuan"
+                title="Terms & Conditions"
                 content={TNC_CONTENT}
                 checked={tncChecked}
                 onCheck={setTncChecked}
-                checkLabel="Saya setuju dengan Syarat & Ketentuan Clarus"
+                checkLabel="I agree to Clarus's Terms & Conditions"
               />
             )}
             {step === 2 && (
               <LegalStep
-                title="Kebijakan Privasi"
+                title="Privacy Policy"
                 content={PRIVACY_CONTENT}
                 checked={privacyChecked}
                 onCheck={setPrivacyChecked}
-                checkLabel="Saya setuju dengan Kebijakan Privasi Clarus"
+                checkLabel="I agree to Clarus's Privacy Policy"
               />
             )}
             {step === 3 && (
@@ -368,7 +354,7 @@ export default function OnboardingPage() {
       </div>
 
       {/* Bottom CTA — always pinned */}
-      <div className="shrink-0 px-6 pb-10 pt-4 border-t border-gray-100 dark:border-gray-800/60">
+      <div className="shrink-0 px-6 pb-10 pt-4 border-t border-border">
         <motion.div whileTap={canProceed ? { scale: 0.98 } : {}}>
           <button
             onClick={goNext}
@@ -376,8 +362,8 @@ export default function OnboardingPage() {
             className={cn(
               "w-full h-14 rounded-2xl text-base font-semibold flex items-center justify-center gap-2 transition-all duration-300",
               canProceed && !loading
-                ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg shadow-gray-900/20"
-                : "bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed",
+                ? "bg-foreground text-background shadow-lg shadow-ink/20"
+                : "bg-surface-2 text-muted-foreground cursor-not-allowed",
             )}
           >
             <AnimatePresence mode="wait">
@@ -396,9 +382,9 @@ export default function OnboardingPage() {
                       duration: 1,
                       ease: "linear",
                     }}
-                    className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full block"
+                    className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full block"
                   />
-                  Menyimpan...
+                  Saving...
                 </motion.span>
               ) : step === 3 ? (
                 <motion.span
@@ -407,7 +393,7 @@ export default function OnboardingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
                 >
-                  Mulai Sekarang ✦
+                  Get started ✦
                 </motion.span>
               ) : (
                 <motion.span
@@ -417,14 +403,14 @@ export default function OnboardingPage() {
                   exit={{ opacity: 0, y: -4 }}
                   className="flex items-center gap-1"
                 >
-                  Lanjut <ChevronRight className="w-4 h-4" />
+                  Continue <ChevronRight className="w-4 h-4" />
                 </motion.span>
               )}
             </AnimatePresence>
           </button>
         </motion.div>
 
-        <p className="text-center text-xs text-gray-300 dark:text-gray-600 mt-3">
+        <p className="text-center text-xs text-muted-foreground mt-3">
           Clarus · {new Date().getFullYear()}
         </p>
       </div>
