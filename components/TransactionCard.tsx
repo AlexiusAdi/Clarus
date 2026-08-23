@@ -132,7 +132,13 @@ const TransactionCard = ({
         description="This action cannot be undone. This will permanently delete this transaction."
       />
 
-      <Drawer open={editOpen} onOpenChange={setEditOpen}>
+      {/* repositionInputs={false}: the iOS numeric keypad desyncs vaul's internal
+          keyboardIsOpen flag and throws the drawer off-screen — see FloatingNav. */}
+      <Drawer
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        repositionInputs={false}
+      >
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Edit Transaction</DrawerTitle>

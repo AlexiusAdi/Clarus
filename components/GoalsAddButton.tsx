@@ -22,7 +22,13 @@ export default function GoalsAddButton() {
         <Plus className="w-4 h-4" />
       </button>
 
-      <Drawer open={open} onOpenChange={setOpen}>
+      {/* repositionInputs={false}: the iOS numeric keypad desyncs vaul's internal
+          keyboardIsOpen flag and throws the drawer off-screen — see FloatingNav. */}
+      <Drawer
+        open={open}
+        onOpenChange={setOpen}
+        repositionInputs={false}
+      >
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Add New Goal</DrawerTitle>

@@ -154,7 +154,13 @@ const InvestmentCard = ({ investment }: Props) => {
         description="This action cannot be undone."
       />
 
-      <Drawer open={editOpen} onOpenChange={setEditOpen}>
+      {/* repositionInputs={false}: the iOS numeric keypad desyncs vaul's internal
+          keyboardIsOpen flag and throws the drawer off-screen — see FloatingNav. */}
+      <Drawer
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        repositionInputs={false}
+      >
         <DrawerContent className="h-auto">
           <DrawerHeader>
             <DrawerTitle>Edit Investment</DrawerTitle>
