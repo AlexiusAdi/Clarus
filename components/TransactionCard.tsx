@@ -92,6 +92,9 @@ const TransactionCard = ({
                 {transaction.group && (
                   <Link
                     href={`/groups/${transaction.group.id}`}
+                    // Also stops the click bubbling into the card; the two
+                    // together also sidestep iOS Safari's two-tap-on-hover-
+                    // styled-links quirk (see AppSidebar.tsx).
                     onClick={(e) => e.stopPropagation()}
                     className="shrink-0 inline-flex items-center gap-1 font-semibold text-amber hover:underline"
                   >

@@ -104,7 +104,14 @@ export function AppSidebar({ user }: { user: SettingsUser }) {
                     isActive={pathname === href}
                     tooltip={showTooltips ? label : undefined}
                   >
-                    <Link href={href} className="justify-between">
+                    {/* iOS Safari treats a hover-styled <a> as a preview on the
+                        first tap and only fires click on the second — an explicit
+                        handler marks it as unambiguously interactive and skips that. */}
+                    <Link
+                      href={href}
+                      className="justify-between"
+                      onClick={() => undefined}
+                    >
                       <span className="flex items-center gap-2">
                         <Icon />
                         <span>{label}</span>
