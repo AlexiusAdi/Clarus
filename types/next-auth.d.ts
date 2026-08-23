@@ -10,11 +10,13 @@ declare module "next-auth" {
 
   interface User extends DefaultUser {
     plan: PlanType;
+    planExpiresAt: Date | null;
   }
 }
 
 declare module "next-auth/adapters" {
   interface AdapterUser {
     plan: PlanType;
+    planExpiresAt: Date | null;
   }
 }
