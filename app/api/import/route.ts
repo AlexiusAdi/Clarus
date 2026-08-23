@@ -7,6 +7,13 @@ import { NextRequest, NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { z } from "zod";
 
+/**
+ * Upload ceiling. The row-count check further down only runs after the whole
+ * file has been parsed, so without this a large upload is buffered into memory
+ * before anything rejects it. Comfortably above a 3,000-row ELITE export.
+ */
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+
 // ── Row schema ───────────────────────────────────────────────────────────────
 const RowSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "must be YYYY-MM-DD"),
@@ -52,11 +59,30 @@ export async function POST(req: NextRequest) {
   }
 
   // 3. Parse multipart file
+  // Checked before formData(), which buffers the entire body — a size check on
+  // the File object alone would come too late to prevent that.
+  const contentLength = Number(req.headers.get("content-length") ?? 0);
+  if (contentLength > MAX_UPLOAD_BYTES) {
+    return NextResponse.json(
+      {
+        message: `File is too large. The limit is ${MAX_UPLOAD_BYTES / 1024 / 1024}MB.`,
+      },
+      { status: 413 },
+    );
+  }
+
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
 
   if (!file) {
     return NextResponse.json({ message: "No file provided" }, { status: 400 });
+  }
+
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return NextResponse.json(
+      { message: `File is too large. The limit is ${MAX_UPLOAD_BYTES / 1024 / 1024}MB.` },
+      { status: 413 },
+    );
   }
 
   const ext = file.name.split(".").pop()?.toLowerCase();
