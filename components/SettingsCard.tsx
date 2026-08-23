@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
-import { Switch } from "./ui/switch";
 import { Skeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import {
@@ -15,25 +14,43 @@ import {
   SelectValue,
 } from "./ui/select";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Switch } from "./ui/switch";
+import { Zap } from "lucide-react";
+import { PlanType } from "@/lib/generated/prisma/browser";
+import { DIGEST_LEAD_DAYS } from "@/lib/helper/financialPeriod";
 
 type UserDetail = {
   pageSize: number;
   financialResetDay: number;
   emailNotification: boolean;
-  notificationDay: number;
+  lastDigestSentAt?: string | null;
 };
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  planType: PlanType;
 };
 
-export default function SettingsCard({ open, onOpenChange }: Props) {
+/** 1 -> "1st", 22 -> "22nd". Reset day is capped at 28, so no teens edge past 13. */
+function ordinal(n: number): string {
+  if (n >= 11 && n <= 13) return n + "th";
+  const suffix = { 1: "st", 2: "nd", 3: "rd" }[n % 10] ?? "th";
+  return n + suffix;
+}
+
+export default function SettingsCard({
+  open,
+  onOpenChange,
+  planType,
+}: Props) {
   const [detail, setDetail] = useState<UserDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const router = useRouter();
+  const isElite = planType === PlanType.ELITE;
 
   useEffect(() => {
     if (!open) return;
@@ -77,12 +94,12 @@ export default function SettingsCard({ open, onOpenChange }: Props) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl">
+      <SheetContent side="bottom" className="rounded-t-2xl max-h-[85dvh]">
         <SheetHeader>
           <SheetTitle>Settings</SheetTitle>
         </SheetHeader>
 
-        <div className="w-full max-w-md mx-auto pb-24 px-4 flex flex-col gap-4">
+        <div className="w-full max-w-md mx-auto px-4 flex flex-col gap-4 overflow-y-auto drawer-safe">
           {loading || !detail ? (
             <>
               <Skeleton className="h-24 w-full rounded-xl" />
@@ -162,56 +179,45 @@ export default function SettingsCard({ open, onOpenChange }: Props) {
               </Card>
 
               {/* Notifications */}
-              {/* <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
                 Notifications
               </p>
               <Card>
                 <CardContent className="p-0 divide-y divide-border">
-                  <div className="flex items-center justify-between px-4 py-3">
-                    <div>
-                      <p className="text-sm font-medium">Email summary</p>
+                  <div className="flex items-center justify-between gap-4 px-4 py-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">Email digest</p>
                       <p className="text-xs text-muted-foreground">
-                        Receive a monthly financial summary
+                        {isElite
+                          ? `Sent ${DIGEST_LEAD_DAYS} days before your cycle closes on the ${ordinal(
+                              detail.financialResetDay,
+                            )}`
+                          : "Spending, portfolio and goal pace, on Elite"}
                       </p>
                     </div>
-                    <Switch
-                      checked={detail.emailNotification}
-                      onCheckedChange={(v) =>
-                        setDetail({ ...detail, emailNotification: v })
-                      }
-                    />
-                  </div>
-                  {detail.emailNotification && (
-                    <div className="flex items-center justify-between px-4 py-3">
-                      <div>
-                        <p className="text-sm font-medium">Summary day</p>
-                        <p className="text-xs text-muted-foreground">
-                          Day of month to receive summary
-                        </p>
-                      </div>
-                      <Select
-                        value={String(detail.notificationDay)}
-                        onValueChange={(v) =>
-                          setDetail({ ...detail, notificationDay: Number(v) })
+                    {isElite ? (
+                      <Switch
+                        checked={detail.emailNotification}
+                        onCheckedChange={(v) =>
+                          setDetail({ ...detail, emailNotification: v })
                         }
+                      />
+                    ) : (
+                      <Button
+                        asChild
+                        size="sm"
+                        variant="outline"
+                        className="h-7 shrink-0 gap-1.5 px-2.5 text-xs text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-500"
                       >
-                        <SelectTrigger className="w-20">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Array.from({ length: 28 }, (_, i) => i + 1).map(
-                            (n) => (
-                              <SelectItem key={n} value={String(n)}>
-                                {n}
-                              </SelectItem>
-                            ),
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
+                        <Link href="/upgrade">
+                          <Zap width={11} />
+                          Upgrade
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
-              </Card> */}
+              </Card>
 
               <Button onClick={handleSave} disabled={saving}>
                 {saving ? "Saving..." : "Save changes"}

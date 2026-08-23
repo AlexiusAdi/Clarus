@@ -74,7 +74,7 @@ model UserDetail {
   pageSize          Int      @default(10)
   financialResetDay Int      @default(1)
   emailNotification Boolean  @default(false)
-  notificationDay   Int      @default(1)
+  lastDigestSentAt  DateTime?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }

@@ -7,7 +7,6 @@ const PatchBodySchema = z.object({
   pageSize: z.number().int().min(5).max(50).optional(),
   financialResetDay: z.number().int().min(1).max(28).optional(),
   emailNotification: z.boolean().optional(),
-  notificationDay: z.number().int().min(1).max(28).optional(),
 });
 
 export async function GET() {
@@ -54,7 +53,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { pageSize, financialResetDay, emailNotification, notificationDay } =
+    const { pageSize, financialResetDay, emailNotification } =
       parsed.data;
 
     const detail = await prisma.userDetail.upsert({
@@ -63,7 +62,6 @@ export async function PATCH(req: NextRequest) {
         ...(pageSize !== undefined && { pageSize }),
         ...(financialResetDay !== undefined && { financialResetDay }),
         ...(emailNotification !== undefined && { emailNotification }),
-        ...(notificationDay !== undefined && { notificationDay }),
       },
       create: { userId },
     });

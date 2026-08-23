@@ -74,6 +74,7 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
         onOpenChange={(o) => setOpenSheet(o ? "profile" : null)}
       />
       <SettingsCard
+        planType={user.planType}
         open={openSheet === "settings"}
         onOpenChange={(o) => setOpenSheet(o ? "settings" : null)}
       />
