@@ -3,7 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { ArrowRight, Pencil, Trash2, Users } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronRight,
+  Pencil,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { TransactionType } from "@/lib/generated/prisma/enums";
 import Alert from "./Alert";
 import { TopSpendingItem } from "@/app/Types";
@@ -13,6 +19,7 @@ import { AddTransaction } from "./AddTransaction";
 import { GoalDTO } from "@/lib/data/goals";
 import { Category } from "@/lib/generated/prisma/browser";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 const TransactionCard = ({
   transaction,
@@ -25,6 +32,7 @@ const TransactionCard = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const getLabel = (transaction: TopSpendingItem) => {
@@ -54,11 +62,22 @@ const TransactionCard = ({
     <>
       <Card
         className={cn(
-          "p-0 w-full rounded-xl shadow-none hover:border-border/80 transition-colors",
+          "p-0 w-full rounded-xl shadow-none hover:border-border/80 transition-colors active:scale-[0.99]",
           deleting && "opacity-50 pointer-events-none",
         )}
       >
-        <CardHeader className="p-3">
+        <CardHeader
+          className="p-3 cursor-pointer"
+          role="button"
+          tabIndex={0}
+          onClick={() => setDetailOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setDetailOpen(true);
+            }
+          }}
+        >
           <div className="flex w-full items-center gap-3 min-w-0">
             <div
               className={cn(
@@ -92,9 +111,10 @@ const TransactionCard = ({
                 {transaction.group && (
                   <Link
                     href={`/groups/${transaction.group.id}`}
-                    // Also stops the click bubbling into the card; the two
-                    // together also sidestep iOS Safari's two-tap-on-hover-
-                    // styled-links quirk (see AppSidebar.tsx).
+                    // Stops the click from bubbling into the card's own
+                    // onClick (which opens the detail drawer instead); the
+                    // two together also sidestep iOS Safari's two-tap-on-
+                    // hover-styled-links quirk (see AppSidebar.tsx).
                     onClick={(e) => e.stopPropagation()}
                     className="shrink-0 inline-flex items-center gap-1 font-semibold text-amber hover:underline"
                   >
@@ -117,7 +137,10 @@ const TransactionCard = ({
               {isActionable && (
                 <div className="flex gap-1">
                   <button
-                    onClick={() => setEditOpen(true)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditOpen(true);
+                    }}
                     disabled={deleting}
                     aria-label="Edit transaction"
                     className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
@@ -125,7 +148,10 @@ const TransactionCard = ({
                     <Pencil className="size-3.5" />
                   </button>
                   <button
-                    onClick={() => setOpen(true)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpen(true);
+                    }}
                     disabled={deleting}
                     aria-label="Delete transaction"
                     className="p-1 rounded-md text-muted-foreground hover:text-clay hover:bg-clay-soft active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none"
@@ -138,6 +164,123 @@ const TransactionCard = ({
           </div>
         </CardHeader>
       </Card>
+
+      {/* repositionInputs={false}: the iOS numeric keypad desyncs vaul's internal
+          keyboardIsOpen flag and throws the drawer off-screen — see FloatingNav. */}
+      <Drawer
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        repositionInputs={false}
+      >
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Transaction details</DrawerTitle>
+          </DrawerHeader>
+          <div className="p-4 drawer-safe overflow-y-auto flex flex-col gap-3 w-full max-w-md mx-auto">
+            <div className="flex items-center gap-3">
+              <div
+                className={cn(
+                  "grid place-items-center size-11 rounded-2xl shrink-0",
+                  isPositive(transaction.type)
+                    ? "bg-sage-soft text-sage"
+                    : "bg-clay-soft text-clay",
+                )}
+              >
+                <ArrowRight
+                  className={cn(
+                    "size-5",
+                    isPositive(transaction.type) ? "-rotate-45" : "rotate-45",
+                  )}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground truncate">
+                  {getLabel(transaction)}
+                </p>
+                <p
+                  className={cn(
+                    "headline tabular text-2xl",
+                    isPositive(transaction.type) ? "text-sage" : "text-foreground",
+                  )}
+                >
+                  {isPositive(transaction.type) ? "+" : "−"}{" "}
+                  {formatCurrency(transaction.amount)}
+                </p>
+              </div>
+            </div>
+
+            {transaction.description && (
+              <div className="rounded-xl bg-surface-2 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-1">
+                  Description
+                </p>
+                <p className="text-sm leading-relaxed wrap-break-word">
+                  {transaction.description}
+                </p>
+              </div>
+            )}
+
+            <div className="rounded-xl border border-border divide-y divide-border overflow-hidden">
+              <div className="flex justify-between items-center px-3 py-2.5">
+                <span className="text-xs text-muted-foreground">Date</span>
+                <span className="text-sm font-medium">
+                  {format(new Date(transaction.date), "EEEE, d MMMM yyyy")}
+                </span>
+              </div>
+              {transaction.group && (
+                <Link
+                  href={`/groups/${transaction.group.id}`}
+                  onClick={() => setDetailOpen(false)}
+                  className="flex justify-between items-center px-3 py-2.5 active:bg-accent transition-colors"
+                >
+                  <span className="text-xs text-muted-foreground">Part of</span>
+                  <span className="text-sm font-semibold text-amber flex items-center gap-1">
+                    <Users className="size-3" />
+                    {transaction.group.name}
+                    <ChevronRight className="size-3 text-muted-foreground" />
+                  </span>
+                </Link>
+              )}
+              {transaction.type === TransactionType.SAVINGS &&
+                transaction.goal && (
+                  <div className="flex justify-between items-center px-3 py-2.5">
+                    <span className="text-xs text-muted-foreground">
+                      Contributed to
+                    </span>
+                    <span className="text-sm font-semibold">
+                      {transaction.goal.name}
+                    </span>
+                  </div>
+                )}
+            </div>
+
+            {isActionable && (
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => {
+                    setDetailOpen(false);
+                    setEditOpen(true);
+                  }}
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-border py-2.5 text-sm font-semibold text-foreground active:scale-95 transition"
+                >
+                  <Pencil className="size-3.5" />
+                  Edit
+                </button>
+                <button
+                  onClick={() => {
+                    setDetailOpen(false);
+                    setOpen(true);
+                  }}
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-clay/25 bg-clay-soft py-2.5 text-sm font-semibold text-clay active:scale-95 transition"
+                >
+                  <Trash2 className="size-3.5" />
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       <Alert
         open={open}
