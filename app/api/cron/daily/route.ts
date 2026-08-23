@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { computeNextRunDate } from "@/lib/helper/scheduled-transactions";
 import { fetchAndCacheAssetPrices } from "@/lib/helper/fetchAndCacheAssetPrices";
 import { FREE_SCHEDULED_TRANSACTION_LIMIT, isPro } from "@/lib/helper/plan";
+import { PlanType } from "@/lib/generated/prisma/enums";
+import { sendDigestRun } from "@/lib/email/sendDigestRun";
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -13,7 +15,53 @@ export async function GET(req: NextRequest) {
   // Job 1 — fetch asset prices
   const priceResult = await fetchAndCacheAssetPrices();
 
-  // Job 2 — process scheduled transactions
+  // Job 2 — expire lapsed plans.
+  //
+  // Ordered before the scheduled-transaction job deliberately: that job reads
+  // user.plan straight from the database to decide the free-plan trim, so the
+  // downgrade has to be persisted first. Otherwise a user whose plan lapsed
+  // today would get one more night at paid-tier limits.
+  const now = new Date();
+  let expired = 0;
+
+  // planExpiresAt: null never matches lte, so users on a plan with no expiry
+  // set are excluded without an explicit null guard.
+  const lapsed = await prisma.user.findMany({
+    where: {
+      plan: { not: PlanType.FREE },
+      planExpiresAt: { lte: now },
+    },
+    select: { id: true, plan: true },
+  });
+
+  for (const user of lapsed) {
+    try {
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: user.id },
+          data: { plan: PlanType.FREE, planExpiresAt: null },
+        }),
+        prisma.planHistory.create({
+          data: {
+            userId: user.id,
+            fromPlan: user.plan,
+            toPlan: PlanType.FREE,
+            source: "EXPIRY",
+            note: "Plan lapsed at planExpiresAt — downgraded by cron/daily",
+          },
+        }),
+      ]);
+      expired++;
+    } catch (err) {
+      console.error(`[cron/daily] Failed to expire plan for ${user.id}:`, err);
+    }
+  }
+
+  if (expired > 0) {
+    console.log(`[cron/daily] Expired ${expired} lapsed plan(s).`);
+  }
+
+  // Job 3 — process scheduled transactions
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -113,8 +161,20 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // Job 4 — cycle-close digests. Last, so a mail provider outage cannot stop
+  // prices refreshing or scheduled transactions materializing.
+  let digest;
+  try {
+    digest = await sendDigestRun(now);
+  } catch (err) {
+    console.error("[cron/daily] Digest run failed:", err);
+    digest = { error: err instanceof Error ? err.message : String(err) };
+  }
+
   return NextResponse.json({
     prices: priceResult,
+    plans: { expired },
     scheduled: { processed, failed, deactivated },
+    digest,
   });
 }

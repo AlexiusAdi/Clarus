@@ -61,12 +61,12 @@ export default function ExportCard({ open, onOpenChange, planType }: Props) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl">
+      <SheetContent side="bottom" className="rounded-t-2xl max-h-[85dvh]">
         <SheetHeader>
           <SheetTitle>Export transactions</SheetTitle>
         </SheetHeader>
 
-        <div className="w-full h-175 mx-auto pb-24 px-4 flex flex-col gap-4 overflow-y-auto">
+        <div className="w-full h-[min(43.75rem,60dvh)] mx-auto px-4 flex flex-col gap-4 overflow-y-auto drawer-safe">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             Range
           </p>

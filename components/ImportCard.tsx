@@ -96,12 +96,12 @@ export default function ImportCard({ open, onOpenChange, planType }: Props) {
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl">
+      <SheetContent side="bottom" className="rounded-t-2xl max-h-[85dvh]">
         <SheetHeader>
           <SheetTitle>Import transactions</SheetTitle>
         </SheetHeader>
 
-        <div className="w-full max-w-md mx-auto pb-24 px-4 flex flex-col gap-4">
+        <div className="w-full max-w-md mx-auto px-4 flex flex-col gap-4 overflow-y-auto drawer-safe">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             Plan
           </p>

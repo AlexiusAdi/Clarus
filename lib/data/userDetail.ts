@@ -5,14 +5,14 @@ export type UserDetailDTO = {
   pageSize: number;
   financialResetDay: number;
   emailNotification: boolean;
-  notificationDay: number;
+  lastDigestSentAt: Date | null;
 };
 
 const FALLBACK: UserDetailDTO = {
   pageSize: 10,
   financialResetDay: DEFAULT_RESET_DAY,
   emailNotification: false,
-  notificationDay: 1,
+  lastDigestSentAt: null,
 };
 
 /**
@@ -27,7 +27,7 @@ export async function getUserDetail(userId: string): Promise<UserDetailDTO> {
       pageSize: true,
       financialResetDay: true,
       emailNotification: true,
-      notificationDay: true,
+      lastDigestSentAt: true,
     },
   });
 

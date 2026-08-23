@@ -20,6 +20,9 @@ export type FinancialPeriod = {
 };
 
 export const DEFAULT_RESET_DAY = 1;
+
+/** Days before a period closes that the digest goes out. */
+export const DIGEST_LEAD_DAYS = 2;
 const MIN_RESET_DAY = 1;
 const MAX_RESET_DAY = 28;
 

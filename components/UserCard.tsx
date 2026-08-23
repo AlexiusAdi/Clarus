@@ -41,12 +41,12 @@ export default function UserCard({ user, open, onOpenChange }: Props) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl">
+      <SheetContent side="bottom" className="rounded-t-2xl max-h-[85dvh]">
         <SheetHeader>
           <SheetTitle>Account</SheetTitle>
         </SheetHeader>
 
-        <div className="w-full max-w-md mx-auto pb-24 px-4">
+        <div className="w-full max-w-md mx-auto px-4 overflow-y-auto drawer-safe">
           <div className="flex flex-col items-center gap-2 pb-6">
             <Avatar className="w-18 h-18">
               <AvatarImage

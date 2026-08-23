@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Next.js 16 (App Router, React 19) · TypeScript (strict) · Tailwind CSS v4 · shadcn/ui (new-york style, `rsc: true`) · Prisma 7 on PostgreSQL (Neon serverless driver) · NextAuth v5 (Google) · Zod v4 · pnpm.
 
+## Always Do First
+
+- \*\*Invoke the `frontend-design` skill\*\* before writing any frontend code, every session, no exception
+
 ## Commands
 
 ```bash
