@@ -231,6 +231,7 @@ export default function NetWorthCard({
                   thousandSeparator="."
                   decimalSeparator=","
                   prefix="Rp "
+                  decimalScale={0}
                 />
               ) : (
                 "••••••"
@@ -259,6 +260,7 @@ export default function NetWorthCard({
                       thousandSeparator="."
                       decimalSeparator=","
                       prefix="Rp "
+                      decimalScale={0}
                     />
                   </span>
                 ) : (
@@ -303,6 +305,7 @@ export default function NetWorthCard({
                     thousandSeparator="."
                     decimalSeparator=","
                     prefix="Rp "
+                    decimalScale={0}
                   />
                 )}
               </p>
@@ -317,6 +320,7 @@ export default function NetWorthCard({
                   thousandSeparator="."
                   decimalSeparator=","
                   prefix="Rp "
+                  decimalScale={0}
                 />
               ) : (
                 "••••••"
@@ -331,6 +335,7 @@ export default function NetWorthCard({
                   thousandSeparator="."
                   decimalSeparator=","
                   prefix="Rp "
+                  decimalScale={0}
                 />
               </p>
             )}

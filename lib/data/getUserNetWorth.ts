@@ -75,13 +75,22 @@ export async function getUserNetWorth(
     }
   }
 
+  // IDR has no subunit — the app never shows decimals for it (see
+  // formatCurrency.ts) — but summing converted USD/lot prices in JS
+  // float leaves fractional noise (e.g. 17844943.2599999...) that
+  // needs rounding off here rather than relying on every display site
+  // to truncate it correctly.
   const investmentsCurrentValue =
-    investments.length > 0 ? pricedCurrentValue + unpricedCostBasis : null;
+    investments.length > 0
+      ? Math.round(pricedCurrentValue + unpricedCostBasis)
+      : null;
   const investmentsPnlAbs =
-    pricedCostBasis > 0 ? pricedCurrentValue - pricedCostBasis : null;
+    pricedCostBasis > 0
+      ? Math.round(pricedCurrentValue - pricedCostBasis)
+      : null;
   const investmentsPnlPct =
     investmentsPnlAbs !== null && pricedCostBasis > 0
-      ? (investmentsPnlAbs / pricedCostBasis) * 100
+      ? Math.round((investmentsPnlAbs / pricedCostBasis) * 1000) / 10
       : null;
 
   const assets = await prisma.asset.findMany({
