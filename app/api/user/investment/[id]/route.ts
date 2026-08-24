@@ -86,9 +86,6 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     } = parsed.data;
 
     let normalizedIdentifier = assetIdentifier.trim();
-    if (type === "STOCK" && !normalizedIdentifier.endsWith(".JK")) {
-      normalizedIdentifier = `${normalizedIdentifier}.JK`;
-    }
     if (type === "CRYPTO") {
       normalizedIdentifier = normalizedIdentifier.toLowerCase();
     }

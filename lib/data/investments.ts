@@ -39,7 +39,11 @@ export async function getInvestments(userId: string): Promise<InvestmentDTO[]> {
     const costPerUnit = i.costPerUnit.toNumber();
     const currentPriceIdr = i.assetPrice?.priceIdr.toNumber() ?? null;
     const normalizedQuantity = i.unit === "lot" ? quantity * 100 : quantity;
-    const amountInvested = normalizedQuantity * costPerUnit;
+    // costPerUnit is totalInvestment / quantity using the quantity exactly as
+    // entered (lots, for IDX stocks) — re-multiplying it by normalizedQuantity
+    // (share-converted) inflates this 100x for lot-based holdings. The total
+    // cost is already known directly, so just use it.
+    const amountInvested = i.totalInvestment.toNumber();
     const currentValue =
       currentPriceIdr !== null ? normalizedQuantity * currentPriceIdr : null;
     const pnlAbs = currentValue !== null ? currentValue - amountInvested : null;

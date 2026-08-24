@@ -51,7 +51,11 @@ export async function GET(req: NextRequest) {
     const costPerUnit = inv.costPerUnit.toNumber();
     const currentPriceIdr = inv.assetPrice?.priceIdr.toNumber() ?? null;
     const normalizedQuantity = inv.unit === "lot" ? quantity * 100 : quantity;
-    const amountInvested = normalizedQuantity * costPerUnit;
+    // costPerUnit is totalInvestment / quantity using the quantity exactly as
+    // entered (lots, for IDX stocks) — re-multiplying it by normalizedQuantity
+    // (share-converted) inflates this 100x for lot-based holdings. The total
+    // cost is already known directly, so just use it.
+    const amountInvested = inv.totalInvestment.toNumber();
     const currentValue =
       currentPriceIdr !== null ? normalizedQuantity * currentPriceIdr : null;
     const pnlAbs = currentValue !== null ? currentValue - amountInvested : null;
