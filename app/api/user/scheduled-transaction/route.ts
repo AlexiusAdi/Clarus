@@ -15,7 +15,21 @@ const createSchema = z.object({
   description: z.string().optional(),
   frequency: z.enum(Frequency),
   interval: z.number().min(1).max(365).default(1),
-  startDate: z.string(), // "yyyy-MM-dd"
+  startDate: z.string().refine(
+    (v) => {
+      const now = new Date();
+      const todayUtc = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+      );
+      return new Date(v) >= todayUtc;
+    },
+    {
+      // A backdated start sits "overdue" until the next cron run catches it
+      // up — the client already blocks this in the date picker, this is a
+      // second line of defense against calling the API directly.
+      message: "Start date must be today or later",
+    },
+  ), // "yyyy-MM-dd"
 });
 
 // POST — create

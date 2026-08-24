@@ -107,6 +107,7 @@ export const AddTransaction = ({
     register,
     handleSubmit,
     setValue,
+    resetField,
     watch,
     formState: { errors, isSubmitting },
     reset,
@@ -346,6 +347,13 @@ export const AddTransaction = ({
                 onSelect={(d) => {
                   if (d) setValue("date", d, { shouldValidate: true });
                 }}
+                onDayClick={(_day, modifiers) => {
+                  if (modifiers.disabled) {
+                    toast.error("Transactions can't be dated in the future", {
+                      position: "top-center",
+                    });
+                  }
+                }}
                 disabled={{ after: new Date() }}
               />
             </PopoverContent>
@@ -408,8 +416,22 @@ export const AddTransaction = ({
                   onSelect={(d) => {
                     if (d) setValue("date", d, { shouldValidate: true });
                   }}
-                  // recurring can start today or future; regular is past/today only
-                  disabled={isRecurring ? undefined : { after: new Date() }}
+                  onDayClick={(_day, modifiers) => {
+                    if (!modifiers.disabled) return;
+                    toast.error(
+                      isRecurring
+                        ? "Recurring transactions must start today or later"
+                        : "Transactions can't be dated in the future",
+                      { position: "top-center" },
+                    );
+                  }}
+                  // recurring can only start today or in the future — a
+                  // backdated start sits "overdue" until the next cron run
+                  // catches it up, which reads as broken; regular
+                  // transactions are the opposite, past/today only.
+                  disabled={
+                    isRecurring ? { before: new Date() } : { after: new Date() }
+                  }
                 />
               </PopoverContent>
             </Popover>
@@ -464,9 +486,19 @@ export const AddTransaction = ({
           <button
             type="button"
             onClick={() => {
-              setValue("isRecurring", !isRecurring);
+              const turningOn = !isRecurring;
+              setValue("isRecurring", turningOn);
               setValue("frequency", undefined);
               setValue("interval", undefined);
+              // A date picked while non-recurring can be in the past — clear
+              // it so a stale backdated date can't slip through once
+              // recurring (which only allows today or later) is turned on.
+              // Compared at day granularity so today itself isn't cleared.
+              const todayStart = new Date();
+              todayStart.setHours(0, 0, 0, 0);
+              if (turningOn && date && date < todayStart) {
+                resetField("date");
+              }
             }}
             className={cn(
               "flex items-center gap-2 w-fit text-sm font-medium active:scale-95 transition-transform",
