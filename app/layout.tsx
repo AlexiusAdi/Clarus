@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { TouchDebugOverlay } from "@/components/TouchDebugOverlay";
-import { IOSKeyboardResyncFix } from "@/components/IOSKeyboardResyncFix";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,8 +61,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <IOSKeyboardResyncFix />
-          <TouchDebugOverlay />
           <script
             dangerouslySetInnerHTML={{
               __html: `document.addEventListener('touchstart', function(){}, {passive: true});`,

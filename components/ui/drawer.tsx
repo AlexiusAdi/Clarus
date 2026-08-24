@@ -6,27 +6,9 @@ import { Drawer as DrawerPrimitive } from "vaul"
 import { cn } from "@/lib/utils"
 
 function Drawer({
-  noBodyStyles = true,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
-  // vaul pins <body> to position: fixed with a `top: -scrollY` offset while
-  // open (its iOS scroll lock, always on for Safari regardless of other
-  // props). The app also sets `interactive-widget=resizes-content` in the
-  // root viewport meta so the browser itself resizes the layout viewport
-  // around the on-screen keyboard. When both run at once, the keyboard
-  // opening triggers a real viewport resize that leaves vaul's precomputed
-  // pin offset stale, desyncing touch coordinates from what's rendered —
-  // taps inside the drawer stop landing on anything (emilkowalski/vaul#619,
-  // #620). noBodyStyles turns off vaul's manual pin so the native resize is
-  // the only thing moving the layout; the drawer itself stays put since
-  // DrawerContent is already `position: fixed` independent of body scroll.
-  return (
-    <DrawerPrimitive.Root
-      data-slot="drawer"
-      noBodyStyles={noBodyStyles}
-      {...props}
-    />
-  )
+  return <DrawerPrimitive.Root data-slot="drawer" {...props} />
 }
 
 function DrawerTrigger({
