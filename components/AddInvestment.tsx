@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, History } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "./ui/calendar";
 import { Controller, useForm } from "react-hook-form";
@@ -55,6 +55,7 @@ const investmentSchema = z
       .refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) > 0, {
         message: "Total investment must be greater than 0",
       }),
+    isExistingHolding: z.boolean(),
   })
   .superRefine((data, ctx) => {
     if (data.type !== "OTHER") {
@@ -108,6 +109,7 @@ export const AddInvestment = ({
           quantity: investmentInitialValues.quantity.toString(),
           unit: investmentInitialValues.unit,
           date: new Date(investmentInitialValues.date),
+          isExistingHolding: false,
         }
       : {
           type: InvestmentType.STOCK,
@@ -117,6 +119,7 @@ export const AddInvestment = ({
           totalInvestment: "",
           unit: "shares",
           date: undefined,
+          isExistingHolding: false,
         },
   });
   const { refetchActive } = useTabsContext();
@@ -125,6 +128,7 @@ export const AddInvestment = ({
   const purchaseDate = watch("date");
   const quantity = watch("quantity");
   const totalInvestment = watch("totalInvestment");
+  const isExistingHolding = watch("isExistingHolding");
   const isEditing = !!investmentInitialValues;
 
   // Live total calculation
@@ -153,6 +157,7 @@ export const AddInvestment = ({
       totalInvestment: "",
       unit: unitMap[newType],
       date: undefined,
+      isExistingHolding,
       ...extraDefaults,
     });
   };
@@ -406,6 +411,42 @@ export const AddInvestment = ({
             {errors.totalInvestment.message}
           </span>
         )}
+      </div>
+
+      {/* ── Existing holding toggle ── */}
+      <div className="flex flex-col gap-1.5">
+        <button
+          type="button"
+          onClick={() =>
+            setValue("isExistingHolding", !isExistingHolding, {
+              shouldValidate: true,
+            })
+          }
+          className={cn(
+            "flex items-center gap-2 w-fit text-sm font-medium active:scale-95 transition-transform",
+            isExistingHolding ? "text-primary" : "text-muted-foreground",
+          )}
+        >
+          <History size={15} />
+          I already own this
+          {/* pill indicator */}
+          <span
+            className={cn(
+              "w-8 h-4 rounded-full transition-colors relative",
+              isExistingHolding ? "bg-primary" : "bg-muted-foreground/30",
+            )}
+          >
+            <span
+              className={cn(
+                "absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all",
+                isExistingHolding ? "left-4" : "left-0.5",
+              )}
+            />
+          </span>
+        </button>
+        <span className="text-xs text-muted-foreground pl-[23px]">
+          Won&apos;t be subtracted from your cash balance
+        </span>
       </div>
 
       <Button type="submit" disabled={isSubmitting}>
