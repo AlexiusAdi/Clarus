@@ -10,7 +10,6 @@ import { InvestmentDTO } from "@/lib/data/investments";
 import { formatCurrency } from "@/lib/helper/formatCurrency";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
 import { AddInvestment } from "./AddInvestment";
-import { useDrawerScrollFix } from "@/hooks/useDrawerScrollFix";
 
 type Props = {
   investment: InvestmentDTO;
@@ -18,10 +17,8 @@ type Props = {
 
 const InvestmentCard = ({ investment }: Props) => {
   const [open, setOpen] = useState(false);
-  const [editOpen, setEditOpenRaw] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const { wrapSetOpen } = useDrawerScrollFix();
-  const setEditOpen = wrapSetOpen(setEditOpenRaw);
 
   const Icon = TYPE_ICON[investment.type].icon;
   const iconStyle = TYPE_ICON[investment.type].className;

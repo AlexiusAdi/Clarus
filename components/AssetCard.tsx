@@ -18,7 +18,6 @@ import { formatCurrency } from "@/lib/helper/formatCurrency";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
 import { AddAssets } from "./AddAssets";
 import { cn } from "@/lib/utils";
-import { useDrawerScrollFix } from "@/hooks/useDrawerScrollFix";
 
 const ICON_CHIP = "rounded-xl p-2.5 size-10";
 
@@ -39,10 +38,8 @@ interface AssetCardProps {
 
 export const AssetCard = ({ asset }: AssetCardProps) => {
   const [open, setOpen] = useState(false);
-  const [editOpen, setEditOpenRaw] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const { wrapSetOpen } = useDrawerScrollFix();
-  const setEditOpen = wrapSetOpen(setEditOpenRaw);
 
   return (
     <>

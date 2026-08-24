@@ -10,7 +10,6 @@ import Alert from "./Alert";
 import { format } from "date-fns";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
 import { AddGoal } from "./AddGoalCard";
-import { useDrawerScrollFix } from "@/hooks/useDrawerScrollFix";
 
 type GoalStatus = "on-track" | "behind" | "completed";
 
@@ -48,10 +47,8 @@ const getStatus = (goal: GoalDTO): GoalStatus => {
 
 export const GoalCard = ({ goal }: { goal: GoalDTO }) => {
   const [alertOpen, setAlertOpen] = useState(false);
-  const [editOpen, setEditOpenRaw] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const { wrapSetOpen } = useDrawerScrollFix();
-  const setEditOpen = wrapSetOpen(setEditOpenRaw);
 
   const { status, monthlyNeeded, percent } = useMemo(() => {
     const now = Date.now();

@@ -22,7 +22,6 @@ import { AddGroupMember } from "./AddGroupMemberCard";
 import { useTabData } from "@/hooks/useTabData";
 import { PaginationControls } from "./PaginationControls";
 import { Skeleton } from "./ui/skeleton";
-import { useDrawerScrollFix } from "@/hooks/useDrawerScrollFix";
 
 const AVATAR_STYLES = [
   "bg-amber-soft text-amber",
@@ -41,13 +40,10 @@ const initials = (name: string) =>
 
 export default function GroupDetailView({ group }: { group: GroupDetailDTO }) {
   const router = useRouter();
-  const [expenseOpen, setExpenseOpenRaw] = useState(false);
-  const [memberOpen, setMemberOpenRaw] = useState(false);
+  const [expenseOpen, setExpenseOpen] = useState(false);
+  const [memberOpen, setMemberOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const { wrapSetOpen } = useDrawerScrollFix();
-  const setExpenseOpen = wrapSetOpen(setExpenseOpenRaw);
-  const setMemberOpen = wrapSetOpen(setMemberOpenRaw);
 
   const {
     data: transactions,
