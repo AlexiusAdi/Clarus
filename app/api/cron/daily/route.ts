@@ -62,8 +62,12 @@ export async function GET(req: NextRequest) {
   }
 
   // Job 3 — process scheduled transactions
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // UTC explicitly, matching financialPeriod.ts — setHours() would use the
+  // server's local timezone instead, which happens to line up with UTC on
+  // Vercel today but shouldn't be left implicit.
+  const today = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
 
   const due = await prisma.scheduledTransaction.findMany({
     where: {
