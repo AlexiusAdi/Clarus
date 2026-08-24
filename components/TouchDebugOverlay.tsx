@@ -59,6 +59,13 @@ export function TouchDebugOverlay() {
       );
     };
 
+    const vv = window.visualViewport;
+    const onVVResize = () => {
+      log(
+        `⇕ vv resize: vvH=${vv ? Math.round(vv.height) : "n/a"} innerH=${window.innerHeight} scrollY=${Math.round(window.scrollY)} offsetTop=${vv ? Math.round(vv.offsetTop) : "n/a"}`,
+      );
+    };
+
     document.addEventListener("touchstart", onTouchStart, {
       capture: true,
       passive: true,
@@ -67,11 +74,13 @@ export function TouchDebugOverlay() {
       capture: true,
       passive: true,
     });
+    vv?.addEventListener("resize", onVVResize);
     return () => {
       document.removeEventListener("touchstart", onTouchStart, {
         capture: true,
       });
       document.removeEventListener("touchend", onTouchEnd, { capture: true });
+      vv?.removeEventListener("resize", onVVResize);
     };
   }, [enabled]);
 
