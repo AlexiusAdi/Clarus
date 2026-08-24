@@ -10,6 +10,13 @@ export interface UserNetWorth {
   netWorth: number;
   cashBalance: number;
   totalInvestments: number;
+  /** Income - expense - savings - investments, scoped to the current financial period only. */
+  periodCashFlow: number;
+  /** Priced holdings at market value + unpriced holdings at cost; null with no investments. */
+  investmentsCurrentValue: number | null;
+  /** Only over priced holdings, so an unpriced item can't fake a loss. */
+  investmentsPnlAbs: number | null;
+  investmentsPnlPct: number | null;
 }
 
 export type TabsData = {

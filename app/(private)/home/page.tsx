@@ -58,7 +58,7 @@ const Page = async () => {
     getCategories(userId),
     getAssets(userId),
     getGoals(userId),
-    getUserNetWorth(userId),
+    getUserNetWorth(userId, userDetail.financialResetDay),
     getOverviewData(userId, userDetail.financialResetDay),
     getScheduledTransactions(userId),
     canUseGroupExpenses(userPlan ?? PlanType.FREE) ? getGroups(userId) : [],

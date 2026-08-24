@@ -41,6 +41,10 @@ export default function NetWorthCard({
     netWorth = 0,
     cashBalance = 0,
     totalInvestments = 0,
+    periodCashFlow = 0,
+    investmentsCurrentValue = null,
+    investmentsPnlAbs = null,
+    investmentsPnlPct = null,
   } = userNetWorth ?? {};
 
   // Accent wash layered over the ink card — keeps every plan on the same
@@ -209,35 +213,128 @@ export default function NetWorthCard({
           </div>
         </CardContent>
 
-        <CardContent className="relative grid grid-cols-2 gap-2 w-full">
-          {[
-            { label: "Cash Balance", value: cashBalance },
-            { label: "Investments", value: totalInvestments },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="rounded-xl bg-porcelinwhite/6 border border-porcelinwhite/10 px-3 py-2.5 @md/main:px-4"
-            >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-porcelinwhite/50">
-                {label}
+        <CardContent className="relative grid grid-cols-2 gap-2 w-full items-start">
+          {/* Cash Balance — the lifetime running total net worth depends on,
+              plus a separate "this period" flow line so it's clear that
+              second number isn't part of the balance itself. */}
+          <div className="rounded-xl bg-porcelinwhite/6 border border-porcelinwhite/10 px-3 py-2.5 @md/main:px-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-porcelinwhite/50">
+              Cash Balance
+            </p>
+            <p className="tabular font-semibold text-base @md/main:text-lg mt-1">
+              {!hasData || cashBalance === 0 ? (
+                <span className="text-sm font-normal opacity-50">—</span>
+              ) : isVisible ? (
+                <NumericFormat
+                  value={cashBalance}
+                  displayType="text"
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  prefix="Rp "
+                />
+              ) : (
+                "••••••"
+              )}
+            </p>
+            {hasData && (
+              <p className="tabular flex items-baseline gap-1 text-[11px] font-semibold mt-1.5 pt-1.5 border-t border-porcelinwhite/8">
+                <span className="text-porcelinwhite/50 font-medium">
+                  This month
+                </span>
+                {isVisible ? (
+                  <span
+                    // This card stays dark regardless of app theme — pinned
+                    // to the dark-mode sage/clay values (see the goals
+                    // button above) so it stays legible in light mode too.
+                    className={
+                      periodCashFlow >= 0
+                        ? "text-[oklch(0.7_0.09_152)]"
+                        : "text-[oklch(0.68_0.13_32)]"
+                    }
+                  >
+                    {periodCashFlow >= 0 ? "+" : "−"}
+                    <NumericFormat
+                      value={Math.abs(periodCashFlow)}
+                      displayType="text"
+                      thousandSeparator="."
+                      decimalSeparator=","
+                      prefix="Rp "
+                    />
+                  </span>
+                ) : (
+                  "••••••"
+                )}
               </p>
-              <p className="tabular font-semibold text-base @md/main:text-lg mt-1">
-                {!hasData || value === 0 ? (
-                  <span className="text-sm font-normal opacity-50">—</span>
-                ) : isVisible ? (
+            )}
+          </div>
+
+          {/* Investments — headline is current market value (falls back to
+              cost when no holding has a price yet), with the return above it
+              and what was actually put in below it. */}
+          <div className="rounded-xl bg-porcelinwhite/6 border border-porcelinwhite/10 px-3 py-2.5 @md/main:px-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-porcelinwhite/50">
+              Investments
+            </p>
+            {isVisible && investmentsPnlPct !== null && (
+              <p
+                // Pinned to the dark-mode sage/clay values — see the "This
+                // month" line above for why.
+                className={cn(
+                  "tabular flex items-center gap-1 text-[11px] font-semibold mt-1",
+                  investmentsPnlAbs !== null && investmentsPnlAbs >= 0
+                    ? "text-[oklch(0.7_0.09_152)]"
+                    : "text-[oklch(0.68_0.13_32)]",
+                )}
+              >
+                <ArrowRight
+                  className={cn(
+                    "size-3",
+                    investmentsPnlAbs !== null && investmentsPnlAbs >= 0
+                      ? "-rotate-45"
+                      : "rotate-45",
+                  )}
+                />
+                {investmentsPnlPct >= 0 ? "+" : "−"}
+                {Math.abs(investmentsPnlPct).toFixed(1)}%{" "}
+                {investmentsPnlAbs !== null && (
                   <NumericFormat
-                    value={value}
+                    value={Math.abs(investmentsPnlAbs)}
                     displayType="text"
                     thousandSeparator="."
                     decimalSeparator=","
                     prefix="Rp "
                   />
-                ) : (
-                  "••••••"
                 )}
               </p>
-            </div>
-          ))}
+            )}
+            <p className="tabular font-semibold text-base @md/main:text-lg mt-1">
+              {!hasData || totalInvestments === 0 ? (
+                <span className="text-sm font-normal opacity-50">—</span>
+              ) : isVisible ? (
+                <NumericFormat
+                  value={investmentsCurrentValue ?? totalInvestments}
+                  displayType="text"
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  prefix="Rp "
+                />
+              ) : (
+                "••••••"
+              )}
+            </p>
+            {hasData && totalInvestments > 0 && isVisible && (
+              <p className="tabular text-[10px] text-porcelinwhite/45 mt-1">
+                Invested{" "}
+                <NumericFormat
+                  value={totalInvestments}
+                  displayType="text"
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  prefix="Rp "
+                />
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
 

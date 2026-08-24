@@ -90,7 +90,7 @@ export async function getDigestData(
         },
         select: { amount: true },
       }),
-      getUserNetWorth(userId),
+      getUserNetWorth(userId, resetDay, now),
       getInvestments(userId),
       getGoals(userId),
       prisma.scheduledTransaction.findMany({
