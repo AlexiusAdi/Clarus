@@ -44,22 +44,29 @@ Anda setuju untuk menggunakan Layanan hanya untuk tujuan yang sah dan sesuai den
 - Kami menggunakan data secara agregat dan anonim untuk meningkatkan Layanan.
 - Fitur AI menggunakan data Anda secara sementara untuk menghasilkan wawasan dan tidak disimpan oleh penyedia AI.
 
-7. BATASAN TANGGUNG JAWAB
+7. SUMBER DATA HARGA PASAR
+Harga aset yang ditampilkan di Layanan (saham, kripto, emas) diperoleh dari penyedia data pihak ketiga dan bersifat indikatif, bukan harga transaksi resmi:
+- Saham: Yahoo Finance, mengikuti bursa tempat saham tersebut tercatat (mis. NASDAQ, NYSE, atau Bursa Efek Indonesia).
+- Kripto: CoinGecko.
+- Emas: harga futures emas internasional (COMEX), dikonversi ke Rupiah per gram menggunakan kurs USD/IDR terkini.
+Harga emas yang kami tampilkan berbeda dari harga emas Antam, Pegadaian, Pluang, atau platform jual-beli emas lokal lainnya, yang memiliki margin, premi, dan selisih harga beli-jual tersendiri. Nilai investasi serta persentase keuntungan/kerugian yang ditampilkan adalah estimasi berdasarkan data pihak ketiga tersebut, bukan harga aktual di platform tempat Anda membeli atau menjual aset. Kami tidak menjamin keakuratan, ketepatan waktu, atau kesesuaian data ini dengan harga riil di pasar atau platform tertentu, dan tidak bertanggung jawab atas selisih yang timbul.
+
+8. BATASAN TANGGUNG JAWAB
 Clarus adalah alat bantu pencatatan keuangan, bukan penasihat keuangan berlisensi. Kami tidak bertanggung jawab atas:
 - Keputusan keuangan yang Anda buat berdasarkan data di aplikasi.
 - Kehilangan data akibat force majeure atau gangguan teknis di luar kendali kami.
 - Kerugian tidak langsung yang timbul dari penggunaan Layanan.
 
-8. PENGHENTIAN LAYANAN
+9. PENGHENTIAN LAYANAN
 Kami berhak menghentikan atau menangguhkan akses Anda ke Layanan jika Anda melanggar ketentuan ini, tanpa pemberitahuan sebelumnya dalam kasus pelanggaran serius.
 
-9. PERUBAHAN KETENTUAN
+10. PERUBAHAN KETENTUAN
 Kami dapat memperbarui Syarat dan Ketentuan ini sewaktu-waktu. Perubahan material akan diberitahukan melalui email atau notifikasi dalam aplikasi. Penggunaan berkelanjutan setelah perubahan dianggap sebagai penerimaan ketentuan baru.
 
-10. HUKUM YANG BERLAKU
+11. HUKUM YANG BERLAKU
 Syarat dan Ketentuan ini diatur oleh hukum Republik Indonesia. Setiap sengketa diselesaikan melalui Pengadilan Negeri Jakarta Selatan.
 
-11. KONTAK
+12. KONTAK
 PT Anrico Solution
 Email: support@clarus.id
 `;
