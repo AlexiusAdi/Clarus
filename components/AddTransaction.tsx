@@ -83,6 +83,26 @@ const transactionSchema = z
         });
       }
     }
+
+    if (data.date) {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      // A backdated recurring start sits "overdue" until the next cron run
+      // catches it up, which reads as broken — see AddTransaction history.
+      if (data.isRecurring && data.date < todayStart) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Recurring transactions must start today or later",
+          path: ["date"],
+        });
+      } else if (!data.isRecurring && data.date > todayStart) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Transactions can't be dated in the future",
+          path: ["date"],
+        });
+      }
+    }
   });
 
 type TransactionForm = z.infer<typeof transactionSchema>;
@@ -107,7 +127,7 @@ export const AddTransaction = ({
     register,
     handleSubmit,
     setValue,
-    resetField,
+    trigger,
     watch,
     formState: { errors, isSubmitting },
     reset,
@@ -414,24 +434,27 @@ export const AddTransaction = ({
                   mode="single"
                   selected={date}
                   onSelect={(d) => {
-                    if (d) setValue("date", d, { shouldValidate: true });
+                    if (!d) return;
+                    setValue("date", d, { shouldValidate: true });
+                    // Any date is pickable here (recurring sits far below
+                    // this field in the form, so blocking days upfront meant
+                    // switching Recurring on after already picking a date
+                    // never re-enabled the one you wanted). Flag it
+                    // immediately instead — same rule the schema enforces.
+                    const todayStart = new Date();
+                    todayStart.setHours(0, 0, 0, 0);
+                    if (isRecurring && d < todayStart) {
+                      toast.error(
+                        "Recurring transactions must start today or later",
+                        { position: "top-center" },
+                      );
+                    } else if (!isRecurring && d > todayStart) {
+                      toast.error(
+                        "Transactions can't be dated in the future",
+                        { position: "top-center" },
+                      );
+                    }
                   }}
-                  onDayClick={(_day, modifiers) => {
-                    if (!modifiers.disabled) return;
-                    toast.error(
-                      isRecurring
-                        ? "Recurring transactions must start today or later"
-                        : "Transactions can't be dated in the future",
-                      { position: "top-center" },
-                    );
-                  }}
-                  // recurring can only start today or in the future — a
-                  // backdated start sits "overdue" until the next cron run
-                  // catches it up, which reads as broken; regular
-                  // transactions are the opposite, past/today only.
-                  disabled={
-                    isRecurring ? { before: new Date() } : { after: new Date() }
-                  }
                 />
               </PopoverContent>
             </Popover>
@@ -490,14 +513,26 @@ export const AddTransaction = ({
               setValue("isRecurring", turningOn);
               setValue("frequency", undefined);
               setValue("interval", undefined);
-              // A date picked while non-recurring can be in the past — clear
-              // it so a stale backdated date can't slip through once
-              // recurring (which only allows today or later) is turned on.
-              // Compared at day granularity so today itself isn't cleared.
-              const todayStart = new Date();
-              todayStart.setHours(0, 0, 0, 0);
-              if (turningOn && date && date < todayStart) {
-                resetField("date");
+              // A date already picked further up the form can be invalid for
+              // the state being switched to (e.g. a past date, now that
+              // Recurring is on) — surface it under the Date field and flag
+              // it here too, since Recurring sits well below Date and that
+              // error could easily go unnoticed off-screen.
+              if (date) {
+                trigger("date");
+                const todayStart = new Date();
+                todayStart.setHours(0, 0, 0, 0);
+                if (turningOn && date < todayStart) {
+                  toast.error(
+                    "Recurring transactions must start today or later — update the date above",
+                    { position: "top-center" },
+                  );
+                } else if (!turningOn && date > todayStart) {
+                  toast.error(
+                    "Transactions can't be dated in the future — update the date above",
+                    { position: "top-center" },
+                  );
+                }
               }
             }}
             className={cn(
