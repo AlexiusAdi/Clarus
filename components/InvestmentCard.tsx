@@ -177,6 +177,7 @@ const InvestmentCard = ({ investment }: Props) => {
                 quantity: investment.quantity,
                 unit: investment.unit,
                 date: investment.date,
+                isExistingHolding: investment.isExistingHolding,
               }}
             />
           </div>

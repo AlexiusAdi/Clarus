@@ -100,6 +100,7 @@ export type InvestmentInitialValues = {
   totalInvestment: number;
   unit: string;
   date: Date;
+  isExistingHolding: boolean;
 };
 
 export type AssetInitialValues = {

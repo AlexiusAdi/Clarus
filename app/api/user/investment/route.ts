@@ -74,6 +74,7 @@ export async function GET(req: NextRequest) {
       costPerUnit,
       totalInvestment: inv.totalInvestment.toNumber(),
       date: inv.date,
+      isExistingHolding: inv.isExistingHolding,
       amountInvested,
       currentPriceIdr,
       currentValue,
@@ -112,6 +113,7 @@ const investmentPostSchema = z
       .number()
       .positive("Total investment must be greater than 0"),
     date: z.string().min(1, "Date is required"),
+    isExistingHolding: z.boolean().optional().default(false),
   })
   .superRefine((data, ctx) => {
     if (data.type !== "OTHER") {
@@ -148,8 +150,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { name, type, assetIdentifier, quantity, unit, totalInvestment, date } =
-    parsed.data;
+  const {
+    name,
+    type,
+    assetIdentifier,
+    quantity,
+    unit,
+    totalInvestment,
+    date,
+    isExistingHolding,
+  } = parsed.data;
 
   if (!isPro(session.user.plan)) {
     // Watch-list rows (trackOnly) hold no money and don't reach net worth, so
@@ -200,18 +210,24 @@ export async function POST(req: NextRequest) {
       totalInvestment,
       date: new Date(date),
       userId: session.user.id,
+      isExistingHolding,
     },
   });
 
-  await prisma.transaction.create({
-    data: {
-      type: TransactionType.INVESTMENTS,
-      amount: totalInvestment,
-      date: new Date(date),
-      user: { connect: { id: session.user.id } },
-      investment: { connect: { id: investment.id } },
-    },
-  });
+  // An existing holding is portfolio data, not a cash-flow event — it still
+  // counts toward net worth via Investment.totalInvestment, but skipping the
+  // linked transaction keeps it from being subtracted from cash balance.
+  if (!isExistingHolding) {
+    await prisma.transaction.create({
+      data: {
+        type: TransactionType.INVESTMENTS,
+        amount: totalInvestment,
+        date: new Date(date),
+        user: { connect: { id: session.user.id } },
+        investment: { connect: { id: investment.id } },
+      },
+    });
+  }
 
   if (type !== "OTHER") {
     // Seed just this asset's price in-process. The old version called the cron

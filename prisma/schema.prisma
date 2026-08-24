@@ -261,6 +261,7 @@ model Investment {
   totalInvestment Decimal        @db.Decimal(18, 2)
   date            DateTime
   trackOnly       Boolean        @default(false)
+  isExistingHolding Boolean      @default(false)
   createdAt       DateTime       @default(now())
   userId          String
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)

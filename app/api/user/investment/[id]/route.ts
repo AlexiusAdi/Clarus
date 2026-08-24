@@ -15,6 +15,7 @@ const PatchBodySchema = z.object({
     .number()
     .positive("Total investment must be positive"),
   date: z.coerce.date(),
+  isExistingHolding: z.boolean().optional().default(false),
 });
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -83,6 +84,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       unit,
       totalInvestment,
       date,
+      isExistingHolding,
     } = parsed.data;
 
     let normalizedIdentifier = assetIdentifier.trim();
@@ -107,17 +109,40 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         costPerUnit: totalInvestment / quantity,
         totalInvestment,
         date,
+        isExistingHolding,
       },
     });
 
-    await prisma.transaction.updateMany({
-      where: {
-        userId,
-        type: TransactionType.INVESTMENTS,
-        date: investment.date,
-      },
-      data: { amount: totalInvestment },
+    // Linked by investmentId rather than matching on date — the previous
+    // date-based lookup silently missed the transaction (leaving it stale)
+    // whenever the investment's date changed as part of the same edit.
+    const existingTxn = await prisma.transaction.findFirst({
+      where: { userId, investmentId: id },
     });
+
+    if (isExistingHolding) {
+      // Now marked as portfolio-only — a cash-flow transaction shouldn't exist.
+      if (existingTxn) {
+        await prisma.transaction.delete({ where: { id: existingTxn.id } });
+      }
+    } else if (existingTxn) {
+      await prisma.transaction.update({
+        where: { id: existingTxn.id },
+        data: { amount: totalInvestment, date },
+      });
+    } else {
+      // Was previously an existing holding (no transaction) and is now a
+      // real cash-flow entry.
+      await prisma.transaction.create({
+        data: {
+          type: TransactionType.INVESTMENTS,
+          amount: totalInvestment,
+          date,
+          user: { connect: { id: userId } },
+          investment: { connect: { id } },
+        },
+      });
+    }
 
     return NextResponse.json(investment);
   } catch (error) {

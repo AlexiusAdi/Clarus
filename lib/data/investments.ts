@@ -20,6 +20,7 @@ export type InvestmentDTO = {
   date: Date;
   createdAt: Date;
   userId: string;
+  isExistingHolding: boolean;
   amountInvested: number;
   currentPriceIdr: number | null;
   currentValue: number | null;
@@ -64,6 +65,7 @@ export async function getInvestments(userId: string): Promise<InvestmentDTO[]> {
       date: i.date,
       createdAt: i.createdAt,
       userId: i.userId,
+      isExistingHolding: i.isExistingHolding,
       amountInvested,
       currentPriceIdr,
       currentValue,

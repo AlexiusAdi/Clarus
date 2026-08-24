@@ -109,7 +109,7 @@ export const AddInvestment = ({
           quantity: investmentInitialValues.quantity.toString(),
           unit: investmentInitialValues.unit,
           date: new Date(investmentInitialValues.date),
-          isExistingHolding: false,
+          isExistingHolding: investmentInitialValues.isExistingHolding,
         }
       : {
           type: InvestmentType.STOCK,
