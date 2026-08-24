@@ -21,6 +21,7 @@ import { GoalDTO } from "@/lib/data/goals";
 import { AssetDTO } from "@/lib/data/assets";
 import { AddGoal } from "./AddGoalCard";
 import { useScheduledTransactionsContext } from "./ScheduledTransactionsProvider";
+import { useDrawerScrollFix } from "@/hooks/useDrawerScrollFix";
 
 const NAV_ITEMS = [{ icon: Target, href: "/goals" }];
 
@@ -33,8 +34,10 @@ export default function FloatingNav({
   goals: GoalDTO[];
   assets: AssetDTO[];
 }) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpenRaw] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const { wrapSetOpen } = useDrawerScrollFix();
+  const setDrawerOpen = wrapSetOpen(setDrawerOpenRaw);
 
   const { items: scheduledTransactions, setItems: setScheduledTransactions } =
     useScheduledTransactionsContext();

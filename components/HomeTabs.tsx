@@ -26,6 +26,7 @@ import { RepeatIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { useScheduledTransactionsContext } from "./ScheduledTransactionsProvider";
 import { DateRangeFilter, DateRange } from "./DateRangeFilter";
+import { useDrawerScrollFix } from "@/hooks/useDrawerScrollFix";
 
 const HomeTabs = ({
   overviewData,
@@ -40,7 +41,9 @@ const HomeTabs = ({
     overviewData;
   const { activeTab, setActiveTab, settingsVersion } = useTabsContext();
   const { refetchActive, setRefetchActive } = useTabsContext();
-  const [scheduledOpen, setScheduledOpen] = useState(false);
+  const [scheduledOpen, setScheduledOpenRaw] = useState(false);
+  const { wrapSetOpen } = useDrawerScrollFix();
+  const setScheduledOpen = wrapSetOpen(setScheduledOpenRaw);
 
   const [transactionDateRange, setTransactionDateRange] =
     useState<DateRange>({});

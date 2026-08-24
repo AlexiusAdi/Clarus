@@ -9,9 +9,12 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { AddGroup } from "@/components/AddGroupCard";
+import { useDrawerScrollFix } from "@/hooks/useDrawerScrollFix";
 
 export default function GroupsAddButton() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpenRaw] = useState(false);
+  const { wrapSetOpen } = useDrawerScrollFix();
+  const setOpen = wrapSetOpen(setOpenRaw);
 
   return (
     <>

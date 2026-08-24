@@ -19,6 +19,7 @@ import { GoalDTO } from "@/lib/data/goals";
 import { AssetDTO } from "@/lib/data/assets";
 import { useRouter } from "next/navigation";
 import { useScheduledTransactionsContext } from "./ScheduledTransactionsProvider";
+import { useDrawerScrollFix } from "@/hooks/useDrawerScrollFix";
 
 export default function FloatingMenu({
   categories,
@@ -29,9 +30,11 @@ export default function FloatingMenu({
   assets: AssetDTO[];
 }) {
   const [fabOpen, setFabOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpenRaw] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const router = useRouter();
+  const { wrapSetOpen } = useDrawerScrollFix();
+  const setDrawerOpen = wrapSetOpen(setDrawerOpenRaw);
 
   const { items: scheduledTransactions, setItems: setScheduledTransactions } =
     useScheduledTransactionsContext();

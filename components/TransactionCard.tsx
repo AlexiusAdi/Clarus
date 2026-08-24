@@ -20,6 +20,7 @@ import { GoalDTO } from "@/lib/data/goals";
 import { Category } from "@/lib/generated/prisma/browser";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useDrawerScrollFix } from "@/hooks/useDrawerScrollFix";
 
 const TransactionCard = ({
   transaction,
@@ -31,9 +32,12 @@ const TransactionCard = ({
   goals: GoalDTO[];
 }) => {
   const [open, setOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [detailOpen, setDetailOpen] = useState(false);
+  const [editOpen, setEditOpenRaw] = useState(false);
+  const [detailOpen, setDetailOpenRaw] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { wrapSetOpen } = useDrawerScrollFix();
+  const setEditOpen = wrapSetOpen(setEditOpenRaw);
+  const setDetailOpen = wrapSetOpen(setDetailOpenRaw);
 
   const getLabel = (transaction: TopSpendingItem) => {
     if (transaction.category?.name) return transaction.category.name;
