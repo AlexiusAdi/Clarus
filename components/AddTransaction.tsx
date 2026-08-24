@@ -98,7 +98,8 @@ const transactionSchema = z
       } else if (!data.isRecurring && data.date > todayStart) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Transactions can't be dated in the future",
+          message:
+            "Transaction can't be dated in the future, unless it's a recurring transaction",
           path: ["date"],
         });
       }
@@ -127,7 +128,6 @@ export const AddTransaction = ({
     register,
     handleSubmit,
     setValue,
-    trigger,
     watch,
     formState: { errors, isSubmitting },
     reset,
@@ -173,6 +173,16 @@ export const AddTransaction = ({
     () => categories.filter((cat) => cat.type === type),
     [categories, type],
   );
+
+  const onInvalidSubmit = (formErrors: typeof errors) => {
+    // Date has no inline error text below the field anymore — surface a
+    // submit attempt against an invalid date as a toast instead.
+    if (formErrors.date) {
+      toast.error(formErrors.date.message ?? "Please pick a valid date", {
+        position: "top-center",
+      });
+    }
+  };
 
   const onSubmit = async (data: TransactionForm) => {
     try {
@@ -252,7 +262,7 @@ export const AddTransaction = ({
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
       className="flex flex-col gap-4 w-full max-w-md mx-auto"
     >
       {/* TYPE SELECTOR */}
@@ -450,7 +460,7 @@ export const AddTransaction = ({
                       );
                     } else if (!isRecurring && d > todayStart) {
                       toast.error(
-                        "Transactions can't be dated in the future",
+                        "Transaction can't be dated in the future, unless it's a recurring transaction",
                         { position: "top-center" },
                       );
                     }
@@ -458,11 +468,6 @@ export const AddTransaction = ({
                 />
               </PopoverContent>
             </Popover>
-            {errors.date && (
-              <span className="text-red-500 text-sm">
-                {errors.date.message}
-              </span>
-            )}
           </div>
         </>
       )}
@@ -515,11 +520,9 @@ export const AddTransaction = ({
               setValue("interval", undefined);
               // A date already picked further up the form can be invalid for
               // the state being switched to (e.g. a past date, now that
-              // Recurring is on) — surface it under the Date field and flag
-              // it here too, since Recurring sits well below Date and that
-              // error could easily go unnoticed off-screen.
+              // Recurring is on) — flag it here, since Recurring sits well
+              // below Date and that could easily go unnoticed off-screen.
               if (date) {
-                trigger("date");
                 const todayStart = new Date();
                 todayStart.setHours(0, 0, 0, 0);
                 if (turningOn && date < todayStart) {
@@ -529,7 +532,7 @@ export const AddTransaction = ({
                   );
                 } else if (!turningOn && date > todayStart) {
                   toast.error(
-                    "Transactions can't be dated in the future — update the date above",
+                    "Transaction can't be dated in the future, unless it's a recurring transaction — update the date above",
                     { position: "top-center" },
                   );
                 }
