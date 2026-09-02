@@ -33,6 +33,16 @@ import { TransactionInitialValues } from "@/app/Types";
 import { useTabsContext } from "./TabsProvider";
 import { FREQUENCY_OPTIONS } from "@/constants";
 
+// A transaction loaded for editing carries a UTC-midnight instant (how it's
+// stored), while `todayStart`/a freshly-picked date are local-midnight —
+// comparing those as raw timestamps makes "today" read as "in the future"
+// for anyone east of UTC (WIB is UTC+7: local midnight is still the
+// previous UTC day). Comparing local calendar Y/M/D instead sidesteps the
+// mismatch entirely.
+const dayNumber = (d: Date) => d.getFullYear() * 10000 + d.getMonth() * 100 + d.getDate();
+const isFutureDay = (d: Date) => dayNumber(d) > dayNumber(new Date());
+const isPastDay = (d: Date) => dayNumber(d) < dayNumber(new Date());
+
 const transactionSchema = z
   .object({
     type: z.enum([
@@ -85,17 +95,15 @@ const transactionSchema = z
     }
 
     if (data.date) {
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
       // A backdated recurring start sits "overdue" until the next cron run
       // catches it up, which reads as broken — see AddTransaction history.
-      if (data.isRecurring && data.date < todayStart) {
+      if (data.isRecurring && isPastDay(data.date)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Recurring transactions must start today or later",
           path: ["date"],
         });
-      } else if (!data.isRecurring && data.date > todayStart) {
+      } else if (!data.isRecurring && isFutureDay(data.date)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message:
@@ -451,14 +459,12 @@ export const AddTransaction = ({
                     // switching Recurring on after already picking a date
                     // never re-enabled the one you wanted). Flag it
                     // immediately instead — same rule the schema enforces.
-                    const todayStart = new Date();
-                    todayStart.setHours(0, 0, 0, 0);
-                    if (isRecurring && d < todayStart) {
+                    if (isRecurring && isPastDay(d)) {
                       toast.error(
                         "Recurring transactions must start today or later",
                         { position: "top-center" },
                       );
-                    } else if (!isRecurring && d > todayStart) {
+                    } else if (!isRecurring && isFutureDay(d)) {
                       toast.error(
                         "Transaction can't be dated in the future, unless it's a recurring transaction",
                         { position: "top-center" },
@@ -523,14 +529,12 @@ export const AddTransaction = ({
               // Recurring is on) — flag it here, since Recurring sits well
               // below Date and that could easily go unnoticed off-screen.
               if (date) {
-                const todayStart = new Date();
-                todayStart.setHours(0, 0, 0, 0);
-                if (turningOn && date < todayStart) {
+                if (turningOn && isPastDay(date)) {
                   toast.error(
                     "Recurring transactions must start today or later — update the date above",
                     { position: "top-center" },
                   );
-                } else if (!turningOn && date > todayStart) {
+                } else if (!turningOn && isFutureDay(date)) {
                   toast.error(
                     "Transaction can't be dated in the future, unless it's a recurring transaction — update the date above",
                     { position: "top-center" },
