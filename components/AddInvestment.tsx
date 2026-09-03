@@ -105,7 +105,13 @@ export const AddInvestment = ({
           name: investmentInitialValues.name,
           type: investmentInitialValues.type as InvestmentType,
           assetIdentifier: investmentInitialValues.assetIdentifier ?? "",
-          totalInvestment: investmentInitialValues.totalInvestment.toString(),
+          // The gold field is "Price per Gram", not the total — re-populate
+          // it from costPerUnit so it shows what it claims to, and the
+          // submit-time multiply-by-quantity doesn't double the real total.
+          totalInvestment: (investmentInitialValues.type === InvestmentType.GOLD
+            ? investmentInitialValues.costPerUnit
+            : investmentInitialValues.totalInvestment
+          ).toString(),
           quantity: investmentInitialValues.quantity.toString(),
           unit: investmentInitialValues.unit,
           date: new Date(investmentInitialValues.date),
@@ -164,6 +170,21 @@ export const AddInvestment = ({
 
   const onSubmit = async (data: InvestmentForm) => {
     try {
+      // Gold's field is priced per gram, not the total — every other type
+      // sends its "Total Investment" field straight through as the total
+      // cost, so gold needs multiplying out here first or the API (which
+      // always treats this field as the total) records the per-gram price
+      // as if it were the cost of the entire purchase.
+      const payload =
+        data.type === InvestmentType.GOLD && data.quantity
+          ? {
+              ...data,
+              totalInvestment: String(
+                parseFloat(data.quantity) * parseFloat(data.totalInvestment),
+              ),
+            }
+          : data;
+
       const res = await fetch(
         isEditing
           ? `/api/user/investment/${investmentInitialValues?.id}`
@@ -171,7 +192,7 @@ export const AddInvestment = ({
         {
           method: isEditing ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(payload),
         },
       );
 
@@ -409,6 +430,19 @@ export const AddInvestment = ({
         {errors.totalInvestment && (
           <span className="text-red-500 text-sm">
             {errors.totalInvestment.message}
+          </span>
+        )}
+        {type === InvestmentType.GOLD && total !== null && (
+          <span className="text-muted-foreground text-sm">
+            Total:{" "}
+            <NumericFormat
+              value={total}
+              displayType="text"
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="Rp "
+              decimalScale={0}
+            />
           </span>
         )}
       </div>

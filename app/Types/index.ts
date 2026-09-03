@@ -105,6 +105,9 @@ export type InvestmentInitialValues = {
   quantity: number;
   assetIdentifier: string;
   totalInvestment: number;
+  /** Gold's edit form re-populates its "Price per Gram" field from this,
+   *  not totalInvestment — see AddInvestment.tsx. */
+  costPerUnit: number;
   unit: string;
   date: Date;
   isExistingHolding: boolean;

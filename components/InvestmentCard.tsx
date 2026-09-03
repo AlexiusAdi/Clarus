@@ -174,6 +174,7 @@ const InvestmentCard = ({ investment }: Props) => {
                 type: investment.type,
                 assetIdentifier: investment.assetIdentifier,
                 totalInvestment: investment.totalInvestment,
+                costPerUnit: investment.costPerUnit,
                 quantity: investment.quantity,
                 unit: investment.unit,
                 date: investment.date,
