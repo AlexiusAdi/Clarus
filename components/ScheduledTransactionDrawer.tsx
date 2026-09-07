@@ -296,6 +296,7 @@ export function ScheduledTransactionDrawer({
                             thousandSeparator="."
                             decimalSeparator=","
                             prefix="Rp "
+                            decimalScale={0}
                           />
                         </span>
                       </div>

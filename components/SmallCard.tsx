@@ -36,6 +36,7 @@ export const SmallCard = ({
               thousandSeparator="."
               decimalSeparator=","
               prefix="Rp "
+              decimalScale={0}
             />
           ) : (
             "••••••"
