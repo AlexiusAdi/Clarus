@@ -5,6 +5,7 @@ import {
 } from "@/lib/generated/prisma/browser";
 
 export interface UserNetWorth {
+  /** Lifetime totals — these drive net worth, so they stay unscoped. */
   totalIncome: number;
   totalExpense: number;
   netWorth: number;
@@ -12,6 +13,10 @@ export interface UserNetWorth {
   totalInvestments: number;
   /** Income - expense - savings - investments, scoped to the current financial period only. */
   periodCashFlow: number;
+  /** Income within the current financial period — what the home tile shows. */
+  periodIncome: number;
+  /** Expense within the current financial period — what the home tile shows. */
+  periodExpense: number;
   /** Priced holdings at market value + unpriced holdings at cost; null with no investments. */
   investmentsCurrentValue: number | null;
   /** Only over priced holdings, so an unpriced item can't fake a loss. */

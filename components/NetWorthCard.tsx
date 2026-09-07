@@ -42,6 +42,8 @@ export default function NetWorthCard({
     cashBalance = 0,
     totalInvestments = 0,
     periodCashFlow = 0,
+    periodIncome = 0,
+    periodExpense = 0,
     investmentsCurrentValue = null,
     investmentsPnlAbs = null,
     investmentsPnlPct = null,
@@ -344,13 +346,13 @@ export default function NetWorthCard({
       <div className="grid grid-cols-2 gap-2 py-3">
         <SmallCard
           header="Income"
-          amount={totalIncome}
+          amount={periodIncome}
           icon={<ArrowRight className="w-4 h-4 text-sage -rotate-45" />}
           isVisible={isVisible}
         />
         <SmallCard
           header="Expenses"
-          amount={totalExpense}
+          amount={periodExpense}
           icon={<ArrowRight className="w-4 h-4 text-clay rotate-45" />}
           isVisible={isVisible}
         />

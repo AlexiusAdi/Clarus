@@ -34,9 +34,15 @@ export async function getUserNetWorth(
   const periodTransactions = transactions.filter(
     (txn) => txn.date >= period.start && txn.date < period.end,
   );
+  // Surfaced on their own as well as netted: the home screen's income and
+  // expense tiles are labelled "Monthly", so they have to read the period —
+  // the lifetime totals above would grow forever and never reset on payday.
+  const periodIncome = sumOf(TransactionType.INCOME, periodTransactions);
+  const periodExpense = sumOf(TransactionType.EXPENSE, periodTransactions);
+
   const periodCashFlow =
-    sumOf(TransactionType.INCOME, periodTransactions) -
-    sumOf(TransactionType.EXPENSE, periodTransactions) -
+    periodIncome -
+    periodExpense -
     sumOf(TransactionType.SAVINGS, periodTransactions) -
     sumOf(TransactionType.INVESTMENTS, periodTransactions);
 
@@ -112,6 +118,8 @@ export async function getUserNetWorth(
     totalInvestments,
     netWorth,
     periodCashFlow,
+    periodIncome,
+    periodExpense,
     investmentsCurrentValue,
     investmentsPnlAbs,
     investmentsPnlPct,
