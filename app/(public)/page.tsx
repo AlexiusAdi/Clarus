@@ -41,7 +41,7 @@ export default function Home() {
         <div className="flex flex-col items-center gap-2">
           <div id="welcome">
             <h1 className="text-6xl  dark:text-porcelinwhite text-obsidian">
-              Clarus
+              Certus
             </h1>
           </div>
           <div id="tagline">

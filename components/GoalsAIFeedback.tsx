@@ -36,7 +36,7 @@ export default function GoalsAIFeedback() {
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-3.5 h-3.5 text-muted" />
             <span className="text-xs font-bold text-muted uppercase tracking-widest">
-              Clarus AI · April 2026
+              Certus AI · April 2026
             </span>
             <span className="ml-auto w-2 h-2 bg-green-400 rounded-full animate-pulse" />
           </div>

@@ -4,17 +4,17 @@
  * prose into the same module graph.
  */
 export const TNC_CONTENT = `
-SYARAT DAN KETENTUAN PENGGUNAAN CLARUS
+SYARAT DAN KETENTUAN PENGGUNAAN CERTUS
 
 Terakhir diperbarui: ${new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
 
-Dengan menggunakan aplikasi Clarus ("Layanan"), Anda menyetujui syarat dan ketentuan berikut yang dibuat oleh PT Anrico Solution ("Perusahaan", "kami").
+Dengan menggunakan aplikasi Certus ("Layanan"), Anda menyetujui syarat dan ketentuan berikut yang dibuat oleh PT Anrico Integrasi Teknologi ("Perusahaan", "kami").
 
 1. PENERIMAAN SYARAT
-Dengan mendaftar dan menggunakan Clarus, Anda menyatakan bahwa Anda telah membaca, memahami, dan menyetujui Syarat dan Ketentuan ini. Jika Anda tidak menyetujui, harap hentikan penggunaan Layanan.
+Dengan mendaftar dan menggunakan Certus, Anda menyatakan bahwa Anda telah membaca, memahami, dan menyetujui Syarat dan Ketentuan ini. Jika Anda tidak menyetujui, harap hentikan penggunaan Layanan.
 
 2. DESKRIPSI LAYANAN
-Clarus adalah aplikasi pencatatan keuangan pribadi yang membantu pengguna melacak pemasukan, pengeluaran, aset, investasi, dan tujuan keuangan. Layanan tersedia dalam tiga tingkatan: Free, Pro, dan Elite.
+Certus adalah aplikasi pencatatan keuangan pribadi yang membantu pengguna melacak pemasukan, pengeluaran, aset, investasi, dan tujuan keuangan. Layanan tersedia dalam tiga tingkatan: Free, Pro, dan Elite.
 
 3. AKUN PENGGUNA
 - Anda bertanggung jawab atas kerahasiaan akun dan kata sandi Anda.
@@ -52,7 +52,7 @@ Harga aset yang ditampilkan di Layanan (saham, kripto, emas) diperoleh dari peny
 Harga emas yang kami tampilkan berbeda dari harga emas Antam, Pegadaian, Pluang, atau platform jual-beli emas lokal lainnya, yang memiliki margin, premi, dan selisih harga beli-jual tersendiri. Nilai investasi serta persentase keuntungan/kerugian yang ditampilkan adalah estimasi berdasarkan data pihak ketiga tersebut, bukan harga aktual di platform tempat Anda membeli atau menjual aset. Kami tidak menjamin keakuratan, ketepatan waktu, atau kesesuaian data ini dengan harga riil di pasar atau platform tertentu, dan tidak bertanggung jawab atas selisih yang timbul.
 
 8. BATASAN TANGGUNG JAWAB
-Clarus adalah alat bantu pencatatan keuangan, bukan penasihat keuangan berlisensi. Kami tidak bertanggung jawab atas:
+Certus adalah alat bantu pencatatan keuangan, bukan penasihat keuangan berlisensi. Kami tidak bertanggung jawab atas:
 - Keputusan keuangan yang Anda buat berdasarkan data di aplikasi.
 - Kehilangan data akibat force majeure atau gangguan teknis di luar kendali kami.
 - Kerugian tidak langsung yang timbul dari penggunaan Layanan.
@@ -67,16 +67,16 @@ Kami dapat memperbarui Syarat dan Ketentuan ini sewaktu-waktu. Perubahan materia
 Syarat dan Ketentuan ini diatur oleh hukum Republik Indonesia. Setiap sengketa diselesaikan melalui Pengadilan Negeri Jakarta Selatan.
 
 12. KONTAK
-PT Anrico Solution
+PT Anrico Integrasi Teknologi
 Email: support@clarus.id
 `;
 
 export const PRIVACY_CONTENT = `
-KEBIJAKAN PRIVASI CLARUS
+KEBIJAKAN PRIVASI CERTUS
 
 Terakhir diperbarui: ${new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
 
-PT Anrico Solution ("Perusahaan", "kami") berkomitmen melindungi privasi pengguna Clarus sesuai dengan Undang-Undang Perlindungan Data Pribadi No. 27 Tahun 2022 (UU PDP).
+PT Anrico Integrasi Teknologi ("Perusahaan", "kami") berkomitmen melindungi privasi pengguna Certus sesuai dengan Undang-Undang Perlindungan Data Pribadi No. 27 Tahun 2022 (UU PDP).
 
 1. DATA YANG KAMI KUMPULKAN
 
@@ -103,7 +103,7 @@ c. Data Teknis
 
 3. TUJUAN PENGGUNAAN DATA
 Kami menggunakan data Anda untuk:
-- Menyediakan dan mengoperasikan Layanan Clarus
+- Menyediakan dan mengoperasikan Layanan Certus
 - Memproses pembayaran langganan
 - Mengirimkan ringkasan keuangan bulanan (jika diaktifkan)
 - Menghasilkan wawasan AI atas permintaan Anda
@@ -155,6 +155,6 @@ Kami menggunakan cookie sesi untuk autentikasi dan cookie preferensi untuk menyi
 Kami dapat memperbarui kebijakan ini sewaktu-waktu. Perubahan signifikan akan diberitahukan melalui email atau notifikasi dalam aplikasi minimal 14 hari sebelum berlaku.
 
 10. KONTAK PENGENDALI DATA
-PT Anrico Solution
+PT Anrico Integrasi Teknologi
 Email: privacy@clarus.id
 `;

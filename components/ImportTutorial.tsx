@@ -157,7 +157,7 @@ export const ImportTutorial = () => {
           <div className="flex flex-col gap-1.5">
             <p className="text-sm font-medium">Check your categories</p>
             <p className="text-xs text-muted-foreground">
-              Category names must match Clarus exactly. Available defaults:
+              Category names must match Certus exactly. Available defaults:
             </p>
             <div className="flex flex-wrap gap-1 mt-1">
               {DEFAULT_INCOME.map((c) => (

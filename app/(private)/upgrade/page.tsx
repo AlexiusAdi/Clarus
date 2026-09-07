@@ -66,7 +66,7 @@ const UpgradePage = () => {
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-          Upgrade Clarus
+          Upgrade Certus
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           Choose the plan that fits your financial journey

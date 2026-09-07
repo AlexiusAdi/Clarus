@@ -15,7 +15,7 @@ import { PlanType, GroupStatus } from "@/lib/generated/prisma/browser";
 import { cn } from "@/lib/utils";
 import { Users2 } from "lucide-react";
 
-const VISIBILITY_KEY = "clarus_networth_visible";
+const VISIBILITY_KEY = "certus_networth_visible";
 
 export default function NetWorthCard({
   userNetWorth,

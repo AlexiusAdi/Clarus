@@ -34,7 +34,7 @@ export default function Login() {
           className="text-6xl dark:text-porcelinwhite text-obsidian"
           onClick={() => redirect("/login")}
         >
-          Clarus
+          Certus
         </a>
         <span className="text-sm text-muted-foreground tracking-wide">
           Your finances, made clear.

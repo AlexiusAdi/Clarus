@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Clarus - Public",
+  title: "Certus - Public",
   description: "Instantly credible",
 };
 

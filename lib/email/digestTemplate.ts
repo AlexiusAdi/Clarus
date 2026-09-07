@@ -98,7 +98,7 @@ export function digestText(
     );
   }
 
-  lines.push("", `Open Clarus: ${appUrl}/home`, `Unsubscribe: ${unsubscribeLink}`);
+  lines.push("", `Open Certus: ${appUrl}/home`, `Unsubscribe: ${unsubscribeLink}`);
 
   return lines.join("\n");
 }
@@ -203,7 +203,7 @@ export function digestHtml(
     <td style="padding:26px 32px 0;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="font-family:${BODY};font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:${C.ink};">Clarus</td>
+          <td style="font-family:${BODY};font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:${C.ink};">Certus</td>
           <td align="right" style="font-family:${MONO};font-size:11px;letter-spacing:0.04em;color:${C.quiet};">${formatFinancialPeriod(data.period)}</td>
         </tr>
       </table>
@@ -223,7 +223,7 @@ export function digestHtml(
 ${rows.join("")}
   <tr>
     <td style="padding:26px 32px 30px;border-top:1px solid ${C.rule};">
-      <a href="${appUrl}/home" style="display:inline-block;font-family:${BODY};font-size:14px;font-weight:600;color:${C.card};background:${C.ink};text-decoration:none;padding:12px 22px;border-radius:9px;">Open Clarus</a>
+      <a href="${appUrl}/home" style="display:inline-block;font-family:${BODY};font-size:14px;font-weight:600;color:${C.card};background:${C.ink};text-decoration:none;padding:12px 22px;border-radius:9px;">Open Certus</a>
     </td>
   </tr>
 </table>

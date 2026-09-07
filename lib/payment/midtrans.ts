@@ -68,7 +68,7 @@ export async function createSnapTransaction(params: {
           id: params.plan,
           price: Math.round(params.amount),
           quantity: 1,
-          name: `Clarus ${params.plan} — 1 year`,
+          name: `Certus ${params.plan} — 1 year`,
         },
       ],
       customer_details: {

@@ -20,7 +20,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Clarus",
+  title: "Certus",
   description: "Instantly credible",
   icons: {
     icon: "/icon.png",

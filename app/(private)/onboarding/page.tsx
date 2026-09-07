@@ -331,7 +331,7 @@ export default function OnboardingPage() {
                 content={TNC_CONTENT}
                 checked={tncChecked}
                 onCheck={setTncChecked}
-                checkLabel="I agree to Clarus's Terms & Conditions"
+                checkLabel="I agree to Certus's Terms & Conditions"
               />
             )}
             {step === 2 && (
@@ -340,7 +340,7 @@ export default function OnboardingPage() {
                 content={PRIVACY_CONTENT}
                 checked={privacyChecked}
                 onCheck={setPrivacyChecked}
-                checkLabel="I agree to Clarus's Privacy Policy"
+                checkLabel="I agree to Certus's Privacy Policy"
               />
             )}
             {step === 3 && (
@@ -411,7 +411,7 @@ export default function OnboardingPage() {
         </motion.div>
 
         <p className="text-center text-xs text-muted-foreground mt-3">
-          Clarus · {new Date().getFullYear()}
+          Certus · {new Date().getFullYear()}
         </p>
       </div>
     </div>

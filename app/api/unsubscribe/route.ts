@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
   if (!userId) {
     return page(
       "Invalid link",
-      "This unsubscribe link is not valid. You can turn digests off in Clarus under Settings.",
+      "This unsubscribe link is not valid. You can turn digests off in Certus under Settings.",
       400,
     );
   }
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
 
   return page(
     "Unsubscribed",
-    "You won't receive any more Clarus digests. You can turn them back on any time in Settings.",
+    "You won't receive any more Certus digests. You can turn them back on any time in Settings.",
   200);
 }
 

@@ -44,7 +44,7 @@ export default function ExportCard({ open, onOpenChange, planType }: Props) {
       a.href = url;
       a.download =
         res.headers.get("content-disposition")?.match(/filename="(.+)"/)?.[1] ??
-        "clarus-transactions.csv";
+        "certus-transactions.csv";
       a.click();
       URL.revokeObjectURL(url);
 
@@ -105,7 +105,7 @@ export default function ExportCard({ open, onOpenChange, planType }: Props) {
             </p>
             <p className="text-xs text-muted-foreground text-center">
               Same columns Import expects, so you can edit it in Excel and bring
-              it back. Savings and investment entries are left out — Clarus
+              it back. Savings and investment entries are left out — Certus
               creates those itself, and re-importing them would double-count.
             </p>
           </div>

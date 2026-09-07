@@ -30,7 +30,7 @@ There is no test suite in this repo — verification is `pnpm lint` + `tsc --noE
 
 ## Architecture
 
-Clarus is a personal-finance tracker (IDR): transactions, assets, investments with live prices, savings goals, and scheduled/recurring transactions, gated by a FREE/PRO/ELITE plan.
+Certus is a personal-finance tracker (IDR): transactions, assets, investments with live prices, savings goals, and scheduled/recurring transactions, gated by a FREE/PRO/ELITE plan.
 
 ### Prisma client is generated into the repo
 

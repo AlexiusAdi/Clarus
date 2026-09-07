@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
   if (missing.length > 0) {
     return NextResponse.json(
       {
-        message: `These category + type combinations don't exist in Clarus: ${missing
+        message: `These category + type combinations don't exist in Certus: ${missing
           .map((p) => `"${p.name}" (${p.type})`)
           .join(", ")}. Create them first or fix the spelling.`,
       },
