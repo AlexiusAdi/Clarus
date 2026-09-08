@@ -102,6 +102,23 @@ model UserDetail {
   financialResetDay Int      @default(1)
   emailNotification Boolean  @default(false)
   lastDigestSentAt  DateTime?
+  /// Money the user already held when they started recording in Certus, which
+  /// no transaction represents. Cash = openingBalance + income - expense -
+  /// savings - investments, so this is what lets the app agree with a real bank
+  /// balance instead of counting up from zero. Deliberately not an INCOME
+  /// transaction: that would inflate income totals, category breakdowns and the
+  /// digest.
+  openingBalance      Decimal   @db.Decimal(18, 2) @default(0)
+  /// The day the opening balance describes. Transactions dated before it are
+  /// already reflected in the figure, so they feed the charts but not cash --
+  /// that is what stops a later import of older months double-counting.
+  /// NULL means "applies to everything", which is how every account that
+  /// predates this field behaves, so no backfill is needed.
+  openingBalanceDate  DateTime?
+  /// When the user last set or adjusted the opening balance. NULL means they
+  /// never have, which is what the "your cash may not match your bank" prompt
+  /// keys off.
+  openingBalanceSetAt DateTime?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }

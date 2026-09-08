@@ -24,7 +24,12 @@ export async function GET() {
       create: { userId },
     });
 
-    return NextResponse.json(detail);
+    // openingBalance is a Decimal and would otherwise reach the client as a
+    // string, like every other money column crossing this boundary.
+    return NextResponse.json({
+      ...detail,
+      openingBalance: detail.openingBalance.toNumber(),
+    });
   } catch (error) {
     console.error("GET /user/detail error:", error);
     return NextResponse.json(
@@ -66,7 +71,10 @@ export async function PATCH(req: NextRequest) {
       create: { userId },
     });
 
-    return NextResponse.json(detail);
+    return NextResponse.json({
+      ...detail,
+      openingBalance: detail.openingBalance.toNumber(),
+    });
   } catch (error) {
     console.error("PATCH /user/detail error:", error);
     return NextResponse.json(

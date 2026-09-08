@@ -6,6 +6,10 @@ export type UserDetailDTO = {
   financialResetDay: number;
   emailNotification: boolean;
   lastDigestSentAt: Date | null;
+  /** Decimal at rest; a number here so it can cross to a client component. */
+  openingBalance: number;
+  openingBalanceDate: Date | null;
+  openingBalanceSetAt: Date | null;
 };
 
 const FALLBACK: UserDetailDTO = {
@@ -13,6 +17,9 @@ const FALLBACK: UserDetailDTO = {
   financialResetDay: DEFAULT_RESET_DAY,
   emailNotification: false,
   lastDigestSentAt: null,
+  openingBalance: 0,
+  openingBalanceDate: null,
+  openingBalanceSetAt: null,
 };
 
 /**
@@ -28,8 +35,13 @@ export async function getUserDetail(userId: string): Promise<UserDetailDTO> {
       financialResetDay: true,
       emailNotification: true,
       lastDigestSentAt: true,
+      openingBalance: true,
+      openingBalanceDate: true,
+      openingBalanceSetAt: true,
     },
   });
 
-  return detail ?? FALLBACK;
+  if (!detail) return FALLBACK;
+
+  return { ...detail, openingBalance: detail.openingBalance.toNumber() };
 }

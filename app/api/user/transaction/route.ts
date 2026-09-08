@@ -5,6 +5,7 @@ import { TransactionType } from "@/lib/generated/prisma/enums";
 import { TransactionDTO } from "@/lib/data/getOverviewData";
 import { isPro, canUseGroupExpenses } from "@/lib/helper/plan";
 import { z } from "zod";
+import { getCashBalance } from "@/lib/data/openingBalance";
 
 const PostBodySchema = z
   .object({
@@ -156,20 +157,10 @@ export async function POST(req: NextRequest) {
       type === TransactionType.SAVINGS ||
       type === TransactionType.INVESTMENTS
     ) {
-      const totals = await prisma.transaction.groupBy({
-        by: ["type"],
-        where: { userId },
-        _sum: { amount: true },
-      });
-
-      const sum = (t: TransactionType) =>
-        totals.find((r) => r.type === t)?._sum.amount?.toNumber() ?? 0;
-
-      const cashBalance =
-        sum(TransactionType.INCOME) -
-        sum(TransactionType.EXPENSE) -
-        sum(TransactionType.SAVINGS) -
-        sum(TransactionType.INVESTMENTS);
+      // The same definition the home screen uses, opening balance included —
+      // otherwise a user whose cash is mostly their starting balance would be
+      // refused permission to save or invest any of it.
+      const { cash: cashBalance } = await getCashBalance(userId);
 
       if (amount > cashBalance) {
         return NextResponse.json(

@@ -3,13 +3,25 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Circle, ChevronRight, ArrowLeft } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowDownToLine,
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  Circle,
+  X,
+} from "lucide-react";
 import { PRIVACY_CONTENT, TNC_CONTENT } from "@/constants/legal";
 import { motion, AnimatePresence } from "framer-motion";
+import { NumericFormat } from "react-number-format";
+import { Input } from "@/components/ui/input";
+import { formatCurrency } from "@/lib/helper/formatCurrency";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 // ─── Step Dots ────────────────────────────────────────────────────────────────
 
@@ -164,7 +176,7 @@ function ResetDayStep({
     <div className="flex flex-col gap-6 w-full flex-1 min-h-0">
       <div>
         <p className="text-xs font-semibold tracking-widest uppercase text-amber mb-1">
-          Last step
+          Almost there
         </p>
         <h1 className="headline text-3xl text-foreground">
           Monthly reset date
@@ -220,6 +232,163 @@ function ResetDayStep({
   );
 }
 
+// ─── Starting Balance Step ────────────────────────────────────────────────────
+
+/**
+ * A month of ordinary activity, used only by the comparison panel below. It
+ * exists so the panel shows the gap *persisting* rather than looking like a
+ * day-one problem that sorts itself out.
+ */
+const DEMO_MONTH_NET = 7_650_000;
+
+function StartingBalanceStep({
+  amount,
+  onChange,
+}: {
+  amount: string;
+  onChange: (value: string) => void;
+}) {
+  const [view, setView] = useState<"set" | "skip">("set");
+
+  const base = amount === "" ? 0 : Number(amount);
+  const bank = base + DEMO_MONTH_NET;
+  const agrees = view === "set";
+  const certus = agrees ? bank : DEMO_MONTH_NET;
+
+  const bump = (by: number) => onChange(String(base + by));
+
+  return (
+    <div className="flex flex-col gap-5 w-full flex-1 min-h-0 overflow-y-auto">
+      <div>
+        <p className="text-xs font-semibold tracking-widest uppercase text-amber mb-1">
+          Last step
+        </p>
+        <h1 className="headline text-3xl text-foreground">
+          What do you have right now?
+        </h1>
+        <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+          Everything you can spend today — bank accounts, e-wallets, cash — as
+          one total. Certus does not count this as income, so it stays out of
+          your charts.
+        </p>
+      </div>
+
+      <div>
+        <label
+          htmlFor="starting-balance"
+          className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+        >
+          Starting balance
+        </label>
+        <NumericFormat
+          id="starting-balance"
+          customInput={Input}
+          thousandSeparator="."
+          decimalSeparator=","
+          prefix="Rp "
+          placeholder="Rp 0"
+          inputMode="decimal"
+          allowNegative={false}
+          decimalScale={0}
+          value={amount}
+          onValueChange={(v) => onChange(v.value)}
+          className="headline tabular mt-1 h-14 rounded-none border-0 border-b-2 border-border px-0 text-3xl shadow-none focus-visible:border-foreground focus-visible:ring-0"
+        />
+      </div>
+
+      <div className="flex gap-2">
+        {[1_000_000, 5_000_000, 10_000_000].map((step) => (
+          <button
+            key={step}
+            onClick={() => bump(step)}
+            className="flex-1 h-11 rounded-xl border border-border bg-card text-[13px] font-semibold active:scale-95 transition-transform"
+          >
+            +{step / 1_000_000} jt
+          </button>
+        ))}
+        <button
+          onClick={() => onChange("")}
+          aria-label="Clear amount"
+          className="w-11 h-11 shrink-0 rounded-xl border border-border bg-card text-muted-foreground flex items-center justify-center active:scale-95 transition-transform"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* The tutorial: what skipping actually costs, priced in their own number. */}
+      <div className="rounded-2xl bg-surface-2 p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            A month from now
+          </p>
+          <div className="flex gap-0.5 p-0.5 rounded-lg border border-border bg-card">
+            {(["set", "skip"] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
+                className={cn(
+                  "h-6 px-2.5 rounded-md text-[11px] font-semibold transition-colors",
+                  view === v
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground",
+                )}
+              >
+                {v === "set" ? "If you set it" : "If you skip"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="text-[13px] text-ink-soft">Certus shows</p>
+            <p
+              className={cn(
+                "tabular text-[15px] font-semibold",
+                agrees ? "text-sage" : "text-clay",
+              )}
+            >
+              {formatCurrency(certus)}
+            </p>
+          </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="text-[13px] text-ink-soft">Your bank shows</p>
+            <p className="tabular text-[15px] font-semibold">
+              {formatCurrency(bank)}
+            </p>
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            "flex items-center gap-2 rounded-xl px-3 py-2.5",
+            agrees ? "bg-sage-soft text-sage" : "bg-clay-soft text-clay",
+          )}
+        >
+          {agrees ? (
+            <Check className="w-4 h-4 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 shrink-0" />
+          )}
+          <p className="text-xs font-semibold leading-[17px]">
+            {agrees
+              ? "Certus matches your bank."
+              : `Certus is short by ${formatCurrency(base)}, and stays short.`}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-2.5 items-start px-0.5">
+        <ArrowDownToLine className="w-4 h-4 shrink-0 mt-0.5 text-muted-foreground" />
+        <p className="text-xs leading-[17px] text-muted-foreground">
+          Have months of old transactions? Import them from Settings later, then
+          check this number again.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Page Transition Variants ─────────────────────────────────────────────────
 
 const pageVariants = {
@@ -252,20 +421,20 @@ export default function OnboardingPage() {
   const [tncChecked, setTncChecked] = useState(false);
   const [privacyChecked, setPrivacyChecked] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [openingBalance, setOpeningBalance] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const canProceed =
     (step === 1 && tncChecked) ||
     (step === 2 && privacyChecked) ||
-    (step === 3 && selectedDay !== null);
+    (step === 3 && selectedDay !== null) ||
+    step === 4;
 
-  const goNext = async () => {
-    if (step < 3) {
-      setDirection(1);
-      setStep((s) => (s + 1) as Step);
-      return;
-    }
+  // `skip` leaves the opening balance out of the request entirely, which the
+  // API reads as "never answered" — different from answering zero, and what
+  // keeps the prompt on the home screen alive for them.
+  const finish = async (skip = false) => {
     if (!selectedDay) return;
     setLoading(true);
     await fetch("/api/user/onboarding", {
@@ -275,9 +444,21 @@ export default function OnboardingPage() {
         resetDay: selectedDay,
         agreedToTnc: true,
         agreedToPrivacy: true,
+        ...(skip || openingBalance === ""
+          ? {}
+          : { openingBalance: Number(openingBalance) }),
       }),
     });
     router.push("/home");
+  };
+
+  const goNext = async () => {
+    if (step < 4) {
+      setDirection(1);
+      setStep((s) => (s + 1) as Step);
+      return;
+    }
+    await finish();
   };
 
   const goBack = () => {
@@ -306,7 +487,7 @@ export default function OnboardingPage() {
           )}
         </AnimatePresence>
 
-        <StepDots current={step} total={3} />
+        <StepDots current={step} total={4} />
 
         <div className="w-9 h-9" />
       </div>
@@ -349,6 +530,12 @@ export default function OnboardingPage() {
                 onSelect={setSelectedDay}
               />
             )}
+            {step === 4 && (
+              <StartingBalanceStep
+                amount={openingBalance}
+                onChange={setOpeningBalance}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -386,7 +573,7 @@ export default function OnboardingPage() {
                   />
                   Saving...
                 </motion.span>
-              ) : step === 3 ? (
+              ) : step === 4 ? (
                 <motion.span
                   key="start"
                   initial={{ opacity: 0, y: 4 }}
@@ -410,9 +597,21 @@ export default function OnboardingPage() {
           </button>
         </motion.div>
 
-        <p className="text-center text-xs text-muted-foreground mt-3">
-          Certus · {new Date().getFullYear()}
-        </p>
+        {step === 4 ? (
+          <div className="flex justify-center mt-3">
+            <button
+              onClick={() => finish(true)}
+              disabled={loading}
+              className="text-xs font-medium text-muted-foreground disabled:opacity-50"
+            >
+              Skip — set it later in Settings
+            </button>
+          </div>
+        ) : (
+          <p className="text-center text-xs text-muted-foreground mt-3">
+            Certus · {new Date().getFullYear()}
+          </p>
+        )}
       </div>
     </div>
   );

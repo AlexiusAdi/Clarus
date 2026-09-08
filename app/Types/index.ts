@@ -5,6 +5,10 @@ import {
 } from "@/lib/generated/prisma/browser";
 
 export interface UserNetWorth {
+  /** The money held before Certus; cash is anchored on it, not on zero. */
+  openingBalance: number;
+  /** False on accounts that predate the field, so the UI can prompt for one. */
+  openingBalanceSet: boolean;
   /** Lifetime totals — these drive net worth, so they stay unscoped. */
   totalIncome: number;
   totalExpense: number;

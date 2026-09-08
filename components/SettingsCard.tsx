@@ -16,15 +16,20 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Switch } from "./ui/switch";
-import { Zap } from "lucide-react";
+import { ChevronRight, Zap } from "lucide-react";
 import { PlanType } from "@/lib/generated/prisma/browser";
 import { DIGEST_LEAD_DAYS } from "@/lib/helper/financialPeriod";
+import OpeningBalanceSheet from "./OpeningBalanceSheet";
+import { formatCurrency } from "@/lib/helper/formatCurrency";
+import { cn } from "@/lib/utils";
 
 type UserDetail = {
   pageSize: number;
   financialResetDay: number;
   emailNotification: boolean;
   lastDigestSentAt?: string | null;
+  openingBalance: number;
+  openingBalanceSetAt?: string | null;
 };
 
 type Props = {
@@ -32,6 +37,13 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   planType: PlanType;
 };
+
+const longDate = (iso: string) =>
+  new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "long",
+    timeZone: "Asia/Jakarta",
+  }).format(new Date(iso));
 
 /** 1 -> "1st", 22 -> "22nd". Reset day is capped at 28, so no teens edge past 13. */
 function ordinal(n: number): string {
@@ -46,30 +58,38 @@ export default function SettingsCard({
   planType,
 }: Props) {
   const [detail, setDetail] = useState<UserDetail | null>(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [balanceOpen, setBalanceOpen] = useState(false);
+  const [reloads, setReloads] = useState(0);
 
   const router = useRouter();
   const isElite = planType === PlanType.ELITE;
 
+  // Declared inside the effect, and nothing is set before the first await:
+  // `detail === null` is the loading state, so there is no second flag to keep
+  // in sync and no synchronous setState to cascade a render. `reloads` is how
+  // the starting-balance sheet asks for a refetch when it closes.
   useEffect(() => {
     if (!open) return;
 
     const fetchDetail = async () => {
-      setLoading(true);
       try {
         const res = await fetch("/api/user/detail");
         const json = await res.json();
         setDetail(json);
       } catch {
         toast.error("Failed to load settings");
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchDetail();
-  }, [open]);
+  }, [open, reloads]);
+
+  /** Dropped on close so reopening refetches rather than showing stale values. */
+  const handleOpenChange = (next: boolean) => {
+    if (!next) setDetail(null);
+    onOpenChange(next);
+  };
 
   const handleSave = async () => {
     if (!detail) return;
@@ -84,7 +104,7 @@ export default function SettingsCard({
       if (!res.ok) throw new Error();
       toast.success("Settings saved");
       router.refresh();
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch {
       toast.error("Failed to save settings");
     } finally {
@@ -93,14 +113,14 @@ export default function SettingsCard({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent side="bottom" className="rounded-t-2xl max-h-[85dvh]">
         <SheetHeader>
           <SheetTitle>Settings</SheetTitle>
         </SheetHeader>
 
         <div className="w-full max-w-md mx-auto px-4 flex flex-col gap-4 overflow-y-auto drawer-safe">
-          {loading || !detail ? (
+          {!detail ? (
             <>
               <Skeleton className="h-24 w-full rounded-xl" />
               <Skeleton className="h-24 w-full rounded-xl" />
@@ -175,6 +195,38 @@ export default function SettingsCard({
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <button
+                    onClick={() => setBalanceOpen(true)}
+                    className="w-full text-left flex items-center justify-between gap-3 px-4 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">Starting balance</p>
+                      {detail.openingBalanceSetAt ? (
+                        <p className="text-xs text-muted-foreground">
+                          Set {longDate(detail.openingBalanceSetAt)} · not
+                          counted as income
+                        </p>
+                      ) : (
+                        <p className="text-xs font-medium text-amber">
+                          Not set — your cash may not match your bank
+                        </p>
+                      )}
+                    </div>
+                    <div className="shrink-0 flex items-center gap-1.5">
+                      <span
+                        className={cn(
+                          "tabular text-sm font-semibold",
+                          detail.openingBalanceSetAt ? "" : "text-amber",
+                        )}
+                      >
+                        {detail.openingBalanceSetAt
+                          ? formatCurrency(detail.openingBalance)
+                          : "Not set"}
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </button>
                 </CardContent>
               </Card>
 
@@ -226,6 +278,15 @@ export default function SettingsCard({
           )}
         </div>
       </SheetContent>
+
+      <OpeningBalanceSheet
+        open={balanceOpen}
+        onOpenChange={(next) => {
+          setBalanceOpen(next);
+          // The row shows a figure the sheet may have just rewritten.
+          if (!next && open) setReloads((n) => n + 1);
+        }}
+      />
     </Sheet>
   );
 }

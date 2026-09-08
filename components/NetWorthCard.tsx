@@ -13,7 +13,8 @@ import { useRouter } from "next/navigation";
 import { getGoalsSummary } from "@/lib/data/getGoalsSummary";
 import { PlanType, GroupStatus } from "@/lib/generated/prisma/browser";
 import { cn } from "@/lib/utils";
-import { Users2 } from "lucide-react";
+import { AlertCircle, ChevronRight, Users2 } from "lucide-react";
+import OpeningBalanceSheet from "./OpeningBalanceSheet";
 
 const VISIBILITY_KEY = "certus_networth_visible";
 
@@ -34,6 +35,7 @@ export default function NetWorthCard({
 }) {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [balanceOpen, setBalanceOpen] = useState(false);
 
   const {
     totalIncome = 0,
@@ -47,6 +49,7 @@ export default function NetWorthCard({
     investmentsCurrentValue = null,
     investmentsPnlAbs = null,
     investmentsPnlPct = null,
+    openingBalanceSet = false,
   } = userNetWorth ?? {};
 
   // Accent wash layered over the ink card — keeps every plan on the same
@@ -275,6 +278,23 @@ export default function NetWorthCard({
             </div>
           </div>
 
+          {/* Nobody who has never set a starting balance can trust the figure
+              above — it counts up from zero, so it is short by whatever they
+              held on day one. Shown only once there is activity to be wrong
+              about, and only until they answer. */}
+          {hasData && !openingBalanceSet && (
+            <button
+              onClick={() => setBalanceOpen(true)}
+              className="flex items-center gap-2.5 w-full text-left rounded-xl px-3 py-2.5 @md/main:px-4 border transition-colors border-[oklch(0.76_0.13_55)]/35 bg-[oklch(0.76_0.13_55)]/12 hover:bg-[oklch(0.76_0.13_55)]/20 text-[oklch(0.86_0.09_60)]"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span className="flex-1 min-w-0 text-xs font-medium leading-[17px]">
+                Not matching your bank? Set your starting balance.
+              </span>
+              <ChevronRight className="w-4 h-4 shrink-0" />
+            </button>
+          )}
+
           {/* Investments — headline is current market value (falls back to
               cost when no holding has a price yet), with return % and what
               was actually put in on the same secondary line beneath it. */}
@@ -357,6 +377,8 @@ export default function NetWorthCard({
           isVisible={isVisible}
         />
       </div>
+
+      <OpeningBalanceSheet open={balanceOpen} onOpenChange={setBalanceOpen} />
     </>
   );
 }

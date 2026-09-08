@@ -2,16 +2,27 @@ import { prisma } from "@/lib/prisma";
 import { TransactionType } from "../generated/prisma/browser";
 import { UserNetWorth } from "@/app/Types";
 import { getFinancialPeriod, DEFAULT_RESET_DAY } from "@/lib/helper/financialPeriod";
+import {
+  countsTowardCash,
+  getOpeningBalanceAnchor,
+} from "@/lib/data/openingBalance";
 
 export async function getUserNetWorth(
   userId: string,
   resetDay: number = DEFAULT_RESET_DAY,
   now: Date = new Date(),
 ): Promise<UserNetWorth> {
-  const transactions = await prisma.transaction.findMany({
-    where: { userId },
-    select: { type: true, amount: true, date: true },
-  });
+  // The anchor is read here rather than taken as an argument: every caller
+  // needs it applied, and a forgotten argument would silently show a cash
+  // figure that disagrees with the user's bank by the whole opening balance —
+  // the exact bug this field exists to fix.
+  const [transactions, anchor] = await Promise.all([
+    prisma.transaction.findMany({
+      where: { userId },
+      select: { type: true, amount: true, date: true },
+    }),
+    getOpeningBalanceAnchor(userId),
+  ]);
 
   const sumOf = (type: TransactionType, rows: typeof transactions) =>
     rows
@@ -20,11 +31,21 @@ export async function getUserNetWorth(
 
   const totalIncome = sumOf(TransactionType.INCOME, transactions);
   const totalExpense = sumOf(TransactionType.EXPENSE, transactions);
-  const totalSavings = sumOf(TransactionType.SAVINGS, transactions);
-  const totalInvestmentTxns = sumOf(TransactionType.INVESTMENTS, transactions);
+
+  // Cash counts only what the anchor does not already account for. Anything
+  // dated before it — a backfilled month, an import of older statements — still
+  // feeds the totals and charts above, but the money it moved is already inside
+  // the opening balance, so adding it again would double it.
+  const cashTransactions = transactions.filter((txn) =>
+    countsTowardCash(txn.date, anchor.date),
+  );
 
   const cashBalance =
-    totalIncome - totalExpense - totalSavings - totalInvestmentTxns;
+    anchor.amount +
+    sumOf(TransactionType.INCOME, cashTransactions) -
+    sumOf(TransactionType.EXPENSE, cashTransactions) -
+    sumOf(TransactionType.SAVINGS, cashTransactions) -
+    sumOf(TransactionType.INVESTMENTS, cashTransactions);
 
   // A second, separate figure from cashBalance — that one has to stay a true
   // lifetime running total (net worth and the overspending check both depend
@@ -112,6 +133,8 @@ export async function getUserNetWorth(
   const netWorth = cashBalance + totalInvestments + totalAssets;
 
   return {
+    openingBalance: anchor.amount,
+    openingBalanceSet: anchor.setAt !== null,
     totalIncome,
     totalExpense,
     cashBalance,
