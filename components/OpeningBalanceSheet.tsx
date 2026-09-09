@@ -242,7 +242,7 @@ export default function OpeningBalanceSheet({ open, onOpenChange }: Props) {
                     prefix="Rp "
                     inputMode="decimal"
                     allowNegative={false}
-                    decimalScale={0}
+                    decimalScale={2}
                     value={input}
                     onValueChange={(v) => setInput(v.value)}
                     className="tabular h-9 max-w-[160px] text-right font-semibold"

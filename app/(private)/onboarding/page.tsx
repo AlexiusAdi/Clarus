@@ -289,7 +289,7 @@ function StartingBalanceStep({
           placeholder="Rp 0"
           inputMode="decimal"
           allowNegative={false}
-          decimalScale={0}
+          decimalScale={2}
           value={amount}
           onValueChange={(v) => onChange(v.value)}
           className="headline tabular mt-1 h-14 rounded-none border-0 border-b-2 border-border px-0 text-3xl shadow-none focus-visible:border-foreground focus-visible:ring-0"

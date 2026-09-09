@@ -23,6 +23,15 @@ export type OpeningBalanceAnchor = {
   setAt: Date | null;
 };
 
+/**
+ * The money columns are Decimal(18,2) and real balances carry sen — Nobu posts
+ * fractional interest daily — so the anchor keeps two decimals instead of being
+ * rounded to whole rupiah, even though IDR is displayed without them.
+ */
+export function roundToSen(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
 export const EMPTY_ANCHOR: OpeningBalanceAnchor = {
   amount: 0,
   date: null,

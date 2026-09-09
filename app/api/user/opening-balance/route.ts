@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { getCashBalance } from "@/lib/data/openingBalance";
+import { getCashBalance, roundToSen } from "@/lib/data/openingBalance";
 
 /** Comfortably inside Decimal(18,2) while still absurd for a personal balance. */
 const MAX_AMOUNT = 1_000_000_000_000_000;
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     // A negative result is legitimate — it means the user recorded more income
     // than their bank actually holds, and the anchor has to correct downward.
-    const openingBalance = Math.round(
+    const openingBalance = roundToSen(
       mode === "match" ? amount - recordedNet : amount,
     );
 

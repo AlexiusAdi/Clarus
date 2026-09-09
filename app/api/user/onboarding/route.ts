@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { jakartaTodayAsUtcMidnight } from "@/lib/helper/jakartaDay";
+import { roundToSen } from "@/lib/data/openingBalance";
 
 /** Comfortably inside Decimal(18,2) while still absurd for a personal balance. */
 const MAX_AMOUNT = 1_000_000_000_000_000;
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
       openingBalance === undefined
         ? {}
         : {
-            openingBalance: Math.round(openingBalance),
+            openingBalance: roundToSen(openingBalance),
             openingBalanceDate: jakartaTodayAsUtcMidnight(),
             openingBalanceSetAt: new Date(),
           };
