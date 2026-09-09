@@ -73,5 +73,13 @@ export default auth(async (req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api|_next|favicon.ico).*)"],
+  /**
+   * Metadata routes are excluded alongside api and _next: they are served to
+   * signed-out crawlers by definition, and without this the proxy treats
+   * /robots.txt and /sitemap.xml as private pages and redirects them to
+   * /login, which silently removes the site from search results.
+   */
+  matcher: [
+    "/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest|icon.png|opengraph-image|twitter-image).*)",
+  ],
 };
