@@ -3,14 +3,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { PlanType } from "@/lib/generated/prisma/enums";
-import {
-  PLAN_PRICES,
-  createSnapTransaction,
-  isMidtransConfigured,
-} from "@/lib/payment/midtrans";
+import { createSnapTransaction, isMidtransConfigured } from "@/lib/payment/midtrans";
+import { PLAN_PRICES } from "@/constants/plans";
 
 const upgradeSchema = z.object({
-  plan: z.enum(["PRO", "ELITE"]),
+  plan: z.enum(["PRO"]),
 });
 
 // GET /api/upgrade — return current user plan info
@@ -69,7 +66,7 @@ export async function POST(req: NextRequest) {
     const parsed = upgradeSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { message: "Invalid plan. Must be PRO or ELITE." },
+        { message: "Invalid plan. Must be PRO." },
         { status: 400 },
       );
     }

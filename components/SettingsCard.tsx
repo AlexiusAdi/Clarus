@@ -22,6 +22,7 @@ import { DIGEST_LEAD_DAYS } from "@/lib/helper/financialPeriod";
 import OpeningBalanceSheet from "./OpeningBalanceSheet";
 import { formatCurrency } from "@/lib/helper/formatCurrency";
 import { cn } from "@/lib/utils";
+import { canUseEmailDigest } from "@/lib/helper/plan";
 
 type UserDetail = {
   pageSize: number;
@@ -63,7 +64,7 @@ export default function SettingsCard({
   const [reloads, setReloads] = useState(0);
 
   const router = useRouter();
-  const isElite = planType === PlanType.ELITE;
+  const hasDigest = canUseEmailDigest(planType);
 
   // Declared inside the effect, and nothing is set before the first await:
   // `detail === null` is the loading state, so there is no second flag to keep
@@ -240,14 +241,14 @@ export default function SettingsCard({
                     <div className="min-w-0">
                       <p className="text-sm font-medium">Email digest</p>
                       <p className="text-xs text-muted-foreground">
-                        {isElite
+                        {hasDigest
                           ? `Sent ${DIGEST_LEAD_DAYS} days before your cycle closes on the ${ordinal(
                               detail.financialResetDay,
                             )}`
-                          : "Spending, portfolio and goal pace, on Elite"}
+                          : "Spending, portfolio and goal pace, on Pro"}
                       </p>
                     </div>
-                    {isElite ? (
+                    {hasDigest ? (
                       <Switch
                         checked={detail.emailNotification}
                         onCheckedChange={(v) =>

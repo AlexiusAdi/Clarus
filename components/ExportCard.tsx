@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { Download, FileSpreadsheet } from "lucide-react";
 import { PlanType } from "@/lib/generated/prisma/browser";
+import { canExportData } from "@/lib/helper/plan";
 
 type Props = {
   open: boolean;
@@ -57,7 +58,7 @@ export default function ExportCard({ open, onOpenChange, planType }: Props) {
     }
   };
 
-  if (planType !== "ELITE") return null;
+  if (!canExportData(planType)) return null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

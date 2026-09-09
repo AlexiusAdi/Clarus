@@ -1,15 +1,5 @@
 import { createHash, timingSafeEqual } from "crypto";
-import { PlanType } from "@/lib/generated/prisma/enums";
-
-/**
- * Plan prices in IDR, billed yearly. The server is the only authority on what a
- * plan costs — the amount sent to Midtrans is read from here, never from the
- * request body, or a client could name its own price.
- */
-export const PLAN_PRICES: Record<Exclude<PlanType, "FREE">, number> = {
-  PRO: 299_000,
-  ELITE: 349_000,
-};
+import type { SellablePlan } from "@/constants/plans";
 
 const SANDBOX_BASE = "https://app.sandbox.midtrans.com/snap/v1";
 const PRODUCTION_BASE = "https://app.midtrans.com/snap/v1";
@@ -44,7 +34,7 @@ export type SnapTransaction = {
 export async function createSnapTransaction(params: {
   orderId: string;
   amount: number;
-  plan: Exclude<PlanType, "FREE">;
+  plan: SellablePlan;
   customer: { name: string | null; email: string };
 }): Promise<SnapTransaction> {
   const auth = Buffer.from(`${serverKey()}:`).toString("base64");

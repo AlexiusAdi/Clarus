@@ -38,7 +38,7 @@ export async function sendDigestRun(
   const candidates = await prisma.userDetail.findMany({
     where: {
       emailNotification: true,
-      user: { plan: PlanType.ELITE },
+      user: { plan: { in: [PlanType.PRO, PlanType.ELITE] } },
     },
     select: {
       userId: true,

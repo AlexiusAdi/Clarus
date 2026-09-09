@@ -60,7 +60,7 @@ There is no balance column. Cash = `INCOME − EXPENSE − SAVINGS − INVESTMEN
 
 ### Plans
 
-`PlanType` FREE/PRO/ELITE with `planExpiresAt` and a `PlanHistory` audit trail. Gate features through the helpers in [lib/helper/plan.ts](lib/helper/plan.ts) (`isPro`, `isElite`, `canUse*`) rather than comparing enums inline. The plan is on the session (`session.user.plan`, typed in [types/next-auth.d.ts](types/next-auth.d.ts)). FREE users are limited to their 2 oldest incomplete goals. `/api/upgrade` currently stubs the payment step (Midtrans).
+`PlanType` FREE/PRO/ELITE with `planExpiresAt` and a `PlanHistory` audit trail. Only PRO is sold — ELITE remains in the enum for existing rows but has no price, and every paid feature is gated on `isPro`. Gate features through the helpers in [lib/helper/plan.ts](lib/helper/plan.ts) (`isPro`, `canUse*`, `canExportData`) rather than comparing enums inline. Prices live in `PLAN_PRICES` in [constants/plans.ts](constants/plans.ts) — client-safe on purpose, so the upgrade page renders exactly what the server charges. The plan is on the session (`session.user.plan`, typed in [types/next-auth.d.ts](types/next-auth.d.ts)). FREE users are limited to their 2 oldest incomplete goals. `/api/upgrade` currently stubs the payment step (Midtrans).
 
 ### Cron jobs
 

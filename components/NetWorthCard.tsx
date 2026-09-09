@@ -15,6 +15,7 @@ import { PlanType, GroupStatus } from "@/lib/generated/prisma/browser";
 import { cn } from "@/lib/utils";
 import { AlertCircle, ChevronRight, Users2 } from "lucide-react";
 import OpeningBalanceSheet from "./OpeningBalanceSheet";
+import { isPro } from "@/lib/helper/plan";
 
 const VISIBILITY_KEY = "certus_networth_visible";
 
@@ -31,7 +32,7 @@ export default function NetWorthCard({
   showGoals?: boolean;
   groups?: GroupDTO[];
   showGroups?: boolean;
-  userPlan: string;
+  userPlan: PlanType;
 }) {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -52,14 +53,11 @@ export default function NetWorthCard({
     openingBalanceSet = false,
   } = userNetWorth ?? {};
 
-  // Accent wash layered over the ink card — keeps every plan on the same
-  // warm base so only the glow differs, rather than three different cards.
-  const planGlow =
-    userPlan === PlanType.ELITE
-      ? "bg-[radial-gradient(circle_at_top_right,var(--sand),transparent_62%)] opacity-25"
-      : userPlan === PlanType.PRO
-        ? "bg-[radial-gradient(circle_at_top_right,var(--chart-5),transparent_62%)] opacity-25"
-        : "bg-[radial-gradient(circle_at_top_right,var(--amber),transparent_62%)] opacity-15";
+  // Accent wash layered over the ink card — keeps both plans on the same warm
+  // base so only the glow differs, rather than two different cards.
+  const planGlow = isPro(userPlan)
+    ? "bg-[radial-gradient(circle_at_top_right,var(--sand),transparent_62%)] opacity-25"
+    : "bg-[radial-gradient(circle_at_top_right,var(--amber),transparent_62%)] opacity-15";
 
   const router = useRouter();
 

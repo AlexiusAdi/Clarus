@@ -16,8 +16,8 @@ import SettingsCard from "./SettingsCard";
 import { Download, Settings, Upload, User } from "lucide-react";
 import ImportCard from "./ImportCard";
 import ExportCard from "./ExportCard";
-import { PlanType } from "@/lib/generated/prisma/enums";
 import UserCard from "./UserCard";
+import { isPro } from "@/lib/helper/plan";
 
 const UserMenu = ({ user }: { user: SettingsUser }) => {
   const [openSheet, setOpenSheet] = useState<
@@ -51,7 +51,7 @@ const UserMenu = ({ user }: { user: SettingsUser }) => {
             <DropdownMenuItem onSelect={() => setOpenSheet("profile")}>
               <User width={14} className="mr-2" /> Profile
             </DropdownMenuItem>
-            {user.planType === PlanType.ELITE && (
+            {isPro(user.planType) && (
               <>
                 <DropdownMenuItem onSelect={() => setOpenSheet("import")}>
                   <Upload width={14} className="mr-2" /> Import

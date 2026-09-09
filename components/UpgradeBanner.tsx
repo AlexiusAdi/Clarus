@@ -6,9 +6,8 @@ interface UpgradeBannerProps {
 }
 
 const UpgradeBanner = ({ plan }: UpgradeBannerProps) => {
-  if (plan === "ELITE") return null;
-
-  if (plan === "PRO") return null; // pro upsell lives in UserMenu dropdown instead
+  // Paid users have nothing to upsell.
+  if (plan && plan !== "FREE") return null;
 
   return (
     <div className="mt-3 mb-1 flex items-center justify-between gap-3 rounded-xl border border-amber/20 bg-amber-soft px-4 py-3 animate-in fade-in slide-in-from-top-2 duration-500">

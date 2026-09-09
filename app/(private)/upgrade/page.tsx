@@ -1,18 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Minus, Sparkles, Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { ELITE_FEATURES, FREE_LIMITS, PRO_FEATURES } from "@/constants/plans";
+import { FREE_LIMITS, PLAN_PRICES, PRO_FEATURES } from "@/constants/plans";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { PlanType } from "@/lib/generated/prisma/browser";
+import { formatCurrency } from "@/lib/helper/formatCurrency";
 import { PlanInfo } from "@/app/Types";
 
 const UpgradePage = () => {
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [upgrading, setUpgrading] = useState<PlanType | null>(null);
+  const [upgrading, setUpgrading] = useState(false);
 
   useEffect(() => {
     fetch("/api/upgrade")
@@ -22,18 +22,18 @@ const UpgradePage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleUpgrade = async (plan: "PRO" | "ELITE") => {
-    setUpgrading(plan);
+  const handleUpgrade = async () => {
+    setUpgrading(true);
     try {
       const res = await fetch("/api/upgrade", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan: "PRO" }),
       });
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.message ?? "Upgrade failed");
-        setUpgrading(null);
+        setUpgrading(false);
         return;
       }
 
@@ -43,15 +43,20 @@ const UpgradePage = () => {
       window.location.href = data.redirectUrl;
     } catch {
       toast.error("Something went wrong");
-      setUpgrading(null);
+      setUpgrading(false);
     }
   };
 
   const currentPlan = planInfo?.plan ?? "FREE";
   const userName = planInfo?.name ?? "there";
+  const isPaid = currentPlan !== "FREE";
 
-  const currentPlanLabel =
-    currentPlan === "FREE" ? "Free" : currentPlan === "PRO" ? "Pro" : "Elite";
+  const yearly = PLAN_PRICES.PRO;
+  // Shown alongside the yearly price because a monthly figure is how people
+  // judge whether a subscription is affordable, even when they pay once a year.
+  const monthly = Math.round(yearly / 12);
+
+  const currentPlanLabel = currentPlan === "FREE" ? "Free" : "Pro";
 
   const planExpiresLabel = planInfo?.planExpiresAt
     ? `Expires ${new Date(planInfo.planExpiresAt).toLocaleDateString("id-ID", {
@@ -69,24 +74,23 @@ const UpgradePage = () => {
           Upgrade Certus
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Choose the plan that fits your financial journey
+          One plan, everything included
         </p>
       </div>
 
-      {/* Plan cards */}
-      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
-        {/* Pro */}
-        <div className="flex-1 bg-background rounded-2xl border border-border p-6 flex flex-col">
+      {/* Plan card */}
+      <div className="w-full max-w-md">
+        <div className="bg-background rounded-2xl border border-border p-6 flex flex-col">
           <div className="mb-4">
             <p className="text-sm font-medium text-foreground mb-1">Pro</p>
             <div className="flex items-baseline gap-1">
               <span className="text-3xl font-semibold text-foreground">
-                Rp 299k
+                {formatCurrency(yearly)}
               </span>
               <span className="text-sm text-muted-foreground">/ yr</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              About Rp 25k a month, billed yearly
+              About {formatCurrency(monthly)} a month, billed yearly
             </p>
           </div>
 
@@ -95,63 +99,6 @@ const UpgradePage = () => {
           <ul className="flex flex-col gap-2.5 flex-1">
             {PRO_FEATURES.map((f) => (
               <li key={f.label} className="flex items-center gap-2.5">
-                {f.included ? (
-                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                ) : (
-                  <Minus className="w-4 h-4 text-muted-foreground/50 shrink-0" />
-                )}
-                <span
-                  className={`text-sm ${
-                    f.included ? "text-foreground" : "text-muted-foreground/60"
-                  }`}
-                >
-                  {f.label}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          <button
-            onClick={() => handleUpgrade("PRO")}
-            disabled={currentPlan === "PRO" || upgrading !== null || loading}
-            className="mt-6 w-full rounded-xl border border-border bg-background hover:bg-muted/50 transition-colors py-2.5 text-sm font-medium text-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {upgrading === "PRO" ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : currentPlan === "PRO" ? (
-              "Current plan"
-            ) : (
-              "Get Pro"
-            )}
-          </button>
-        </div>
-
-        {/* Elite */}
-        <div className="flex-1 bg-background rounded-2xl border-2 border-violet-400 dark:border-violet-500 p-6 flex flex-col relative">
-          {/* Best value badge */}
-          <div className="absolute top-4 right-4 flex items-center gap-1 bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-300 text-xs font-medium px-3 py-1 rounded-full">
-            <Sparkles className="w-3 h-3" />
-            Best value
-          </div>
-
-          <div className="mb-4">
-            <p className="text-sm font-medium text-foreground mb-1">Elite</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-semibold text-violet-600 dark:text-violet-400">
-                Rp 349k
-              </span>
-              <span className="text-sm text-muted-foreground">/ yr</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              About Rp 29k a month, billed yearly
-            </p>
-          </div>
-
-          <div className="h-px bg-border mb-4" />
-
-          <ul className="flex flex-col gap-2.5 flex-1">
-            {ELITE_FEATURES.map((f) => (
-              <li key={f.label} className="flex items-center gap-2.5">
                 <Check className="w-4 h-4 text-emerald-500 shrink-0" />
                 <span className="text-sm text-foreground">{f.label}</span>
               </li>
@@ -159,35 +106,35 @@ const UpgradePage = () => {
           </ul>
 
           <button
-            onClick={() => handleUpgrade("ELITE")}
-            disabled={currentPlan === "ELITE" || upgrading !== null || loading}
-            className="mt-6 w-full rounded-xl border border-border bg-background hover:bg-muted/50 transition-colors py-2.5 text-sm font-medium text-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            onClick={handleUpgrade}
+            disabled={isPaid || upgrading || loading}
+            className="mt-6 w-full rounded-xl border border-border bg-ink hover:opacity-90 transition-opacity py-2.5 text-sm font-medium text-background disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {upgrading === "ELITE" ? (
+            {upgrading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
-            ) : currentPlan === "ELITE" ? (
+            ) : isPaid ? (
               "Current plan"
             ) : (
-              "Get Elite"
+              "Get Pro"
             )}
           </button>
         </div>
-      </div>
 
-      {/* Current plan footer */}
-      <div className="mt-4 w-full max-w-2xl bg-background rounded-2xl border border-border px-5 py-4 flex items-center gap-3">
-        <div className="w-7 h-7 rounded-full bg-muted border border-border flex items-center justify-center shrink-0">
-          <span className="text-xs font-semibold text-foreground">
-            {loading ? "·" : userName.charAt(0).toUpperCase()}
-          </span>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-foreground">
-            {loading ? "Loading..." : `Currently on ${currentPlanLabel}`}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {currentPlan === "FREE" ? FREE_LIMITS : (planExpiresLabel ?? "")}
-          </p>
+        {/* Current plan footer */}
+        <div className="mt-4 w-full bg-background rounded-2xl border border-border px-5 py-4 flex items-center gap-3">
+          <div className="w-7 h-7 rounded-full bg-muted border border-border flex items-center justify-center shrink-0">
+            <span className="text-xs font-semibold text-foreground">
+              {loading ? "·" : userName.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              {loading ? "Loading..." : `Currently on ${currentPlanLabel}`}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {currentPlan === "FREE" ? FREE_LIMITS : (planExpiresLabel ?? "")}
+            </p>
+          </div>
         </div>
       </div>
 

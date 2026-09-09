@@ -3,18 +3,38 @@
  * importing a plan limit or an icon map does not drag several hundred lines of
  * prose into the same module graph.
  */
+
+/**
+ * Company details shown in the legal documents. Kept as data rather than
+ * inlined in the prose so the contact blocks, the legal pages, and anything
+ * added later cannot drift out of step with each other.
+ */
+export const COMPANY = {
+  name: "PT Anrico Integrasi Teknologi",
+  supportEmail: "support@anricocertus.com",
+  privacyEmail: "privacy@anricocertus.com",
+} as const;
+
+/**
+ * Fixed revision date, deliberately not new Date(). A document that claims to
+ * have been revised today, every day, tells the reader nothing and quietly
+ * breaks the change-notice promise both documents make. Bump it by hand when
+ * the wording actually changes.
+ */
+export const LAST_UPDATED = "9 September 2026";
+
 export const TNC_CONTENT = `
 SYARAT DAN KETENTUAN PENGGUNAAN CERTUS
 
-Terakhir diperbarui: ${new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+Terakhir diperbarui: ${LAST_UPDATED}
 
-Dengan menggunakan aplikasi Certus ("Layanan"), Anda menyetujui syarat dan ketentuan berikut yang dibuat oleh PT Anrico Integrasi Teknologi ("Perusahaan", "kami").
+Dengan menggunakan aplikasi Certus ("Layanan"), Anda menyetujui syarat dan ketentuan berikut yang dibuat oleh ${COMPANY.name} ("Perusahaan", "kami").
 
 1. PENERIMAAN SYARAT
 Dengan mendaftar dan menggunakan Certus, Anda menyatakan bahwa Anda telah membaca, memahami, dan menyetujui Syarat dan Ketentuan ini. Jika Anda tidak menyetujui, harap hentikan penggunaan Layanan.
 
 2. DESKRIPSI LAYANAN
-Certus adalah aplikasi pencatatan keuangan pribadi yang membantu pengguna melacak pemasukan, pengeluaran, aset, investasi, dan tujuan keuangan. Layanan tersedia dalam tiga tingkatan: Free, Pro, dan Elite.
+Certus adalah aplikasi pencatatan keuangan pribadi yang membantu pengguna melacak pemasukan, pengeluaran, aset, investasi, dan tujuan keuangan. Layanan tersedia dalam dua tingkatan: Free dan Pro.
 
 3. AKUN PENGGUNA
 - Anda bertanggung jawab atas kerahasiaan akun dan kata sandi Anda.
@@ -24,8 +44,8 @@ Certus adalah aplikasi pencatatan keuangan pribadi yang membantu pengguna melaca
 
 4. LANGGANAN DAN PEMBAYARAN
 - Layanan Free tersedia tanpa biaya dengan fitur terbatas.
-- Layanan Pro dan Elite memerlukan pembayaran berlangganan tahunan.
-- Biaya berlangganan Pro adalah Rp 299.000 per tahun dan Elite Rp 349.000 per tahun.
+- Layanan Pro memerlukan pembayaran berlangganan tahunan.
+- Biaya berlangganan Pro adalah Rp 99.000 per tahun.
 - Pembayaran diproses melalui Midtrans, gateway pembayaran yang telah berlisensi di Indonesia.
 - Berlangganan aktif selama 1 (satu) tahun sejak tanggal pembayaran.
 - Tidak ada pengembalian dana (refund) untuk periode berlangganan yang sudah berjalan.
@@ -67,16 +87,16 @@ Kami dapat memperbarui Syarat dan Ketentuan ini sewaktu-waktu. Perubahan materia
 Syarat dan Ketentuan ini diatur oleh hukum Republik Indonesia. Setiap sengketa diselesaikan melalui Pengadilan Negeri Jakarta Selatan.
 
 12. KONTAK
-PT Anrico Integrasi Teknologi
-Email: support@clarus.id
+${COMPANY.name}
+Email: ${COMPANY.supportEmail}
 `;
 
 export const PRIVACY_CONTENT = `
 KEBIJAKAN PRIVASI CERTUS
 
-Terakhir diperbarui: ${new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+Terakhir diperbarui: ${LAST_UPDATED}
 
-PT Anrico Integrasi Teknologi ("Perusahaan", "kami") berkomitmen melindungi privasi pengguna Certus sesuai dengan Undang-Undang Perlindungan Data Pribadi No. 27 Tahun 2022 (UU PDP).
+${COMPANY.name} ("Perusahaan", "kami") berkomitmen melindungi privasi pengguna Certus sesuai dengan Undang-Undang Perlindungan Data Pribadi No. 27 Tahun 2022 (UU PDP).
 
 1. DATA YANG KAMI KUMPULKAN
 
@@ -143,7 +163,7 @@ Anda memiliki hak untuk:
 - Menarik persetujuan pemrosesan data kapan saja
 - Mengajukan pengaduan kepada Komnas PDP
 
-Untuk menggunakan hak-hak ini, hubungi kami di support@clarus.id
+Untuk menggunakan hak-hak ini, hubungi kami di ${COMPANY.supportEmail}
 
 7. KEAMANAN DATA
 Kami menerapkan langkah-langkah keamanan teknis dan organisasi yang sesuai, termasuk enkripsi data, kontrol akses, dan audit keamanan berkala. Namun, tidak ada sistem yang 100% aman — kami mendorong Anda untuk menjaga kerahasiaan kredensial akun Anda.
@@ -155,6 +175,6 @@ Kami menggunakan cookie sesi untuk autentikasi dan cookie preferensi untuk menyi
 Kami dapat memperbarui kebijakan ini sewaktu-waktu. Perubahan signifikan akan diberitahukan melalui email atau notifikasi dalam aplikasi minimal 14 hari sebelum berlaku.
 
 10. KONTAK PENGENDALI DATA
-PT Anrico Integrasi Teknologi
-Email: privacy@clarus.id
+${COMPANY.name}
+Email: ${COMPANY.privacyEmail}
 `;

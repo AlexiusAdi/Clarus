@@ -114,7 +114,7 @@ const Page = async () => {
                     showGoals={isPremium}
                     groups={groups}
                     showGroups={canUseGroupExpenses(userPlan ?? PlanType.FREE)}
-                    userPlan={userPlan}
+                    userPlan={userPlan ?? PlanType.FREE}
                   />
                   {!isPremium && <UpgradeBanner plan={userPlan} />}
                   <div className="hidden @4xl/main:block">
