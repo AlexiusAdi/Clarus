@@ -1,30 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Sparkles, RefreshCw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
 
-const AI_FEEDBACKS = [
-  `You're doing well on your <strong>Emergency Fund</strong> — 80% there with 2 months to go. However, your <strong>Bali Trip</strong> is falling behind. Try cutting <strong>Entertainment</strong> by 30% next month. 💡`,
-  `Focus on your <strong>Bali Trip</strong> — it's your most urgent goal. Consider an automatic transfer of <strong>Rp 1.4M</strong> on payday. 🎉`,
-  `Priority: <strong>Emergency Fund</strong> first, then redirect to <strong>Bali Trip</strong> after May. New Laptop is healthy. 🧠`,
-];
+type Insight = {
+  content: string | null;
+  generatedAt: string | null;
+  available?: boolean;
+};
 
+/**
+ * The summary is written by Claude and stored per user, so opening this page
+ * costs nothing — only the refresh button spends a request, and the server
+ * holds it to one an hour.
+ *
+ * The text is rendered as text, never as HTML. Model output is untrusted input
+ * as far as the DOM is concerned.
+ */
 export default function GoalsAIFeedback() {
-  const [index, setIndex] = useState(0);
-  const [isRegenerating, setIsRegenerating] = useState(false);
-  const [html, setHtml] = useState(AI_FEEDBACKS[0]);
+  const [insight, setInsight] = useState<Insight | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
 
-  const handleRegenerate = () => {
-    setIsRegenerating(true);
-    setHtml("");
-    setTimeout(() => {
-      const next = (index + 1) % AI_FEEDBACKS.length;
-      setIndex(next);
-      setHtml(AI_FEEDBACKS[next]);
-      setIsRegenerating(false);
-    }, 1200);
-  };
+  useEffect(() => {
+    fetch("/api/user/ai/goals")
+      .then((r) => r.json())
+      .then(setInsight)
+      .catch(() => setInsight({ content: null, generatedAt: null }))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const generate = useCallback(async () => {
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/user/ai/goals", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.message ?? "Could not write your summary");
+        return;
+      }
+      setInsight(data);
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setGenerating(false);
+    }
+  }, []);
+
+  if (loading) return null;
+  if (insight?.available === false) return null;
+
+  const generatedLabel = insight?.generatedAt
+    ? new Date(insight.generatedAt).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : null;
 
   return (
     <>
@@ -36,12 +70,11 @@ export default function GoalsAIFeedback() {
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-3.5 h-3.5 text-muted" />
             <span className="text-xs font-bold text-muted uppercase tracking-widest">
-              Certus AI · April 2026
+              Certus AI{generatedLabel ? ` · ${generatedLabel}` : ""}
             </span>
-            <span className="ml-auto w-2 h-2 bg-green-400 rounded-full animate-pulse" />
           </div>
 
-          {isRegenerating ? (
+          {generating ? (
             <div className="flex gap-1 items-center py-1">
               {[0, 1, 2].map((i) => (
                 <span
@@ -52,19 +85,19 @@ export default function GoalsAIFeedback() {
               ))}
             </div>
           ) : (
-            <p
-              className="text-sm text-muted-foreground leading-relaxed [&_strong]:text-background"
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {insight?.content ??
+                "No summary yet. Write one to see how your goals are tracking."}
+            </p>
           )}
 
           <button
-            onClick={handleRegenerate}
-            disabled={isRegenerating}
-            className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-background transition-colors"
+            onClick={generate}
+            disabled={generating}
+            className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-background transition-colors disabled:opacity-50"
           >
-            <RefreshCw className="w-3 h-3" />
-            Regenerate feedback
+            <RefreshCw className={`w-3 h-3 ${generating ? "animate-spin" : ""}`} />
+            {insight?.content ? "Refresh summary" : "Write my summary"}
           </button>
         </CardContent>
       </Card>

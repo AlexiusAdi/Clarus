@@ -13,6 +13,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.124.0",
     "@auth/core": "^0.41.3",
     "@auth/neon-adapter": "^1.11.1",
     "@auth/pg-adapter": "^1.11.1",

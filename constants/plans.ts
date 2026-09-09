@@ -28,8 +28,7 @@ export const PRO_FEATURES = [
   { label: "Unlimited scheduled transactions", included: true },
   { label: "Goals tracking", included: true },
   { label: "Group transactions", included: true },
-  { label: "Spending forecasts", included: true },
-  { label: "AI insights", included: true },
+  { label: "AI summaries of your goals", included: true },
   { label: "Import and export your data", included: true },
   { label: "Email digests", included: true },
 ];

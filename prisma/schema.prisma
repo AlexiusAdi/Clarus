@@ -29,6 +29,7 @@ model User {
   planHistory           PlanHistory[]
   paymentOrders         PaymentOrder[]
   groups                Group[]
+  aiInsight             AiInsight?
 }
 
 enum PaymentStatus {
@@ -358,4 +359,18 @@ enum AcquisitionSource {
   GIFTED
   INHERITED
   OTHER
+}
+
+/// The most recent AI-written summary of a user's goals.
+///
+/// One row per user, replaced on each generation rather than appended: the
+/// insight describes the goals as they stand now, so an older one is not
+/// history worth keeping, and a growing table of superseded text would cost
+/// storage for nothing. generatedAt is what the regeneration cooldown reads.
+model AiInsight {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content     String   @db.Text
+  generatedAt DateTime @default(now())
 }
