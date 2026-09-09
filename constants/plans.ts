@@ -33,6 +33,19 @@ export const PRO_FEATURES = [
   { label: "Email digests", included: true },
 ];
 
+/**
+ * What the free plan actually gives you, written positively. The caps here are
+ * the same ones FREE_ASSET_LIMIT and friends enforce in lib/helper/plan.ts —
+ * keep the two in step.
+ */
+export const FREE_FEATURES = [
+  "Unlimited income and expense records",
+  "Categories you control",
+  "3 assets",
+  "3 investments",
+  "5 scheduled transactions",
+];
+
 export const FREE_LIMITS =
   "3 assets, 3 investments and 5 Scheduled Transactions · No goals · No AI";
 

@@ -4,7 +4,7 @@ import Image from "next/image";
 import PublicFooter from "@/components/PublicFooter";
 import TransitionEffect from "@/components/TransitionEffect";
 import { Button } from "@/components/ui/button";
-import { FREE_LIMITS, PLAN_PRICES, PRO_FEATURES } from "@/constants/plans";
+import { FREE_FEATURES, PLAN_PRICES, PRO_FEATURES } from "@/constants/plans";
 import { formatCurrency } from "@/lib/helper/formatCurrency";
 import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -261,15 +261,35 @@ export default function Home() {
           </p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-card p-6">
+            {/* Both cards carry a list and a button so neither is left as an
+                empty block when the grid stretches them to equal height. */}
+            <div className="flex flex-col rounded-2xl border border-border bg-card p-6">
               <p className="text-sm font-medium">Free</p>
-              <p className="headline mt-1 text-3xl">{formatCurrency(0)}</p>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                {FREE_LIMITS}
+              <div className="mt-1 flex items-baseline gap-1.5">
+                <span className="headline text-3xl">{formatCurrency(0)}</span>
+                <span className="text-sm text-muted-foreground">forever</span>
+              </div>
+              <ul className="mt-5 flex flex-1 flex-col gap-2.5">
+                {FREE_FEATURES.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2.5">
+                    <Check className="size-4 shrink-0 text-muted-foreground" />
+                    <span className="text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                variant="outline"
+                onClick={() => router.push("/login")}
+                className="mt-6 h-11 w-full rounded-[10px] text-sm font-medium"
+              >
+                Start free
+              </Button>
+              <p className="mt-3 text-xs text-muted-foreground">
+                No card needed. Upgrade whenever you want.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-ink bg-foreground p-6 text-background">
+            <div className="flex flex-col rounded-2xl border border-ink bg-foreground p-6 text-background">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-medium">Pro</p>
                 <span
@@ -281,9 +301,9 @@ export default function Home() {
               </div>
               <div className="mt-1 flex items-baseline gap-1.5">
                 <span className="headline text-3xl">{price}</span>
-                <span className="text-sm text-muted">a year</span>
+                <span className="text-sm text-background/70">a year</span>
               </div>
-              <ul className="mt-5 flex flex-col gap-2.5">
+              <ul className="mt-5 flex flex-1 flex-col gap-2.5">
                 {PRO_FEATURES.map((feature) => (
                   <li key={feature.label} className="flex items-center gap-2.5">
                     <Check
@@ -300,7 +320,7 @@ export default function Home() {
               >
                 Get started
               </Button>
-              <p className="mt-3 text-xs text-muted">
+              <p className="mt-3 text-xs text-background/70">
                 Paid through Midtrans. Billed once, in rupiah.
               </p>
             </div>
