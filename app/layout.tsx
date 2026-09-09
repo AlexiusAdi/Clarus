@@ -22,9 +22,9 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "Certus",
   description: "Instantly credible",
-  icons: {
-    icon: "/icon.png",
-  },
+  // No `icons` entry on purpose: an explicit one overrides Next's file
+  // conventions entirely, which would silently drop app/apple-icon.png. The
+  // files in app/ are picked up on their own.
 };
 
 /**
