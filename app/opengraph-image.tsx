@@ -1,3 +1,5 @@
+import { readFileSync } from "fs";
+import { join } from "path";
 import { ImageResponse } from "next/og";
 
 /**
@@ -17,6 +19,12 @@ const CREAM = "#faf8f2";
 const AMBER = "#e08a4c";
 const MUTED = "#6b675c";
 
+/** The published icon, inlined so the renderer needs no network access. */
+function mark(): string {
+  const file = readFileSync(join(process.cwd(), "public", "icon.png"));
+  return `data:image/png;base64,${file.toString("base64")}`;
+}
+
 export default function OpengraphImage() {
   return new ImageResponse(
     (
@@ -31,30 +39,13 @@ export default function OpengraphImage() {
           padding: 80,
         }}
       >
-        {/* The icon's mark, redrawn at card scale: open ring, amber dot. */}
+        {/* The app icon itself, so the card and the home screen never drift
+            apart. Read from disk rather than redrawn in CSS: the weave's
+            over-and-under crossings cannot be expressed with stacked divs. */}
         <div style={{ display: "flex" }}>
-          <div
-            style={{
-              width: 96,
-              height: 96,
-              borderRadius: 24,
-              background: INK,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                width: 56,
-                height: 56,
-                borderRadius: 28,
-                border: `9px solid ${CREAM}`,
-                borderRightColor: "transparent",
-                display: "flex",
-              }}
-            />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element -- satori renders
+              this, so next/image is not available inside an ImageResponse. */}
+          <img src={mark()} width={96} height={96} alt="" />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
