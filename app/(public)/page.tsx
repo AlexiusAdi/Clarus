@@ -1,5 +1,6 @@
 "use client";
 
+import PublicFooter from "@/components/PublicFooter";
 import TransitionEffect from "@/components/TransitionEffect";
 import { Button } from "@/components/ui/button";
 import { useGSAP } from "@gsap/react";
@@ -35,7 +36,7 @@ export default function Home() {
   });
 
   return (
-    <div>
+    <div className="relative">
       <TransitionEffect />
       <div className="flex flex-col w-full items-center justify-center h-screen gap-10 p-4">
         <div className="flex flex-col items-center gap-2">
@@ -60,6 +61,8 @@ export default function Home() {
           </Button>
         </div>
       </div>
+
+      <PublicFooter />
     </div>
   );
 }

@@ -4,10 +4,23 @@ import { prisma } from "./lib/prisma";
 
 const publicRoutes = ["/", "/login"];
 
+/**
+ * Reachable by everyone, signed in or not, and never redirected away from.
+ *
+ * Distinct from publicRoutes, which bounce a signed-in visitor to /home — that
+ * is right for the landing and login screens but wrong for the legal documents,
+ * which an existing user has just as much reason to read as a new one. Google's
+ * OAuth consent screen and Midtrans's merchant review both crawl these URLs
+ * while signed out, so any redirect here fails an external review.
+ */
+const openRoutes = ["/terms", "/privacy"];
+
 export default auth(async (req) => {
   const isLoggedIn = !!req.auth;
   const { nextUrl } = req;
   const pathname = nextUrl.pathname;
+
+  if (openRoutes.includes(pathname)) return NextResponse.next();
 
   const isPublicRoute = publicRoutes.includes(pathname);
 
@@ -45,11 +58,13 @@ export default auth(async (req) => {
       select: { plan: true },
     });
 
-    if (user?.plan === "FREE" && pathname.startsWith("/goals")) {
-      return NextResponse.redirect(new URL("/upgrade", nextUrl));
-    }
-
-    if (user?.plan !== "ELITE" && pathname.startsWith("/groups")) {
+    // Goals and group expenses are both paid features, so FREE is the only
+    // plan turned away from either.
+    const paidOnly = ["/goals", "/groups"];
+    if (
+      user?.plan === "FREE" &&
+      paidOnly.some((route) => pathname.startsWith(route))
+    ) {
       return NextResponse.redirect(new URL("/upgrade", nextUrl));
     }
   }

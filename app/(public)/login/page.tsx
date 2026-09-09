@@ -1,7 +1,7 @@
 "use client";
 
+import PublicFooter from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { signIn } from "next-auth/react";
@@ -28,7 +28,7 @@ export default function Login() {
   }, []);
 
   return (
-    <div className="hero-container flex flex-col gap-8 items-center justify-center h-screen p-4">
+    <div className="hero-container relative flex flex-col gap-8 items-center justify-center h-screen p-4">
       <div id="title" className="flex flex-col items-center gap-1">
         <a
           className="text-6xl dark:text-porcelinwhite text-obsidian"
@@ -49,6 +49,8 @@ export default function Login() {
           Continue with Google
         </Button>
       </div>
+
+      <PublicFooter />
     </div>
   );
 }
