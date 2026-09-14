@@ -253,3 +253,78 @@
 [vaul-drawer-wrapper] {
   background-color: var(--background);
 }
+
+/* ---------------------------------------------------------------
+   Landing page motion.
+
+   Scroll-driven CSS, deliberately with no JavaScript behind it. The
+   public page is the only thing a stranger reads before signing up,
+   so nothing here may hide content that something else is responsible
+   for bringing back: every rule animates *from* a hidden state only
+   where scroll timelines are supported, and `both` parks the element
+   on its visible end state. A browser without support — or with the
+   page embedded somewhere its own scrolling never happens — renders
+   the finished page rather than an empty one.
+
+   This is the same reasoning as the note in app/(public)/page.tsx
+   about gsap.from(): an entrance animation must never be the only
+   thing standing between the reader and the text.
+   --------------------------------------------------------------- */
+
+@keyframes landing-reveal {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .landing-reveal {
+      animation: landing-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+/* The payday bar. `contain` is the stretch where the sticky panel is
+   pinned, so the fill tracks exactly the time the reader spends
+   looking at it. Clipped rather than scaled: scaleX on a 10px bar with
+   a 5px radius distorts the cap, clip-path does not. */
+@keyframes payday-fill {
+  from { clip-path: inset(0 98% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+.payday-section { view-timeline-name: --payday; view-timeline-axis: block; }
+.payday-fill { clip-path: inset(0 37% 0 0); }
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .payday-fill {
+      animation: payday-fill linear both;
+      animation-timeline: --payday;
+      animation-range: contain 0% contain 100%;
+    }
+  }
+}
+
+/* "Today" rides the end of the fill. This is a position animation rather
+   than an animated counter: a registered custom property printed through
+   counter() updates its computed value but Chrome never repaints the
+   generated text, so the number would sit still while the bar moved. */
+@keyframes payday-today {
+  from { left: 2%; }
+  to   { left: 100%; }
+}
+
+.payday-today { left: 63%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .payday-today {
+      animation: payday-today linear both;
+      animation-timeline: --payday;
+      animation-range: contain 0% contain 100%;
+    }
+  }
+}

@@ -10,6 +10,24 @@ Next.js 16 (App Router, React 19) · TypeScript (strict) · Tailwind CSS v4 · s
 
 - \*\*Invoke the `frontend-design` skill\*\* before writing any frontend code, every session, no exception
 
+### Using the `ui-ux-pro-max` skill
+
+It is a lookup and review tool, never a design authority. `frontend-design` decides
+how Certus looks; `ui-ux-pro-max` answers "how do I build that correctly in this
+stack" afterwards.
+
+- \*\*Use\*\* `--stack nextjs` and `--stack shadcn` — its rows are tagged `nextjs 16.2`
+  and `shadcn cli 4`, so they match this repo.
+- \*\*Use\*\* `--domain ux` / `--domain icons`, and the pre-delivery checklist in its
+  `references/pro-rules.md`, before shipping a screen. Verify past the top hit;
+  lower-ranked results drift off-topic.
+- \*\*Never use\*\* `--design-system`, `--domain color`, or `--domain typography`. Certus
+  already has a palette and type system in [app/globals.css](app/globals.css) and
+  [app/layout.tsx](app/layout.tsx); these modes return catalog templates that
+  contradict it.
+- \*\*Never use\*\* `--persist`. It writes a `design-system/` tree into the repo root,
+  creating a second source of truth competing with `app/globals.css`.
+
 ## Commands
 
 ```bash
