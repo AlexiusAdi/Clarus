@@ -59,59 +59,6 @@ const TRACKS = [
   },
 ];
 
-/**
- * Sample lines for the import panel. The descriptions are shaped like real
- * statement text because the whole point of the panel is that Certus reads
- * that text — but no bank is named anywhere on the page. The user supplies
- * their own bank's layout, so naming one would imply a relationship that does
- * not exist.
- */
-const STATEMENT_LINES = [
-  {
-    raw: "03/09 TRSF E-BANKING CR 0309/FTSCY GAJI SEPT",
-    category: "Salary",
-    accent: "var(--sage)",
-    amount: "+ Rp 8.500.000",
-    income: true,
-  },
-  {
-    raw: "05/09 DB OTOMATIS ALFAMART CIKARANG 0509",
-    category: "Groceries",
-    accent: "var(--clay)",
-    amount: "− Rp 87.500",
-    income: false,
-  },
-  {
-    raw: "12/09 TRSF E-BANKING DB 1209/GOPAY TOPUP",
-    category: "Transport",
-    accent: "var(--amber)",
-    amount: "− Rp 150.000",
-    income: false,
-  },
-  {
-    raw: "30/09 BIAYA ADM",
-    category: "Bank fees",
-    accent: "var(--sand)",
-    amount: "− Rp 15.000",
-    income: false,
-  },
-];
-
-const IMPORT_POINTS = [
-  {
-    title: "Add your bank once",
-    body: "Tell Certus where the date, the description and the amount sit on your bank's statement. That setup is saved under the bank, so you only do it the first time.",
-  },
-  {
-    title: "A month in one file",
-    body: "Every line on the statement becomes a transaction, instead of you typing them in one at a time.",
-  },
-  {
-    title: "The statement is not kept",
-    body: "Certus reads the file, takes the transactions out of it and lets it go. The PDF itself is never stored.",
-  },
-];
-
 const REASONS = [
   {
     title: "It starts from what you already have",
@@ -124,7 +71,6 @@ const REASONS = [
 ];
 
 const NAV = [
-  { href: "#import", label: "Import" },
   { href: "#tracks", label: "What it tracks" },
   { href: "#pricing", label: "Pricing" },
 ];
@@ -255,100 +201,6 @@ export default function Home() {
             </p>
           </div>
         </div>
-
-        {/* Import */}
-        <section id="import" className="scroll-mt-12 px-[22px] py-[110px]">
-          <div className="mx-auto max-w-[980px]">
-            <h2 className="landing-reveal headline text-center text-[clamp(2rem,4.6vw,3rem)] leading-[1.08] tracking-[-0.024em]">
-              Import once. Then forget.
-            </h2>
-            <p className="landing-reveal mx-auto mt-[18px] max-w-[34ch] text-center text-[clamp(1.1875rem,2.1vw,1.3125rem)] leading-[1.42] tracking-[-0.014em] text-muted-foreground">
-              Add your bank once and show Certus where the dates and amounts sit
-              on its statement. Every statement you drop in after that is read
-              the same way.
-            </p>
-
-            <div className="landing-reveal mt-[52px] rounded-[28px] border border-border bg-card p-[26px] pb-[22px]">
-              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-b border-border pb-[18px]">
-                <span className="inline-flex items-center gap-[7px] rounded-lg bg-surface-2 px-[11px] py-1.5 text-[13px]">
-                  <span
-                    aria-hidden
-                    className="block h-[18px] w-[15px] rounded-[2px] bg-[var(--clay)]"
-                  />
-                  estatement_bank_2026.pdf
-                </span>
-                <span className="ml-auto whitespace-nowrap text-xs text-muted-foreground">
-                  34 lines read
-                </span>
-              </div>
-
-              <div className="flex flex-col">
-                {STATEMENT_LINES.map((line) => (
-                  <div
-                    key={line.raw}
-                    className="grid grid-cols-1 items-center gap-2.5 border-b border-border py-[15px] last:border-b-0 sm:grid-cols-[1fr_26px_1fr] sm:gap-3.5"
-                  >
-                    <span className="font-mono text-xs leading-snug break-words text-muted-foreground">
-                      {line.raw}
-                    </span>
-                    <span
-                      aria-hidden
-                      className="hidden text-center text-[15px] text-muted-foreground/50 sm:block"
-                    >
-                      →
-                    </span>
-                    <span className="flex items-center justify-between gap-3">
-                      <span className="inline-flex items-center gap-[7px] text-sm font-medium">
-                        <span
-                          aria-hidden
-                          className="block size-2 shrink-0 rounded-full"
-                          style={{ background: line.accent }}
-                        />
-                        {line.category}
-                      </span>
-                      <span
-                        className={`tabular text-sm whitespace-nowrap ${
-                          line.income ? "text-[var(--sage)]" : ""
-                        }`}
-                      >
-                        {line.amount}
-                      </span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-1 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-border pt-[18px]">
-                <span className="text-sm text-muted-foreground">
-                  Showing 4 of 34 lines
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  Balance after import
-                  <b className="tabular ml-[7px] font-semibold text-foreground">
-                    {formatCurrency(12_480_000)}
-                  </b>
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-[62px] grid gap-7 sm:grid-cols-3 sm:gap-[34px]">
-              {IMPORT_POINTS.map((point) => (
-                <div key={point.title} className="landing-reveal">
-                  <h3 className="mb-[7px] text-[17px] font-semibold tracking-[-0.014em]">
-                    {point.title}
-                  </h3>
-                  <p className="max-w-[32ch] text-sm leading-snug text-muted-foreground">
-                    {point.body}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <p className="landing-reveal mt-[34px] text-center text-xs text-muted-foreground">
-              Certus needs a statement that is not password-protected.
-            </p>
-          </div>
-        </section>
 
         {/* What it tracks */}
         <section
