@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { Check } from "lucide-react";
 import Link from "next/link";
 import { FREE_LIMITS, PLAN_PRICES, PRO_FEATURES } from "@/constants/plans";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import { PlanInfo } from "@/app/Types";
 const UpgradePage = () => {
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [upgrading, setUpgrading] = useState(false);
 
   useEffect(() => {
     fetch("/api/upgrade")
@@ -21,31 +20,6 @@ const UpgradePage = () => {
       .catch(() => toast.error("Failed to load plan info"))
       .finally(() => setLoading(false));
   }, []);
-
-  const handleUpgrade = async () => {
-    setUpgrading(true);
-    try {
-      const res = await fetch("/api/upgrade", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: "PRO" }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.message ?? "Upgrade failed");
-        setUpgrading(false);
-        return;
-      }
-
-      // The plan is granted by the Midtrans webhook once payment clears, not
-      // here — so this hands off to the payment page and leaves the button in
-      // its loading state until the browser navigates away.
-      window.location.href = data.redirectUrl;
-    } catch {
-      toast.error("Something went wrong");
-      setUpgrading(false);
-    }
-  };
 
   const currentPlan = planInfo?.plan ?? "FREE";
   const userName = planInfo?.name ?? "there";
@@ -105,19 +79,23 @@ const UpgradePage = () => {
             ))}
           </ul>
 
-          <button
-            onClick={handleUpgrade}
-            disabled={isPaid || upgrading || loading}
-            className="mt-6 w-full rounded-xl border border-border bg-ink hover:opacity-90 transition-opacity py-2.5 text-sm font-medium text-background disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {upgrading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : isPaid ? (
-              "Current plan"
-            ) : (
-              "Get Pro"
-            )}
-          </button>
+          {/* Buying is a two-step move on purpose: this card is the pitch, and
+              /checkout is where the exact charge is agreed before Midtrans. */}
+          {isPaid ? (
+            <p className="mt-6 flex w-full items-center justify-center rounded-xl border border-border bg-muted py-2.5 text-sm font-medium text-muted-foreground">
+              Current plan
+            </p>
+          ) : (
+            <Link
+              href="/checkout"
+              aria-disabled={loading}
+              className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-ink py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90 ${
+                loading ? "pointer-events-none opacity-50" : ""
+              }`}
+            >
+              Review order
+            </Link>
+          )}
         </div>
 
         {/* Current plan footer */}
