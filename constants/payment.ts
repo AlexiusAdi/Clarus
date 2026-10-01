@@ -12,7 +12,6 @@
  */
 export const PAYMENT_METHODS = [
   { name: "QRIS", detail: "Any QRIS banking or e-wallet app" },
-  { name: "Bank transfer", detail: "BCA, BNI, BRI, Mandiri, Permata" },
-  { name: "E-wallet", detail: "GoPay, OVO, DANA, ShopeePay" },
-  { name: "Card", detail: "Visa, Mastercard, JCB" },
+  { name: "Bank transfer", detail: "BNI, BRI, Mandiri, Permata, CIMB Niaga" },
+  { name: "GoPay", detail: "Pay from the Gojek or GoPay app" },
 ] as const;
